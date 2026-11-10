@@ -4,12 +4,9 @@ import Link from "next/link";
 import { cn } from "@/lib/utils";
 
 /**
- * Logotipo SGEI.
- * Marca: "SGEI" — Compra e entrega SHEIN em Angola.
- * O símbolo é um monograma estilizado "S" com um traço que evoca simultaneamente:
- * - um percurso / caminho / arrow de entrega
- * - o canto de uma embalagem (package)
- * - a vibe "app-icon" minimalista (cantos arredondados)
+ * Logotipo ImportEasy.
+ * Marca: "ImportEasy" — "Sua ponte para o mundo"
+ * O símbolo é um monograma estilizado "IE" com seta de entrega
  * Cores: preto ou branco consoante a variante.
  */
 export function Logo({
@@ -25,9 +22,9 @@ export function Logo({
 }) {
   const isLight = variant === "light";
   const sizeMap = {
-    sm: { box: 24, word: "text-[15px]", tag: "text-[9px]" },
-    md: { box: 32, word: "text-[17px]", tag: "text-[10px]" },
-    lg: { box: 48, word: "text-2xl", tag: "text-xs" },
+    sm: { box: 24, word: "text-[13px]", tag: "text-[8px]" },
+    md: { box: 32, word: "text-[16px]", tag: "text-[9px]" },
+    lg: { box: 48, word: "text-xl", tag: "text-xs" },
   } as const;
   const s = sizeMap[size];
 
@@ -41,16 +38,28 @@ export function Logo({
         style={{ width: s.box, height: s.box }}
         aria-hidden
       >
-        <svg viewBox="0 0 32 32" className="w-full h-full p-1.5" fill="none">
-          {/* Monograma "S" estilizado como caminho/entrega */}
+        <svg viewBox="0 0 32 32" className="w-full h-full p-2" fill="none">
+          {/* Monograma "IE" estilizado com seta de entrega */}
           <path
-            d="M22.5 8.5 C 17.5 4.5, 10 6, 8 11 C 6.7 14.2, 8.8 16.4, 12 17.8 C 15.5 19.3, 21 19.5, 23 24 C 24.2 26.9, 22.4 29, 19 29.5"
+            d="M10 10 L14 14 M10 14 L14 10"
             stroke="currentColor"
             strokeWidth="2.5"
             strokeLinecap="round"
           />
-          <circle cx="22.2" cy="7.5" r="1.8" fill="currentColor" />
-          <path d="M14 26 L 19 29.5 L 24 26" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+          <path
+            d="M18 10 L22 10 M20 8 L22 10 L20 12"
+            stroke="currentColor"
+            strokeWidth="2.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+          <path
+            d="M16 16 L26 26 M23 26 L26 23 L26 29 L29 26"
+            stroke="currentColor"
+            strokeWidth="2.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
         </svg>
       </span>
       <div className="leading-none">
@@ -61,7 +70,7 @@ export function Logo({
             isLight ? "text-white" : "text-ink-900"
           )}
         >
-          SGEI
+          ImportEasy
         </span>
         {showTagline && (
           <span
@@ -71,7 +80,7 @@ export function Logo({
               isLight ? "text-white/60" : "text-ink-500"
             )}
           >
-            Shein · Angola
+            Sua ponte para o mundo
           </span>
         )}
       </div>

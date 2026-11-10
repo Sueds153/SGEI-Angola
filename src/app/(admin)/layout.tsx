@@ -14,14 +14,13 @@ import {
   LogOut,
   BarChart3,
   Shield,
+  MessageSquare,
 } from "lucide-react";
 import { getSession } from "@/lib/auth";
-import { cn } from "@/lib/utils";
 import { Logo } from "@/components/brand/Logo";
-import "./admin.css";
 
 export const metadata: Metadata = {
-  title: "Admin · SGEI",
+  title: "Admin · ImportEasy",
   robots: { index: false, follow: false },
 };
 
@@ -34,12 +33,15 @@ const adminNav = [
   { href: "/admin/pagamentos", label: "Pagamentos", icon: CreditCard },
   { href: "/admin/logistica", label: "Logística", icon: Truck },
   { href: "/admin/precos", label: "Preços & câmbio", icon: BarChart3 },
+  { href: "/admin/comunidade", label: "Comunidade", icon: MessageSquare },
   { href: "/admin/configuracoes", label: "Configurações", icon: Settings },
   { href: "/admin/logs", label: "Logs", icon: FileText },
 ];
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const session = await getSession();
+  
+  // Verifica autenticação - se não admin, redireciona para login
   if (!session || session.role !== "admin") {
     redirect("/admin/login");
   }
@@ -97,7 +99,6 @@ async function AdminNavLink({
   icon: any;
   children: React.ReactNode;
 }) {
-  // Importamos o usePathname no client para saber o active
   const { AdminNavLinkClient } = await import("./AdminNavLinkClient");
   return <AdminNavLinkClient href={href} icon={Icon}>{children}</AdminNavLinkClient>;
 }

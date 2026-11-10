@@ -21,7 +21,7 @@ export default function AdminLoginPage({
               <path d="M12 2 3 7v10l9 5 9-5V7l-9-5Z"/>
             </svg>
           </div>
-          <span className="font-semibold text-lg">SGEI</span>
+          <span className="font-semibold text-lg">ImportEasy</span>
         </Link>
         <Card className="p-8 rounded-3xl bg-white">
           <h1 className="text-2xl font-semibold tracking-tight text-ink-900">Entrar no backoffice</h1>

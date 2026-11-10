@@ -15,6 +15,7 @@ import {
   ArrowRight,
   Globe,
   Users,
+  Shield,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Logo } from "@/components/brand/Logo";
@@ -114,7 +115,7 @@ export function Header() {
                 Pedidos
               </Link>
               <a
-                href="https://wa.me/244923000000?text=Olá"
+                href="https://wa.me/244922058136?text=Olá"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="hidden sm:inline-flex h-9 items-center rounded-full px-3 text-[13px] font-medium text-ink-700 hover:bg-ink-100"
@@ -131,10 +132,10 @@ export function Header() {
               </Link>
               <Link
                 href="/admin"
-                className="hidden md:inline-flex h-9 items-center rounded-full bg-ink-900 text-white px-4 text-[13px] font-medium hover:bg-black transition"
+                className="hidden md:inline-flex h-9 items-center rounded-full bg-brand-600 text-white px-4 text-[13px] font-medium hover:bg-brand-700 transition"
               >
-                <ShoppingBag className="h-3.5 w-3.5 mr-1.5" />
-                Área reservada
+                <Shield className="h-3.5 w-3.5 mr-1.5" />
+                Área admin
               </Link>
               <button
                 onClick={() => setMobileOpen((v) => !v)}
@@ -230,9 +231,9 @@ export function Header() {
             <Link
               href="/admin"
               onClick={() => setMobileOpen(false)}
-              className="mt-6 text-center rounded-full bg-ink-900 text-white py-3.5 font-medium text-[15px]"
+              className="mt-6 text-center rounded-full bg-brand-600 text-white py-3.5 font-medium text-[15px]"
             >
-              Área reservada
+              Área de administração
             </Link>
           </nav>
         </div>
