@@ -423,10 +423,6 @@ function formatOriginalPrice(amount: number, currency: SupportedCurrency): strin
   const symbol = symbols[currency] || "$";
   return `${symbol}${amount.toFixed(2)} ${currency}`;
 }
-      </div>
-    </div>
-  );
-}
 
 function PriceRow({ label, value }: { label: string; value: string }) {
   return (

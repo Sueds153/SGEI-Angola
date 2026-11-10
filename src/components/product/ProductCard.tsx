@@ -17,12 +17,21 @@ export function ProductCard({ product, compact }: ProductCardProps) {
   const [totalCents, setTotalCents] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
 
+  // Ensure product has required fields
+  const safeProduct = {
+    ...product,
+    variants: product.variants || [],
+    images: product.images || [],
+    source: product.source || "MOCK",
+    availability: product.availability || "IN_STOCK",
+  };
+
   useEffect(() => {
     let alive = true;
     (async () => {
       // Usa originalPriceUsd (que agora contém o preço na moeda original) e currency
-      const price = product.originalPriceUsd;
-      const currency = (product as any).originalCurrency || product.currency || "USD";
+      const price = safeProduct.originalPriceUsd;
+      const currency = (safeProduct as any).originalCurrency || safeProduct.currency || "USD";
       
       if (price == null) {
         if (alive) {
@@ -38,7 +47,7 @@ export function ProductCard({ product, compact }: ProductCardProps) {
             productPrice: price, 
             productCurrency: currency as "USD" | "EUR" | "CNY" | "AOA",
             quantity: 1, 
-            weightGrams: product.weightGrams 
+            weightGrams: safeProduct.weightGrams 
           },
           cfg
         );
@@ -50,11 +59,11 @@ export function ProductCard({ product, compact }: ProductCardProps) {
       }
     })();
     return () => { alive = false; };
-  }, [product.originalPriceUsd, product.currency, product.weightGrams]);
+  }, [safeProduct.originalPriceUsd, safeProduct.currency, safeProduct.weightGrams]);
 
-  const image = product.defaultImage || product.images[0];
+  const image = safeProduct.defaultImage || safeProduct.images?.[0];
   const colors = Array.from(
-    new Set((product.variants || []).map((v) => v.color).filter(Boolean))
+    new Set((safeProduct.variants || []).map((v) => v.color).filter(Boolean))
   ) as string[];
   
   // Badge de origem
@@ -66,7 +75,7 @@ export function ProductCard({ product, compact }: ProductCardProps) {
     ADMIN: { label: "Catálogo", icon: Tag, color: "bg-green-100 text-green-700" },
   };
   
-  const sourceInfo = sourceLabels[product.source] || { label: product.source, icon: Tag, color: "bg-gray-100 text-gray-700" };
+  const sourceInfo = sourceLabels[safeProduct.source] || { label: safeProduct.source, icon: Tag, color: "bg-gray-100 text-gray-700" };
   const SourceIcon = sourceInfo.icon;
 
   return (
@@ -94,14 +103,14 @@ export function ProductCard({ product, compact }: ProductCardProps) {
             <SourceIcon className="h-3 w-3" />
             {sourceInfo.label}
           </span>
-          {product.source === "MOCK" && (
+          {safeProduct.source === "MOCK" && (
             <span className="bg-black/70 text-white text-[9px] sm:text-[10px] font-medium tracking-wide px-2 py-0.5 rounded-full backdrop-blur-sm">
               DEMO
             </span>
           )}
         </div>
         
-        {product.availability !== "IN_STOCK" && (
+        {safeProduct.availability !== "IN_STOCK" && (
           <div className="absolute inset-0 bg-white/75 backdrop-blur-[2px] grid place-items-center">
             <span className="text-sm font-medium text-ink-900">Sem stock</span>
           </div>
@@ -129,7 +138,7 @@ export function ProductCard({ product, compact }: ProductCardProps) {
           </div>
         )}
         <h3 className="text-[13px] sm:text-[14px] font-medium text-ink-900 leading-snug line-clamp-2 min-h-[2.2em] sm:min-h-[2.5em]">
-          {product.name}
+          {safeProduct.name}
         </h3>
         <div className="mt-1.5 flex items-end justify-between gap-1">
           {loading ? (
@@ -141,9 +150,9 @@ export function ProductCard({ product, compact }: ProductCardProps) {
           ) : (
             <div className="text-[13px] sm:text-sm font-semibold text-primary-600">Sob consulta</div>
           )}
-          {product.variants.length > 1 && (
+          {(safeProduct.variants?.length || 0) > 1 && (
             <span className="text-[10px] sm:text-[11px] text-ink-400 whitespace-nowrap">
-              {product.variants.length} opções
+              {safeProduct.variants.length} opções
             </span>
           )}
         </div>

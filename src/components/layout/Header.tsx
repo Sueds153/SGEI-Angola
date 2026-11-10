@@ -9,21 +9,22 @@ import {
   X,
   ShoppingBag,
   Package,
-  HelpCircle,
   MessageCircle,
   User,
   Grid3x3,
-  Tag,
   ArrowRight,
+  Globe,
+  Users,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Logo } from "@/components/brand/Logo";
 
 const navItems = [
-  { href: "/catalogo", label: "Catálogo", icon: Grid3x3 },
-  { href: "/pedidos", label: "Pedidos", icon: Package },
-  { href: "/como-funciona", label: "Como funciona", icon: Tag },
-  { href: "/ajuda", label: "Ajuda", icon: HelpCircle },
+  { href: "/produtos", label: "Produtos", icon: Grid3x3 },
+  { href: "/importar", label: "Importar", icon: Globe },
+  { href: "/comunidade", label: "Comunidade", icon: Users },
+  { href: "/rastrear", label: "Rastrear", icon: Package },
+  { href: "/ajuda", label: "Ajuda", icon: MessageCircle },
 ];
 
 export function Header() {
