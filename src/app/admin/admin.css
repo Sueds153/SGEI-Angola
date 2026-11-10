@@ -1,0 +1,18 @@
+/* Garante wrappers do admin a 100% e bom scroll horizontal em mobile */
+.admin-sidebar nav { scrollbar-width: none; }
+.admin-sidebar nav::-webkit-scrollbar { display: none; }
+
+.admin-shell main table {
+  width: 100%;
+}
+
+@media (max-width: 1023px) {
+  .admin-shell > aside { border-bottom: 1px solid rgba(255,255,255,0.08) !important; }
+  .admin-shell > aside .admin-nav-link {
+    color: rgba(255,255,255,0.7);
+  }
+  .admin-shell > aside .admin-nav-link[data-active="true"] {
+    background: rgba(255,255,255,0.1);
+    color: white;
+  }
+}
