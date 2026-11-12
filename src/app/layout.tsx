@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import type { ReactNode } from "react";
+import * as Sentry from "@sentry/nextjs";
 import "./globals.css";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
@@ -35,9 +36,11 @@ export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="pt-AO">
       <body className="min-h-screen flex flex-col bg-white text-ink-900 antialiased">
-        <Header />
-        <main className="flex-1">{children}</main>
-        <Footer />
+        <Sentry.ErrorBoundary fallback={<p>Algo deu errado. Tente recarregar a página.</p>}>
+          <Header />
+          <main className="flex-1">{children}</main>
+          <Footer />
+        </Sentry.ErrorBoundary>
       </body>
     </html>
   );
