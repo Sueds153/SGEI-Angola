@@ -69,10 +69,10 @@ export function ProductCard({ product, compact }: ProductCardProps) {
   
   // Badge de origem
   const sourceLabels: Record<string, { label: string; icon: any; color: string }> = {
-    SHEIN: { label: "Shein", icon: Tag, color: "bg-orange-100 text-orange-700" },
-    ALIEXPRESS: { label: "AliExpress", icon: Tag, color: "bg-red-100 text-red-700" },
-    VINTED: { label: "Vinted", icon: Tag, color: "bg-purple-100 text-purple-700" },
-    MOCK: { label: "Demo", icon: Tag, color: "bg-gray-100 text-gray-700" },
+    SHEIN: { label: "Shein", icon: Tag, color: "bg-pink-100 text-pink-700" },
+    ALIEXPRESS: { label: "AliExpress", icon: Tag, color: "bg-orange-100 text-orange-700" },
+    VINTED: { label: "Vinted", icon: Tag, color: "bg-brand-100 text-brand-700" },
+    MOCK: { label: "Shein", icon: Tag, color: "bg-pink-100 text-pink-700" },
     ADMIN: { label: "Catálogo", icon: Tag, color: "bg-green-100 text-green-700" },
   };
   
@@ -101,15 +101,10 @@ export function ProductCard({ product, compact }: ProductCardProps) {
         
         {/* Badge de origem */}
         <div className="absolute top-2.5 left-2.5 flex gap-1.5">
-          <span className={`${sourceInfo.color} text-[9px] sm:text-[10px] font-medium tracking-wide px-2 py-0.5 rounded-full backdrop-blur-sm flex items-center gap-1`}>
+          <span className={`${sourceInfo.color} text-[9px] sm:text-[10px] font-semibold tracking-wide px-2.5 py-0.5 rounded-full backdrop-blur-sm flex items-center gap-1 shadow-sm`}>
             <SourceIcon className="h-3 w-3" />
             {sourceInfo.label}
           </span>
-          {safeProduct.source === "MOCK" && (
-            <span className="bg-black/70 text-white text-[9px] sm:text-[10px] font-medium tracking-wide px-2 py-0.5 rounded-full backdrop-blur-sm">
-              DEMO
-            </span>
-          )}
         </div>
         
         {safeProduct.availability !== "IN_STOCK" && (

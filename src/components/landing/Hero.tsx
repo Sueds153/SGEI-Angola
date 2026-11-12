@@ -1,9 +1,24 @@
 "use client";
 
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Globe, Smartphone, Shirt, Shield, Truck, CreditCard, ArrowRight } from "lucide-react";
+import { Globe, Smartphone, Shirt, Shield, Truck, CreditCard, ArrowRight, CheckCircle2 } from "lucide-react";
 
 export default function Hero() {
+  const router = useRouter();
+  const [productUrl, setProductUrl] = useState("");
+
+  const handleSimulate = (e: React.FormEvent) => {
+    e.preventDefault();
+    const trimmed = productUrl.trim();
+    if (trimmed) {
+      router.push(`/importar?url=${encodeURIComponent(trimmed)}`);
+    } else {
+      router.push("/importar");
+    }
+  };
+
   return (
     <section className="relative overflow-hidden bg-white pt-12 pb-20 lg:pt-20 lg:pb-32">
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -14,7 +29,7 @@ export default function Hero() {
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand-400 opacity-75" />
               <span className="relative inline-flex rounded-full h-2 w-2 bg-brand-500" />
             </span>
-            Pagamento em Kwanzas via Multicaixa ou IBAN
+            Pagamento em Kwanzas via Multicaixa Express (929 423 278) ou Referência (10116)
           </div>
 
           {/* Main Headline */}
@@ -25,34 +40,36 @@ export default function Hero() {
 
           {/* Subheadline */}
           <p className="text-lg sm:text-xl text-ink-600 mb-12 max-w-2xl mx-auto leading-relaxed animate-slide-up" style={{ animationDelay: '100ms' }}>
-            Nós compramos para si e entregamos à sua porta em Angola. 
-            Simule o preço final com taxas e transporte em segundos.
+            Nós compramos por si e entregamos na sua porta em Angola. 
+            Simule o preço final com taxas alfandegárias e transporte incluídos.
           </p>
 
           {/* CTA Form - O Foco da Conversão */}
           <div className="relative max-w-2xl mx-auto mb-16 animate-slide-up" style={{ animationDelay: '200ms' }}>
-            <div className="bg-white p-2 rounded-2xl shadow-2xl shadow-brand-500/15 border border-ink-200 flex flex-col sm:flex-row gap-2">
+            <form onSubmit={handleSimulate} className="bg-white p-2 rounded-2xl shadow-2xl shadow-brand-500/15 border border-ink-200 flex flex-col sm:flex-row gap-2">
               <input 
                 type="url"
-                placeholder="Cole o link do produto aqui..." 
-                className="flex-1 p-4 bg-transparent outline-none text-ink-900 text-lg placeholder:text-ink-400"
+                value={productUrl}
+                onChange={(e) => setProductUrl(e.target.value)}
+                placeholder="Cole o link do produto da Shein, AliExpress ou Vinted..." 
+                className="flex-1 p-4 bg-transparent outline-none text-ink-900 text-base sm:text-lg placeholder:text-ink-400"
               />
-              <Link 
-                href="/importar"
-                className="bg-brand-600 text-white px-10 py-4 rounded-xl font-bold hover:bg-brand-700 transition-all active:scale-95 flex items-center justify-center gap-2 text-lg shadow-lg shadow-brand-500/30"
+              <button 
+                type="submit"
+                className="bg-brand-600 text-white px-8 py-4 rounded-xl font-bold hover:bg-brand-700 transition-all active:scale-95 flex items-center justify-center gap-2 text-lg shadow-lg shadow-brand-500/30 cursor-pointer"
               >
                 Simular Preço <ArrowRight className="w-5 h-5" />
-              </Link>
-            </div>
+              </button>
+            </form>
             
             {/* Small disclaimer */}
             <p className="mt-4 text-sm text-ink-500 flex items-center justify-center gap-2">
-              <Shield className="w-4 h-4 text-success-600" /> Preço final garantido, sem taxas surpresa na entrega.
+              <Shield className="w-4 h-4 text-emerald-600" /> Preço final garantido, sem surpresas nem cobranças extras na entrega.
             </p>
           </div>
 
           {/* Trust Indicators */}
-          <div className="flex flex-wrap items-center justify-center gap-8 text-sm font-medium text-ink-600 animate-fade-in" style={{ animationDelay: '300ms' }}>
+          <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-8 text-sm font-medium text-ink-600 animate-fade-in" style={{ animationDelay: '300ms' }}>
             <div className="flex items-center gap-2 bg-ink-50 px-4 py-2 rounded-full ring-1 ring-ink-100">
               <div className="w-5 h-5 bg-brand-100 rounded-full flex items-center justify-center">
                 <Truck className="w-3 h-3 text-brand-600" />
@@ -60,10 +77,16 @@ export default function Hero() {
               Entrega em Luanda e Províncias
             </div>
             <div className="flex items-center gap-2 bg-ink-50 px-4 py-2 rounded-full ring-1 ring-ink-100">
-              <div className="w-5 h-5 bg-brand-100 rounded-full flex items-center justify-center">
-                <CreditCard className="w-3 h-3 text-brand-600" />
+              <div className="w-5 h-5 bg-emerald-100 rounded-full flex items-center justify-center">
+                <CreditCard className="w-3 h-3 text-emerald-600" />
               </div>
-              Multicaixa / Transferência
+              Multicaixa Express: 929 423 278
+            </div>
+            <div className="flex items-center gap-2 bg-ink-50 px-4 py-2 rounded-full ring-1 ring-ink-100">
+              <div className="w-5 h-5 bg-blue-100 rounded-full flex items-center justify-center">
+                <CheckCircle2 className="w-3 h-3 text-blue-600" />
+              </div>
+              Entidade: 10116
             </div>
           </div>
         </div>

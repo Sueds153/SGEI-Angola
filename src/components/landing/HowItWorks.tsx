@@ -16,13 +16,13 @@ const steps = [
   },
   {
     number: "02",
-    title: "Pagamento facilitado",
-    description: "Pague em Kwanzas via Transferência Bancária, Multicaixa Express ou Referência Multicaixa. Sem cartão internacional, sem IOF.",
+    title: "Pagamento em Kwanzas",
+    description: "Pague com comodidade via Multicaixa Express ou Referência Multicaixa. Sem necessidade de cartão internacional nem taxas cambiais bancárias ocultas.",
     icon: CreditCard,
     details: [
-      "Taxa de câmbio fixa no momento do pedido",
-      "Comprovativo enviado por WhatsApp",
-      "Suporte humano no 922 058 136"
+      "Multicaixa Express direto para 929 423 278",
+      "Referência: Entidade 10116 · Ref 929 423 278",
+      "Validação imediata via WhatsApp (+244 929 423 278)"
     ]
   },
   {

@@ -1,7 +1,7 @@
 "use client";
 
 import { ProductCard, ProductCardSkeleton } from "@/components/product/ProductCard";
-import { Smartphone, Shirt, Zap } from "lucide-react";
+import { Smartphone, Shirt, Zap, Globe } from "lucide-react";
 import Link from "next/link";
 
 interface FeaturedProductsProps {
@@ -20,16 +20,16 @@ export default function FeaturedProducts({ featuredProducts }: FeaturedProductsP
 
   const sections = [
     {
-      id: "vinted-tech",
-      title: "iPhones & Tech — Vinted",
-      subtitle: "Apple original, seminovo, com preço que vale a pena",
-      icon: Smartphone,
+      id: "vinted-fashion",
+      title: "Marcas Originais da Europa — Vinted",
+      subtitle: "Zara, Nike, Michael Kors e Levi's direto de Portugal e Espanha para Angola",
+      icon: Globe,
       iconColor: "text-brand-600",
       bgColor: "bg-brand-50",
       borderColor: "border-brand-200",
       products: vintedProducts.length > 0 ? vintedProducts : getMockProducts("VINTED"),
-      cta: "Ver todos iPhones",
-      href: "/produtos?platform=VINTED&category=tech",
+      cta: "Ver moda Vinted",
+      href: "/produtos?platform=VINTED",
     },
     {
       id: "shein-fashion",
@@ -132,19 +132,19 @@ function getMockProducts(platform: string) {
   const mockData: Record<string, any[]> = {
     VINTED: [
       { id: "v1", name: "Vestido Zara Novo Com Etiqueta Tamanho M", slug: "vinted-vestido-zara-m", source: "VINTED", sourceUrl: "https://www.vinted.pt/items/987654321", defaultImage: "/images/demo-01.jpg", originalPriceUsd: 22.0, originalCurrency: "EUR", weightGrams: 280 },
-      { id: "v2", name: "Tênis Nike Air Force 1 '07 Branco Tamanho 41", slug: "vinted-nike-air-force-41", source: "VINTED", sourceUrl: "https://www.vinted.pt/items/876543210", defaultImage: "/images/prod-10.jpg", originalPriceUsd: 65.0, originalCurrency: "EUR", weightGrams: 950 },
-      { id: "v3", name: "Bolsa Michael Kors Jet Set Grande Marrom", slug: "vinted-michael-kors-bolsa", source: "VINTED", sourceUrl: "https://www.vinted.pt/items/765432109", defaultImage: "/images/prod-11.jpg", originalPriceUsd: 89.0, originalCurrency: "EUR", weightGrams: 720 },
-      { id: "v4", name: "Casaco Levi's Trucker Jeans Azul Tamanho L", slug: "vinted-levis-trucker-l", source: "VINTED", sourceUrl: "https://www.vinted.pt/items/654321098", defaultImage: "/images/prod-12.jpg", originalPriceUsd: 48.0, originalCurrency: "EUR", weightGrams: 680 },
+      { id: "v2", name: "Ténis Nike Air Force 1 '07 Branco Tamanho 41", slug: "vinted-nike-air-force-41", source: "VINTED", sourceUrl: "https://www.vinted.pt/items/876543210", defaultImage: "/images/prod-10.jpg", originalPriceUsd: 65.0, originalCurrency: "EUR", weightGrams: 950 },
+      { id: "v3", name: "Bolsa Michael Kors Jet Set Grande Castanha", slug: "vinted-michael-kors-bolsa", source: "VINTED", sourceUrl: "https://www.vinted.pt/items/765432109", defaultImage: "/images/prod-11.jpg", originalPriceUsd: 89.0, originalCurrency: "EUR", weightGrams: 720 },
+      { id: "v4", name: "Casaco Levi's Trucker Ganga Azul Tamanho L", slug: "vinted-levis-trucker-l", source: "VINTED", sourceUrl: "https://www.vinted.pt/items/654321098", defaultImage: "/images/prod-12.jpg", originalPriceUsd: 48.0, originalCurrency: "EUR", weightGrams: 680 },
     ],
     SHEIN: [
       { id: "s1", name: "Vestido midi fluido estampado floral", slug: "demo-vestido-midi-floral", source: "SHEIN", sourceUrl: "https://shein.com/p/1", defaultImage: "/images/demo-01.jpg", originalPriceUsd: 18.9, originalCurrency: "USD", weightGrams: 320 },
       { id: "s2", name: "T-shirt básica algodão gola redonda", slug: "demo-tshirt-basica", source: "SHEIN", sourceUrl: "https://shein.com/p/2", defaultImage: "/images/demo-04.jpg", originalPriceUsd: 7.5, originalCurrency: "USD", weightGrams: 180 },
       { id: "s3", name: "Ténis casual branco com sola chunky", slug: "demo-tenis-chunky-branco", source: "SHEIN", sourceUrl: "https://shein.com/p/3", defaultImage: "/images/demo-06.jpg", originalPriceUsd: 32.0, originalCurrency: "USD", weightGrams: 820 },
-      { id: "s4", name: "Bolsa tiracolo couro sintético minimalista", slug: "demo-bolsa-tiracolo", source: "SHEIN", sourceUrl: "https://shein.com/p/4", defaultImage: "/images/demo-07.jpg", originalPriceUsd: 14.5, originalCurrency: "USD", weightGrams: 400 },
+      { id: "s4", name: "Bolsa tiracolo pele sintética minimalista", slug: "demo-bolsa-tiracolo", source: "SHEIN", sourceUrl: "https://shein.com/p/4", defaultImage: "/images/demo-07.jpg", originalPriceUsd: 14.5, originalCurrency: "USD", weightGrams: 400 },
     ],
     ALIEXPRESS: [
-      { id: "a1", name: "Smartwatch Esportivo Monitor Cardíaco GPS", slug: "aliexpress-smartwatch-gps", source: "ALIEXPRESS", sourceUrl: "https://pt.aliexpress.com/item/1005001111222233.html", defaultImage: "/images/prod-14.jpg", originalPriceUsd: 45.5, originalCurrency: "USD", weightGrams: 55 },
-      { id: "a2", name: "Fone Bluetooth 5.3 TWS Cancelamento Ruído ANC", slug: "aliexpress-fone-bluetooth-anc", source: "ALIEXPRESS", sourceUrl: "https://pt.aliexpress.com/item/1005009876543210.html", defaultImage: "/images/prod-09.jpg", originalPriceUsd: 28.9, originalCurrency: "USD", weightGrams: 65 },
+      { id: "a1", name: "Smartwatch Desportivo Monitor Cardíaco GPS", slug: "aliexpress-smartwatch-gps", source: "ALIEXPRESS", sourceUrl: "https://pt.aliexpress.com/item/1005001111222233.html", defaultImage: "/images/prod-14.jpg", originalPriceUsd: 45.5, originalCurrency: "USD", weightGrams: 55 },
+      { id: "a2", name: "Auscultadores Bluetooth 5.3 TWS Cancelamento Ruído ANC", slug: "aliexpress-fone-bluetooth-anc", source: "ALIEXPRESS", sourceUrl: "https://pt.aliexpress.com/item/1005009876543210.html", defaultImage: "/images/prod-09.jpg", originalPriceUsd: 28.9, originalCurrency: "USD", weightGrams: 65 },
       { id: "a3", name: "Smartphone Android 128GB 6GB RAM Dual SIM 6.5\"", slug: "aliexpress-smartphone-128gb", source: "ALIEXPRESS", sourceUrl: "https://pt.aliexpress.com/item/1005001234567890.html", defaultImage: "/images/prod-08.jpg", originalPriceUsd: 156.0, originalCurrency: "USD", weightGrams: 280 },
     ],
   };

@@ -1,6 +1,6 @@
-# SGEI — Plataforma de intermediação SHEIN → Angola
+# ImportEasy — Plataforma de intermediação Shein, AliExpress e Vinted → Angola
 
-Plataforma web completa (Next.js 16 + TypeScript + PostgreSQL + Drizzle ORM) para intermediação de compras de produtos SHEIN para clientes em Angola, com:
+Plataforma web completa (Next.js 16 + TypeScript + PostgreSQL + Drizzle ORM) para intermediação e compra segura de produtos internacionais para clientes em Angola, com:
 
 - Catálogo + pesquisa + categoria
 - Resolução de link SHEIN (precisa confirmação para produtos externos)
@@ -80,7 +80,7 @@ src/
 
 ## Credenciais demo
 
-- **Admin:** `admin@sgei.ao` / `admin123`
+- **Admin:** `admin@importeasy.ao` / `admin123`
 - **Cliente:** `cliente@exemplo.ao` / `cliente123`
 
 ## Rotas principais

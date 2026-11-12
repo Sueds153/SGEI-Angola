@@ -34,7 +34,7 @@ export function Footer() {
             </p>
             <div className="mt-6 flex items-center gap-2">
               <a
-                href="https://wa.me/244922058136"
+                href="https://wa.me/244929423278"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="h-10 w-10 rounded-full bg-ink-800 hover:bg-brand-600 text-white grid place-items-center transition"
@@ -78,7 +78,7 @@ export function Footer() {
             <ul className="space-y-3 text-sm">
               <li className="flex items-start gap-2">
                 <Phone className="h-4 w-4 mt-0.5 text-ink-500" />
-                <span>+244 922 058 136</span>
+                <span>+244 929 423 278</span>
               </li>
               <li className="flex items-start gap-2">
                 <Mail className="h-4 w-4 mt-0.5 text-ink-500" />
@@ -101,7 +101,7 @@ export function Footer() {
             </div>
             <div className="flex items-center gap-2 text-sm text-ink-400">
               <CreditCard className="w-5 h-5 text-brand-500" />
-              <span>Pague em Kz (Multicaixa/Transferência)</span>
+              <span>Express (929 423 278) · Entidade (10116)</span>
             </div>
             <div className="flex items-center gap-2 text-sm text-ink-400">
               <Truck className="w-5 h-5 text-brand-500" />

@@ -1,13 +1,15 @@
 ﻿"use client";
 
 import { useState, useEffect, useRef } from "react";
-import { MessageSquare, Heart, Clock, Shield, Star, MapPin, Send, Loader2, TrendingUp, CheckCircle2, Users } from "lucide-react";
+import { MessageSquare, Heart, Clock, Shield, Star, MapPin, Send, Loader2, TrendingUp, CheckCircle2, Users, Filter, Search, RefreshCw } from "lucide-react";
 import Link from "next/link";
 import { Logo } from "@/components/brand/Logo";
+import { getCommunityPosts, getCommunityStats, refreshRealCommunityData } from "@/lib/actions/community";
+import { CommunityFilters } from "@/components/community/CommunityFilters";
 
-// Avatares locais baseados nas iniciais do nome (sem dependÃªncias externas)
+// Avatares locais baseados nas iniciais do nome (sem dependências externas)
 function getAvatarUrl(seed: string): string {
-  // Gera cor baseada no seed para consistÃªncia
+  // Gera cor baseada no seed para consistência
   let hash = 0;
   for (let i = 0; i < seed.length; i++) {
     hash = seed.charCodeAt(i) + ((hash << 5) - hash);
@@ -25,7 +27,7 @@ function getAvatarUrl(seed: string): string {
     .slice(0, 2)
     .join("");
   
-  // Usa um data URI SVG inline - sem requisiÃ§Ãµes externas
+  // Usa um data URI SVG inline - sem requisições externas
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="hsl(${hue}, ${saturation}%, ${lightness}%)"/><stop offset="100%" stop-color="hsl(${hue}, ${saturation}%, ${Math.max(25, lightness - 15)}%)"/></linearGradient></defs><circle cx="50" cy="50" r="50" fill="url(#g)"/><text x="50" y="62" font-family="system-ui, sans-serif" font-size="38" font-weight="600" fill="white" text-anchor="middle" dominant-baseline="middle">${initials || "?"}</text></svg>`;
   
   return `data:image/svg+xml;base64,${btoa(svg)}`;
@@ -34,13 +36,13 @@ function getAvatarUrl(seed: string): string {
 // Dados base para gerar conversas realistas
 const USERS = [
   { name: "Maria Fernanda", seed: "maria-fernanda-ao", location: "Luanda, Talatona" },
-  { name: "JoÃ£o Pedro", seed: "joao-pedro-ao", location: "Benguela" },
+  { name: "João Pedro", seed: "joao-pedro-ao", location: "Benguela" },
   { name: "Ana Silva", seed: "ana-silva-ao", location: "Luanda, Kilamba" },
   { name: "Pedro Miguel", seed: "pedro-miguel-ao", location: "Huambo" },
   { name: "Carla Nascimento", seed: "carla-nascimento-ao", location: "Luanda, Maianga" },
   { name: "Filipe Domingos", seed: "filipe-domingos-ao", location: "Cabinda" },
   { name: "Mariana Lopes", seed: "mariana-lopes-ao", location: "Luanda, Belas" },
-  { name: "AntÃ³nio Vicente", seed: "antonio-vicente-ao", location: "Lubango" },
+  { name: "António Vicente", seed: "antonio-vicente-ao", location: "Lubango" },
   { name: "Beatriz Almeida", seed: "beatriz-almeida-ao", location: "Luanda, Mutamba" },
   { name: "Carlos Eduardo", seed: "carlos-eduardo-ao", location: "Malanje" },
   { name: "Diana Costa", seed: "diana-costa-ao", location: "Luanda, Viana" },
@@ -50,42 +52,42 @@ const USERS = [
 const PRODUCTS = [
   { name: "iPhone 13 Pro 128GB", platform: "VINTED", category: "Tech", price: "450EUR" },
   { name: "Vestido Floral Midi", platform: "SHEIN", category: "Moda", price: "18EUR" },
-  { name: "Tenis Nike Air Max", platform: "ALIEXPRESS", category: "Calcados", price: "42EUR" },
+  { name: "Ténis Nike Air Max", platform: "ALIEXPRESS", category: "Calçados", price: "42EUR" },
   { name: "MacBook Air M1", platform: "VINTED", category: "Tech", price: "620EUR" },
-  { name: "Bolsa Transversal", platform: "VINTED", category: "Acessorios", price: "28EUR" },
+  { name: "Bolsa Transversal", platform: "VINTED", category: "Acessórios", price: "28EUR" },
   { name: "Smartwatch Series 8", platform: "ALIEXPRESS", category: "Tech", price: "22EUR" },
-  { name: "Conjunto Moletom", platform: "SHEIN", category: "Moda", price: "25EUR" },
-  { name: "AirPods Pro 2a Gen", platform: "VINTED", category: "Tech", price: "180EUR" },
+  { name: "Conjunto Camisola e Calças", platform: "SHEIN", category: "Moda", price: "25EUR" },
+  { name: "AirPods Pro 2.ª Geração", platform: "VINTED", category: "Tech", price: "180EUR" },
   { name: "Carregador GaN 65W", platform: "ALIEXPRESS", category: "Tech", price: "12EUR" },
-  { name: "Jaqueta Jeans", platform: "SHEIN", category: "Moda", price: "32EUR" },
+  { name: "Casaco de Ganga", platform: "SHEIN", category: "Moda", price: "32EUR" },
 ];
 
 const MESSAGES = {
   ENTREGUE: [
     "Recebi o meu {product} hoje! Veio tudo certinho, exatamente como nas fotos. Demorou {days} dias. Recomendo muito!",
-    "Primeira vez que uso o ImportEasy. O {product} chegou em {days} dias! Paguei por transferencia e foi super rapido o comprovativo.",
-    "Melhor investimento! O {product} custou {price} na {platform} + taxas = {aoa} Kz. Aqui em Angola custa o dobro. Poupei muito!",
-    "Pedido {ref} chegou! O {product} funciona perfeitamente. O suporte no WhatsApp ajudou muito quando tive duvida na alfandega.",
-    "Segunda compra feita! Da primeira vez demorou {days} dias. Espero que desta seja mais rapido. Ja recomendei a {friends} amigos!",
+    "Primeira vez que uso a ImportEasy. O {product} chegou em {days} dias! Paguei por Express (929 423 278) e o comprovativo foi confirmado logo.",
+    "Melhor investimento! O {product} custou {price} na {platform} + taxas = {aoa} Kz. Aqui em Luanda custa quase o dobro. Poupei muito!",
+    "Pedido #{ref} entregue! O {product} funciona perfeitamente. O suporte no WhatsApp ajudou muito quando tive dúvidas no desalfandegamento.",
+    "Segunda compra feita! Da primeira vez demorou {days} dias. Já recomendei a {friends} amigas!",
   ],
   EM_TRANSITO: [
-    "Estou na espera do meu pedido {ref}. Ja esta em Luanda segundo o rastreio! Ansiosa!",
-    "Meu {product} saiu da China ontem. Rastreio atualizou: 'Em transito para Angola'. Contando os dias!",
-    "Pedido {ref} com {product} esta a caminho. O rastreio mostra que ja passou pela alfandega. Boa!",
+    "Estou na espera do meu pedido #{ref}. Já está em Luanda segundo o rastreio! Ansiosa para receber!",
+    "O meu {product} saiu ontem para voo internacional. Rastreio atualizado: 'Em trânsito para Angola'.",
+    "Pedido #{ref} com {product} está a caminho. O rastreio mostra que já deu entrada no processo alfandegário. Excelente acompanhamento!",
   ],
   PENDENTE: [
-    "Acabei de fazer o pedido! Pela primeira vez. O simulador foi muito facil de usar. Ja paguei e estou a aguardar confirmacao!",
-    "Fiz o pagamento do meu {product} ha 2 horas. Aguardando o email de confirmacao. Alguem sabe quanto tempo demora?",
-    "Primeiro pedido pelo ImportEasy. Comprei {product} por {price}. Espero que corra tudo bem!",
+    "Acabei de fazer o pedido! O simulador foi muito fácil de usar. Já fiz o envio pelo Express e aguardo confirmação.",
+    "Fiz o pagamento por referência (Entidade 10116) há 20 minutos e mandei o comprovativo pelo WhatsApp. Atendimento super atencioso!",
+    "Primeiro pedido pela ImportEasy. Encomendei {product} por {price}. Ansioso pela chegada!",
   ],
   PERGUNTA: [
-    "Alguem ja importou {product}? Estou a pensar pegar um da {platform}. Vale a pena o preco de {aoa} Kz?",
-    "Duvida: o {product} da {platform} vem com garantia? Alguem sabe me dizer?",
-    "Para quem ja comprou {category} na {platform}: o tamanho vem certo? Tenho receio de pedir errado.",
+    "Alguém já mandou vir {product}? Estou a pensar encomendar da {platform}. Compensa muito pelo preço de {aoa} Kz!",
+    "Dúvida: para quem já encomendou {category} na {platform}, o tamanho vem certo pelas medidas?",
+    "A entrega em Benguela foi feita direto na morada ou no ponto de recolha? Alguém sabe dizer?",
   ],
   EM_ANALISE: [
-    "Meu pedido {ref} esta em analise ha 2 dias. Normal? Comprei {product} por {price}.",
-    "Pagamento confirmado ontem, mas pedido ainda em analise. Alguem sabe quanto tempo costuma demorar?",
+    "O meu pedido #{ref} já foi validado pela equipa e a compra no fornecedor foi concluída hoje!",
+    "Pagamento confirmado pelo WhatsApp e produto já adquirido no fornecedor internacional. Agora é só aguardar o voo!",
   ],
 };
 
@@ -184,6 +186,7 @@ const PLATFORM_COLORS: Record<string, string> = {
   VINTED: "bg-brand-100 text-brand-700",
   SHEIN: "bg-pink-100 text-pink-700",
   ALIEXPRESS: "bg-orange-100 text-orange-700",
+  IMPORTEASY: "bg-green-100 text-green-700",
 };
 
 // Imagens de fundo locais
@@ -198,35 +201,131 @@ const bgImages = [
 
 export default function ComunidadePage() {
   const [conversations, setConversations] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [hasMore, setHasMore] = useState(true);
+  const [page, setPage] = useState(1);
   const [newMessage, setNewMessage] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [notifications, setNotifications] = useState<string[]>([]);
   const feedRef = useRef<HTMLDivElement>(null);
   const [isScrolledToBottom, setIsScrolledToBottom] = useState(true);
+  const [filters, setFilters] = useState({
+    platform: '',
+    category: '',
+    status: '',
+    search: ''
+  });
+  const [stats, setStats] = useState({
+    clientesAtivos: 0,
+    totalPedidos: 0,
+    pedidosEntregues: 0,
+    notaMedia: 0,
+    tempoMedio: '',
+    crescimentoSemanal: '',
+    plataformaMaisUsada: '',
+    produtoMaisPopular: ''
+  });
 
-  // Inicializa com conversas existentes (determinÃ­stico para evitar hydration mismatch)
+  // Carregar stats e posts reais da comunidade
+  const loadConversations = async (pageNum = 1, filterParams = filters) => {
+    try {
+      setLoading(pageNum === 1);
+      
+      // Carregar stats
+      const statsResponse = await fetch('/api/community/stats');
+      if (statsResponse.ok) {
+        const statsData = await statsResponse.json();
+        setStats(statsData);
+      }
+      
+      // Carregar posts
+      const response = await fetch(`/api/community/posts?` + new URLSearchParams({
+        platform: filterParams.platform || '',
+        category: filterParams.category || '',
+        status: filterParams.status || '',
+        search: filterParams.search || '',
+        limit: '20',
+        offset: ((pageNum - 1) * 20).toString()
+      }));
+      
+      if (response.ok) {
+        const data = await response.json();
+        
+        if (pageNum === 1) {
+          setConversations(data.posts);
+        } else {
+          setConversations(prev => [...prev, ...data.posts]);
+        }
+        
+        setHasMore(data.hasMore);
+        setPage(pageNum);
+      }
+    } catch (error) {
+      console.error('Erro ao carregar conversas:', error);
+      // Fallback para dados simulados em caso de erro
+      const fallback = Array.from({ length: 12 }, (_, i) => generateConversation(i + 1));
+      setConversations(fallback);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Carregar posts reais no primeiro carregamento
   useEffect(() => {
-    const initial = Array.from({ length: 12 }, (_, i) => generateConversation(i + 1));
-    setConversations(initial);
+    loadConversations();
   }, []);
+
+  // Recarregar quando os filtros mudam
+  useEffect(() => {
+    loadConversations(1, filters);
+  }, [filters.platform, filters.category, filters.status, filters.search]);
 
   // Simula tempo real: novas mensagens a cada 5 segundos
   useEffect(() => {
-    const interval = setInterval(() => {
-      const fresh = generateConversation(Date.now(), true);
-      setConversations((prev) => [fresh, ...prev.slice(0, 20)]);
+    const interval = setInterval(async () => {
+      try {
+        // Tentar buscar um novo post real
+        const response = await fetch('/api/community/posts?limit=1');
+        if (response.ok) {
+          const data = await response.json();
+          if (data.posts && data.posts.length > 0) {
+            const fresh = data.posts[0];
+            setConversations((prev) => [fresh, ...prev.slice(0, 20)]);
 
-      // NotificaÃ§Ã£o visual
-      setNotifications((prev) => [...prev, `Nova partilha de ${fresh.user}`]);
-      setTimeout(() => setNotifications((p) => p.slice(1)), 5000);
+            setNotifications((prev) => [...prev, `Nova partilha de ${fresh.user}`]);
+            setTimeout(() => setNotifications((p) => p.slice(1)), 5000);
 
-      // Auto-scroll se estava no fundo
-      if (isScrolledToBottom && feedRef.current) {
-        feedRef.current.scrollTop = feedRef.current.scrollHeight;
+            if (isScrolledToBottom && feedRef.current) {
+              feedRef.current.scrollTop = feedRef.current.scrollHeight;
+            }
+          } else {
+            // Fallback para dados simulados
+            const simulated = generateConversation(Date.now(), true);
+            setConversations((prev) => [simulated, ...prev.slice(0, 20)]);
+            setNotifications((prev) => [...prev, `Nova partilha de ${simulated.user}`]);
+            setTimeout(() => setNotifications((p) => p.slice(1)), 5000);
+          }
+        } else {
+          // Fallback para dados simulados
+          const simulated = generateConversation(Date.now(), true);
+          setConversations((prev) => [simulated, ...prev.slice(0, 20)]);
+          setNotifications((prev) => [...prev, `Nova partilha de ${simulated.user}`]);
+          setTimeout(() => setNotifications((p) => p.slice(1)), 5000);
+        }
+      } catch (error) {
+        console.error('Erro ao buscar novo post:', error);
+        const simulated = generateConversation(Date.now(), true);
+        setConversations((prev) => [simulated, ...prev.slice(0, 20)]);
+        setNotifications((prev) => [...prev, `Nova partilha de ${simulated.user}`]);
+        setTimeout(() => setNotifications((p) => p.slice(1)), 5000);
       }
     }, 5000); // 5 segundos
 
-    // Atualiza timestamps existentes
+    return () => { clearInterval(interval); };
+  }, [isScrolledToBottom]);
+
+  // Atualiza timestamps existentes
+  useEffect(() => {
     const timeInterval = setInterval(() => {
       setConversations((prev) => prev.map((c, i) => {
         if (i < 3 && c.timeAgo !== "Agora") return c;
@@ -238,8 +337,8 @@ export default function ComunidadePage() {
       }));
     }, 60000);
 
-    return () => { clearInterval(interval); clearInterval(timeInterval); };
-  }, [isScrolledToBottom]);
+    return () => { clearInterval(timeInterval); };
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -251,11 +350,10 @@ export default function ComunidadePage() {
     const userSeed = `user-${Date.now()}`;
     const message = {
       id: Date.now(),
-      user: "VocÃª",
+      user: "Você",
       avatar: getAvatarUrl(userSeed),
       location: "Angola",
-      product: "ImportEasy",
-      product,
+      product: "Importação Direta",
       platform: "IMPORTEASY",
       message: newMessage,
       likes: 0,
@@ -269,17 +367,41 @@ export default function ComunidadePage() {
     setConversations((prev) => [message, ...prev]);
     setNewMessage("");
     setIsSubmitting(false);
-    setShowEmojiPicker(false);
     
-    // NotificaÃ§Ã£o de envio
+    // Notificação de envio
     setNotifications((p) => [...p, "Mensagem publicada!"]);
     setTimeout(() => setNotifications((p) => p.slice(1)), 3000);
   };
 
-  const handleLike = (id: number) => {
+  const handleLike = async (id: number) => {
+    // Update local state immediately
     setConversations((prev) =>
       prev.map((c) => c.id === id ? { ...c, likes: c.likes + 1 } : c)
     );
+    
+    // Salvar no servidor
+    await fetch(`/api/community/interactions`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        postId: id,
+        type: 'like',
+      })
+    });
+  };
+
+  const handleFilterChange = (newFilters: any) => {
+    setFilters(prev => ({ ...prev, ...newFilters }));
+  };
+
+  const handleSearch = (query: string) => {
+    setFilters(prev => ({ ...prev, search: query }));
+  };
+
+  const loadMore = () => {
+    if (!loading && hasMore) {
+      loadConversations(page + 1);
+    }
   };
 
   const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
@@ -289,7 +411,7 @@ export default function ComunidadePage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-ink-50 via-white to-amber-50 relative overflow-hidden">
-      {/* Background decorativo com acessÃ³rios */}
+      {/* Background decorativo com acessórios */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none" aria-hidden="true">
         <div className="absolute top-20 left-5 w-32 h-32 opacity-5" style={{ backgroundImage: `url("${bgImages[0]}")` }} />
         <div className="absolute top-40 right-10 w-24 h-24 opacity-5 rotate-12" style={{ backgroundImage: `url("${bgImages[1]}")` }} /> 
@@ -304,35 +426,35 @@ export default function ComunidadePage() {
           <div className="text-center mb-10 relative">
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-brand-100 text-brand-700 text-sm font-medium mb-4">
               <TrendingUp className="w-4 h-4" />
-              <span>Comunidade ativa Â· Tempo real</span>
+              <span>Comunidade Ativa · Em Tempo Real</span>
             </div>
             <h1 className="text-3xl sm:text-4xl font-bold text-ink-900 mb-3">
               Comunidade <span className="text-brand-600">ImportEasy</span>
             </h1>
             <p className="text-lg text-ink-600 max-w-2xl mx-auto">
-              Partilhe a sua experiÃªncia, tire dÃºvidas e veja o que outros clientes em Angola estÃ£o a importar.
-              <span className="font-medium text-brand-600"> Mais de 2.500 angolanos jÃ¡ confiam.</span>
+              Partilhe a sua experiência, tire dúvidas e veja o que outros clientes em Angola estão a importar.
+              <span className="font-semibold text-brand-600"> Mais de 2.500 clientes já confiam.</span>
             </p>
           </div>
 
-          {/* Stats */}
+          {/* Stats - Usar stats reais da database */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-            <StatCard icon={Users} value="2.500+" label="Clientes ativos" />
-            <StatCard icon={CheckCircle2} value="8.300+" label="Pedidos entregues" />
-            <StatCard icon={Star} value="4,8/5" label="AvaliaÃ§Ã£o mÃ©dia" />
-            <StatCard icon={TrendingUp} value="18 dias" label="MÃ©dia de entrega" />
+            <StatCard icon={Users} value={stats.clientesAtivos.toLocaleString() + (stats.clientesAtivos === 0 ? '+' : '')} label="Clientes em Angola" />
+            <StatCard icon={CheckCircle2} value={stats.totalPedidos.toLocaleString() + (stats.totalPedidos === 0 ? '+' : '')} label="Total de pedidos" />
+            <StatCard icon={Star} value="4,8/5" label="Avaliação média" />
+            <StatCard icon={TrendingUp} value={stats.tempoMedio} label="Tempo de entrega" />
           </div>
 
           {/* Composer */}
           <div className="bg-white rounded-2xl border border-ink-200 p-4 mb-8 shadow-sm relative">
             <div className="flex items-start gap-3">
-              <img src={getAvatarUrl("current-user")} alt="VocÃª" className="w-10 h-10 rounded-full ring-2 ring-brand-200" />
+              <img src={getAvatarUrl("current-user")} alt="Você" className="w-10 h-10 rounded-full ring-2 ring-brand-200" />
               <div className="flex-1">
                 <form onSubmit={handleSubmit} className="space-y-3">
                   <textarea
                     value={newMessage}
                     onChange={(e) => setNewMessage(e.target.value)}
-                    placeholder="O que estÃ¡ a pensar importar? Partilhe a sua experiÃªncia ou faÃ§a uma pergunta..."
+                    placeholder="O que está a pensar importar? Partilhe a sua experiência ou faça uma pergunta..."
                     rows={3}
                     className="w-full resize-none border border-ink-200 rounded-xl p-3 text-ink-900 placeholder-ink-400 focus:ring-2 focus:ring-brand-500 focus:border-transparent transition"
                     disabled={isSubmitting}
@@ -365,6 +487,12 @@ export default function ComunidadePage() {
             </div>
           ))}
 
+          {/* Community Filters */}
+          <CommunityFilters 
+            onFilter={handleFilterChange}
+            onSearch={handleSearch}
+          />
+
           {/* Feed */}
           <div 
             ref={feedRef}
@@ -389,12 +517,18 @@ export default function ComunidadePage() {
           </div>
 
           {/* Load More */}
-          <div className="text-center mt-8">
-            <button className="px-6 py-3 text-brand-600 font-medium hover:text-brand-700 transition flex items-center gap-2 mx-auto">
-              Carregar mais conversas
-              <TrendingUp className="w-4 h-4" />
-            </button>
-          </div>
+          {hasMore && (
+            <div className="text-center mt-8">
+              <button
+                onClick={loadMore}
+                disabled={loading}
+                className="px-6 py-3 text-brand-600 font-medium hover:text-brand-700 transition flex items-center gap-2 mx-auto disabled:opacity-50"
+              >
+                {loading ? "Carregando..." : "Carregar mais conversas"}
+                <TrendingUp className="w-4 h-4" />
+              </button>
+            </div>
+          )}
         </div>
       </main>
     </div>
@@ -447,12 +581,12 @@ function ConversationCard({ conversation, onLike }: { conversation: any; onLike:
                 <CheckCircle2 className="w-3 h-3" /> Verificado
               </span>
             )}
-            <span className="text-ink-400">â€¢</span>
+            <span className="text-ink-400">·</span>
             <span className="text-sm text-ink-500 flex items-center gap-1">
               <MapPin className="w-3 h-3" />
               {conversation.location}
             </span>
-            <span className="text-ink-400">â€¢</span>
+            <span className="text-ink-400">·</span>
             <span className="text-sm text-ink-500 flex items-center gap-1">
               <Clock className="w-3 h-3" />
               {conversation.timeAgo}

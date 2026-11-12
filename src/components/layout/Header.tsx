@@ -115,12 +115,12 @@ export function Header() {
                 Pedidos
               </Link>
               <a
-                href="https://wa.me/244922058136?text=Olá"
+                href="https://wa.me/244929423278?text=Ol%C3%A1%20ImportEasy!"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="hidden sm:inline-flex h-9 items-center rounded-full px-3 text-[13px] font-medium text-ink-700 hover:bg-ink-100"
               >
-                <MessageCircle className="h-[16px] w-[16px] mr-1.5" />
+                <MessageCircle className="h-[16px] w-[16px] mr-1.5 text-emerald-600" />
                 WhatsApp
               </a>
               <Link
@@ -131,11 +131,10 @@ export function Header() {
                 <User className="h-[18px] w-[18px]" />
               </Link>
               <Link
-                href="/admin"
-                className="hidden md:inline-flex h-9 items-center rounded-full bg-brand-600 text-white px-4 text-[13px] font-medium hover:bg-brand-700 transition"
+                href="/importar"
+                className="hidden md:inline-flex h-9 items-center rounded-full bg-brand-600 text-white px-4 text-[13px] font-semibold hover:bg-brand-700 transition shadow-sm"
               >
-                <Shield className="h-3.5 w-3.5 mr-1.5" />
-                Área admin
+                Simular Preço
               </Link>
               <button
                 onClick={() => setMobileOpen((v) => !v)}
@@ -229,11 +228,11 @@ export function Header() {
               <ArrowRight className="h-4 w-4 text-ink-400" />
             </Link>
             <Link
-              href="/admin"
+              href="/importar"
               onClick={() => setMobileOpen(false)}
-              className="mt-6 text-center rounded-full bg-brand-600 text-white py-3.5 font-medium text-[15px]"
+              className="mt-6 text-center rounded-full bg-brand-600 text-white py-3.5 font-semibold text-[15px] shadow-sm"
             >
-              Área de administração
+              Simular Preço de Importação
             </Link>
           </nav>
         </div>

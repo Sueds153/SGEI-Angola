@@ -8,33 +8,33 @@ import { ArrowRight } from "lucide-react";
 
 export const metadata: Metadata = {
   title: "Como funciona",
-  description: "Descobre como é fácil comprar da SHEIN através da SGEI.",
+  description: "Descubra como é fácil importar da Shein, AliExpress e Vinted através da ImportEasy.",
 };
 
 const steps = [
   {
     n: "01",
     kicker: "Encontra",
-    title: "Abre a SHEIN.",
-    body: "Navega no site ou app da SHEIN como fazes sempre. Quando encontrares o que queres, copia o link do produto.",
+    title: "Escolha o produto.",
+    body: "Navegue no site ou app da Shein, AliExpress ou Vinted. Quando encontrar o artigo pretendido, basta copiar o link da página.",
   },
   {
     n: "02",
-    kicker: "Cola",
-    title: "Diz-nos qual é.",
-    body: "Cola o link na nossa página. Se já souberes o que quiseres, nem precisas de navegar o nosso catálogo.",
+    kicker: "Simula",
+    title: "Cole no simulador.",
+    body: "Cole o link no nosso simulador de importação ou selecione um dos produtos em destaque no nosso catálogo de sugestões.",
   },
   {
     n: "03",
-    kicker: "Preço",
-    title: "Vê o valor em Kz.",
-    body: "Calculamos tudo automaticamente: produto, câmbio, serviço, logística internacional e entrega em Angola.",
+    kicker: "Preço & Pagamento",
+    title: "Pague em Kwanzas.",
+    body: "Calculamos o preço final transparente em Kz (produto, câmbio, transporte e alfândega). Pague via Multicaixa Express (929 423 278) ou Referência (Entidade: 10116).",
   },
   {
     n: "04",
     kicker: "Recebe",
-    title: "Nós tratamos do resto.",
-    body: "Compramos, recebemos, tratamos do envio e entregamos na tua porta. Tu só acompanhas.",
+    title: "Nós tratamos de tudo.",
+    body: "Compramos ao fornecedor internacional, tratamos do envio aéreo, desalfandegamento e entregamos na sua morada em Luanda ou províncias.",
   },
 ];
 
@@ -104,13 +104,13 @@ export default function ComoFuncionaPage() {
             <div className="relative rounded-[32px] md:rounded-[48px] bg-black text-white p-10 md:p-20 overflow-hidden">
               <div className="absolute top-10 right-10 text-white/30"><Asterisk size={48} /></div>
               <div className="absolute bottom-10 left-10 text-white/30 rotate-[-8deg]">
-                <Stamp className="border-white/40 text-white/70 text-[9px]">SGEI · AO</Stamp>
+                <Stamp className="border-white/40 text-white/70 text-[9px]">ImportEasy · AO</Stamp>
               </div>
               <p className="font-mono text-[11px] uppercase tracking-[0.2em] text-white/60">
                 Pronto para começar?
               </p>
               <h2 className="text-4xl md:text-6xl font-semibold tracking-[-0.03em] mt-6 leading-[1.02] max-w-3xl">
-                Cola um link.
+                Cole um link.
                 <br />
                 <span className="italic font-serif font-light">Nós fazemos o resto.</span>
               </h2>
@@ -120,9 +120,9 @@ export default function ComoFuncionaPage() {
                     Ir para o início <ArrowRight className="h-4 w-4" />
                   </Button>
                 </Link>
-                <Link href="/catalogo">
+                <Link href="/produtos">
                   <Button variant="ghost" className="text-white hover:bg-white/10" size="lg">
-                    Ver catálogo
+                    Ver produtos em destaque
                   </Button>
                 </Link>
               </div>

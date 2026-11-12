@@ -1,8 +1,8 @@
 ﻿"use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
-import { Loader2, AlertCircle, CheckCircle, Link as LinkIcon, Shield, Clock, Calculator, CheckCircle2 } from "lucide-react";
+import { useState, useEffect, Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { Loader2, AlertCircle, CheckCircle, Link as LinkIcon, Shield, Clock, Calculator, CheckCircle2, ArrowRight } from "lucide-react";
 import Link from "next/link";
 import { Logo } from "@/components/brand/Logo";
 
@@ -22,21 +22,40 @@ interface SimulationResult {
   logisticsFee?: number;
   deliveryFee?: number;
   estimatedDays?: number;
+  sourceUrl?: string;
   error?: string;
 }
 
 const PLATFORMS = [
-  { name: "Shein", icon: "Shein", color: "bg-pink-100 text-pink-600", domains: ["shein.com"] },
-  { name: "AliExpress", icon: "AliExpress", color: "bg-orange-100 text-orange-600", domains: ["aliexpress.com", "pt.aliexpress.com"] },
-  { name: "Vinted", icon: "Vinted", color: "bg-brand-100 text-brand-600", domains: ["vinted.com", "vinted.pt", "vinted.fr", "vinted.es"] },
+  { name: "Shein", icon: "Shein", color: "bg-pink-100 text-pink-700", domains: ["shein.com"] },
+  { name: "AliExpress", icon: "AliExpress", color: "bg-orange-100 text-orange-700", domains: ["aliexpress.com", "pt.aliexpress.com"] },
+  { name: "Vinted", icon: "Vinted", color: "bg-brand-100 text-brand-700", domains: ["vinted.com", "vinted.pt", "vinted.fr", "vinted.es"] },
 ];
 
 export default function ImportarPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-ink-50 grid place-items-center"><Loader2 className="w-8 h-8 animate-spin text-brand-600" /></div>}>
+      <ImportarContent />
+    </Suspense>
+  );
+}
+
+function ImportarContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [url, setUrl] = useState("");
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<SimulationResult | null>(null);
   const [error, setError] = useState<string | null>(null);
+
+  // Lê parâmetro url da rota se vier do Hero
+  useEffect(() => {
+    const initialUrl = searchParams.get("url");
+    if (initialUrl && !url) {
+      setUrl(initialUrl);
+      resolveUrl(initialUrl);
+    }
+  }, [searchParams]);
 
   const detectPlatform = (inputUrl: string) => {
     try {
@@ -47,8 +66,7 @@ export default function ImportarPage() {
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const resolveUrl = async (targetUrl: string) => {
     setError(null);
     setResult(null);
     setLoading(true);
@@ -57,7 +75,7 @@ export default function ImportarPage() {
       const response = await fetch("/api/products/resolve-url", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ url }),
+        body: JSON.stringify({ url: targetUrl }),
       });
 
       const data = await response.json();
@@ -66,11 +84,10 @@ export default function ImportarPage() {
         throw new Error(data.error || "Erro ao processar o link");
       }
 
-      // Se precisa de confirmaÃ§Ã£o (Shein/AliExpress sem premium)
       if (data.needs_confirmation) {
         setResult({
           success: true,
-          platform: data.platform,
+          platform: data.platform || "Shein/AliExpress",
           productId: data.productId,
           title: data.title || "Produto detectado",
           price: data.price,
@@ -84,17 +101,27 @@ export default function ImportarPage() {
           logisticsFee: data.logisticsFee,
           deliveryFee: data.deliveryFee,
           estimatedDays: data.estimatedDays,
+          sourceUrl: targetUrl,
         });
       } else if (data.product) {
-        setResult(data.product);
+        setResult({
+          ...data.product,
+          sourceUrl: targetUrl,
+        });
       } else {
-        throw new Error("NÃ£o foi possÃ­vel obter os dados do produto");
+        throw new Error("Não foi possível obter os dados do produto");
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Erro desconhecido");
+      setError(err instanceof Error ? err.message : "Erro desconhecido ao processar");
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!url.trim()) return;
+    resolveUrl(url.trim());
   };
 
   const handleNewSimulation = () => {
@@ -112,15 +139,19 @@ export default function ImportarPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <Link href="/" className="flex items-center gap-2">
-              <Logo className="h-8 w-auto" />
-              <span className="font-bold text-xl text-brand-600">ImportEasy</span>
+              <Logo size="md" />
             </Link>
-            <nav className="hidden md:flex items-center gap-6 text-sm">
-              <Link href="/produtos" className="text-ink-600 hover:text-brand-600">Produtos</Link>
-              <Link href="/comunidade" className="text-ink-600 hover:text-brand-600">Comunidade</Link>
-              <Link href="/rastrear" className="text-ink-600 hover:text-brand-600">Rastrear</Link>
-              <a href="https://wa.me/244922058136" target="_blank" rel="noopener noreferrer" className="px-4 py-2 bg-brand-600 text-white rounded-lg hover:bg-brand-700 text-sm font-medium">
-                Suporte
+            <nav className="hidden md:flex items-center gap-6 text-sm font-medium">
+              <Link href="/produtos" className="text-ink-600 hover:text-brand-600 transition">Produtos</Link>
+              <Link href="/comunidade" className="text-ink-600 hover:text-brand-600 transition">Comunidade</Link>
+              <Link href="/rastrear" className="text-ink-600 hover:text-brand-600 transition">Rastrear</Link>
+              <a 
+                href="https://wa.me/244929423278?text=Ol%C3%A1%20ImportEasy!" 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                className="px-4 py-2 bg-brand-600 text-white rounded-xl hover:bg-brand-700 text-sm font-semibold transition"
+              >
+                WhatsApp (+244 929 423 278)
               </a>
             </nav>
           </div>
@@ -131,28 +162,32 @@ export default function ImportarPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Hero Section */}
           <div className="text-center max-w-3xl mx-auto mb-12">
-            <h1 className="text-3xl sm:text-4xl font-bold text-ink-900 mb-4">
-              Simule a sua <span className="text-brand-600">importaÃ§Ã£o</span>
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-brand-50 text-brand-700 text-xs font-semibold mb-4 border border-brand-100">
+              <Shield className="w-3.5 h-3.5 text-emerald-600" />
+              Preço Final Sem Surpresas Alfandegárias
+            </div>
+            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-ink-950 tracking-tight mb-4">
+              Simule a sua <span className="text-brand-600">Importação</span>
             </h1>
-            <p className="text-lg text-ink-600">
-              Cole o link de qualquer produto da Shein, AliExpress ou Vinted e veja o preÃ§o final em Kwanzas com entrega incluÃ­da.
+            <p className="text-base sm:text-lg text-ink-600">
+              Cole o link de qualquer produto da Shein, AliExpress ou Vinted e veja imediatamente o preço final em Kwanzas com taxas e entrega na sua porta.
             </p>
           </div>
 
           {/* Platform Selector / Detection */}
           <div className="mb-8">
             <div className="flex flex-wrap items-center justify-center gap-3 mb-4">
-              <span className="text-sm text-ink-500">Plataformas suportadas:</span>
+              <span className="text-sm text-ink-500 font-medium">Lojas suportadas:</span>
               {PLATFORMS.map((p) => (
-                <span key={p.name} className={`px-3 py-1 rounded-full text-sm font-medium ${p.color} flex items-center gap-1`}>
+                <span key={p.name} className={`px-3.5 py-1 rounded-full text-xs font-semibold ${p.color} border border-black/5`}>
                   {p.name}
                 </span>
               ))}
             </div>
             
             {platform && (
-              <div className="text-center text-sm text-brand-600 font-medium mb-4">
-                <CheckCircle2 className="w-4 h-4 inline mr-1" /> Detectado: <strong>{platform.name}</strong> — {platform.domains[0]}
+              <div className="text-center text-sm text-brand-600 font-semibold mb-4 animate-fade-in">
+                <CheckCircle2 className="w-4 h-4 inline mr-1 text-emerald-600" /> Detectado: <strong>{platform.name}</strong>
               </div>
             )}
           </div>
@@ -160,8 +195,8 @@ export default function ImportarPage() {
           {/* Form */}
           <form onSubmit={handleSubmit} className="max-w-2xl mx-auto space-y-6">
             <div className="bg-white rounded-2xl border border-ink-200 p-6 shadow-sm">
-              <label htmlFor="product-url" className="block text-sm font-medium text-ink-700 mb-3">
-                Link do produto
+              <label htmlFor="product-url" className="block text-sm font-semibold text-ink-800 mb-3">
+                Link do produto no fornecedor
               </label>
               <div className="relative">
                 <LinkIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-ink-400" aria-hidden="true" />
@@ -170,31 +205,31 @@ export default function ImportarPage() {
                   type="url"
                   value={url}
                   onChange={(e) => setUrl(e.target.value)}
-                  placeholder="https://www.shein.com/... ou https://pt.aliexpress.com/... ou https://www.vinted.pt/..."
+                  placeholder="Cole aqui: https://www.shein.com/... ou https://pt.aliexpress.com/..."
                   className="w-full pl-12 pr-4 py-4 border border-ink-300 rounded-xl focus:ring-2 focus:ring-brand-500 focus:border-transparent text-ink-900 placeholder-ink-400 transition"
                   required
                   disabled={loading}
                 />
               </div>
-              <p className="mt-2 text-xs text-ink-500 text-center">
-                Exemplo: <code className="bg-ink-100 px-1.5 py-0.5 rounded">https://www.vinted.pt/items/123456789-iphone-13-pro</code>
+              <p className="mt-2.5 text-xs text-ink-500 text-center">
+                Exemplo: <code className="bg-ink-100 px-2 py-0.5 rounded text-ink-700">https://www.vinted.pt/items/123456789</code> ou qualquer link da Shein/AliExpress
               </p>
             </div>
 
             <button
               type="submit"
               disabled={loading || !url}
-              className="w-full py-4 px-6 bg-brand-600 text-white font-semibold text-lg rounded-xl hover:bg-brand-700 disabled:opacity-50 disabled:cursor-not-allowed transition flex items-center justify-center gap-2"
+              className="w-full py-4 px-6 bg-brand-600 text-white font-bold text-lg rounded-xl hover:bg-brand-700 disabled:opacity-50 disabled:cursor-not-allowed transition flex items-center justify-center gap-2 shadow-lg shadow-brand-500/20 active:scale-[0.99] cursor-pointer"
             >
               {loading ? (
                 <>
                   <Loader2 className="w-5 h-5 animate-spin" />
-                  A calcular preÃ§o final...
+                  A calcular preço final em Kwanzas...
                 </>
               ) : (
                 <>
                   <Calculator className="w-5 h-5" />
-                  Simular ImportaÃ§Ã£o
+                  Simular Importação Agora
                 </>
               )}
             </button>
@@ -204,7 +239,7 @@ export default function ImportarPage() {
           {error && (
             <div className="max-w-2xl mx-auto mt-6 p-4 bg-red-50 border border-red-200 rounded-xl flex items-start gap-3 text-red-700" role="alert">
               <AlertCircle className="w-5 h-5 flex-shrink-0 mt-0.5" />
-              <p>{error}</p>
+              <p className="text-sm">{error}</p>
             </div>
           )}
 
@@ -213,6 +248,7 @@ export default function ImportarPage() {
             <div className="max-w-2xl mx-auto mt-8 animate-fade-in">
               <SimulationResultCard 
                 result={result} 
+                url={url}
                 onNewSimulation={handleNewSimulation}
               />
             </div>
@@ -220,26 +256,46 @@ export default function ImportarPage() {
 
           {/* Features */}
           <div className="mt-16 grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
-            <FeatureCard icon={Shield} title="PreÃ§o Final Garantido" desc="O valor simulado jÃ¡ inclui: produto + taxa de cÃ¢mbio + taxa de serviÃ§o + logÃ­stica + alfÃ¢ndega + entrega. Sem surpresas." />
-            <FeatureCard icon={Clock} title="Prazo Realista" desc="Entrega estimada em 15-25 dias Ãºteis. Acompanha tudo no seu painel com rastreio em tempo real." />
-            <FeatureCard icon={Calculator} title="Pagamento em Kz" desc="TransferÃªncia, Multicaixa Express ou ReferÃªncia. Comprovativo validado em minutos via WhatsApp." />
+            <FeatureCard 
+              icon={Shield} 
+              title="Preço Final Garantido" 
+              desc="O valor simulado inclui: produto + conversão cambial + logística aérea + taxas alfandegárias + entrega em Angola. Sem cobranças surpresa." 
+            />
+            <FeatureCard 
+              icon={Clock} 
+              title="Prazos Realistas" 
+              desc="Entrega estimada em 15–25 dias úteis. Acompanhamento completo no seu painel com atualizações no WhatsApp." 
+            />
+            <FeatureCard 
+              icon={Calculator} 
+              title="Pagamento em Kwanzas" 
+              desc="Pague via Multicaixa Express (929 423 278) ou Pagamento por Referência (Entidade: 10116 / Ref: 929 423 278)." 
+            />
           </div>
         </div>
       </main>
 
       {/* Footer */}
       <footer className="bg-ink-900 text-ink-300 py-12">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <p className="font-bold text-white text-lg mb-2">ImportEasy</p>
-          <p className="mb-4">Sua ponte para o mundo. Shein, AliExpress e Vinted entregues em Angola.</p>
-          <p className="text-sm">Suporte: +244 922 058 136 | apoio@importeasy.ao</p>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-2">
+          <p className="font-bold text-white text-lg">ImportEasy</p>
+          <p className="text-sm">A sua ponte para o mundo. Shein, AliExpress e Vinted entregues em Angola.</p>
+          <p className="text-xs text-ink-400">Suporte WhatsApp: +244 929 423 278 | Luanda, Angola</p>
         </div>
       </footer>
     </div>
   );
 }
 
-function SimulationResultCard({ result, onNewSimulation }: { result: SimulationResult; onNewSimulation: () => void }) {
+function SimulationResultCard({ 
+  result, 
+  url,
+  onNewSimulation 
+}: { 
+  result: SimulationResult; 
+  url: string;
+  onNewSimulation: () => void 
+}) {
   const formatCurrency = (value: number, currency: string) => {
     return new Intl.NumberFormat("pt-AO", { style: "currency", currency }).format(value);
   };
@@ -252,91 +308,101 @@ function SimulationResultCard({ result, onNewSimulation }: { result: SimulationR
   const originalCurrency = result.originalCurrency || result.currency || "USD";
   const totalAOA = result.estimatedTotalAOA || 0;
 
+  const checkoutUrl = `/checkout?externalUrl=${encodeURIComponent(url || result.sourceUrl || "")}&productName=${encodeURIComponent(result.title || "Produto Importado")}&externalId=${encodeURIComponent(result.productId || "")}`;
+
   return (
-    <div className="bg-white rounded-2xl border border-brand-200 shadow-lg overflow-hidden">
+    <div className="bg-white rounded-2xl border-2 border-brand-200 shadow-xl overflow-hidden">
       {/* Success Header */}
       <div className="bg-brand-600 text-white px-6 py-4 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <CheckCircle className="w-8 h-8" />
+          <CheckCircle className="w-7 h-7 text-emerald-300" />
           <div>
-            <h2 className="text-xl font-bold">SimulaÃ§Ã£o concluÃ­da</h2>
-            <p className="text-brand-100 text-sm">{result.platform} â€¢ {result.title?.substring(0, 60)}...</p>
+            <h2 className="text-xl font-bold">Simulação Concluída</h2>
+            <p className="text-brand-100 text-xs">{result.platform} · {result.title?.substring(0, 45)}...</p>
           </div>
         </div>
-        <button onClick={onNewSimulation} className="text-brand-100 hover:text-white text-sm font-medium">
-          Nova simulaÃ§Ã£o
+        <button onClick={onNewSimulation} className="text-brand-100 hover:text-white text-xs font-semibold px-3 py-1 bg-white/10 rounded-lg transition">
+          Nova simulação
         </button>
       </div>
 
       <div className="p-6 space-y-6">
         {/* Product Info */}
-        <div className="flex gap-4">
-          <div className="w-24 h-24 rounded-xl bg-ink-100 flex items-center justify-center flex-shrink-0">
+        <div className="flex gap-4 items-center">
+          <div className="w-20 h-20 rounded-xl bg-ink-100 flex items-center justify-center flex-shrink-0 overflow-hidden border border-ink-200">
             {result.images?.[0] ? (
-              <img src={result.images[0]} alt={result.title} className="w-full h-full object-cover rounded-xl" />
+              <img src={result.images[0]} alt={result.title} className="w-full h-full object-cover" />
             ) : (
-              <LinkIcon className="w-10 h-10 text-ink-400" />
+              <LinkIcon className="w-8 h-8 text-ink-400" />
             )}
           </div>
           <div className="flex-1 min-w-0">
-            <h3 className="font-semibold text-ink-900 truncate">{result.title}</h3>
-            <p className="text-sm text-ink-500">ID: {result.productId} â€¢ {result.platform}</p>
+            <h3 className="font-bold text-ink-900 text-base leading-snug line-clamp-2">{result.title}</h3>
+            <p className="text-xs text-ink-500 mt-1">Plataforma: <strong>{result.platform}</strong></p>
           </div>
         </div>
 
         {/* Price Breakdown */}
-        <div className="border-t border-ink-200 pt-6 space-y-3">
-          <h4 className="font-semibold text-ink-900">Detalhe do preÃ§o</h4>
+        <div className="border-t border-ink-100 pt-5 space-y-3">
+          <h4 className="font-bold text-ink-900 text-sm">Decomposição Transparente do Preço</h4>
           
-          <div className="bg-brand-50 rounded-xl p-4">
-            <div className="flex justify-between text-sm mb-2">
-              <span className="text-ink-600">PreÃ§o original ({originalCurrency})</span>
-              <span className="font-medium text-ink-900">{formatCurrency(originalPrice, originalCurrency)}</span>
+          <div className="bg-brand-50/70 rounded-xl p-4 space-y-2 border border-brand-100">
+            <div className="flex justify-between text-sm">
+              <span className="text-ink-600">Preço original no fornecedor</span>
+              <span className="font-semibold text-ink-900">{formatCurrency(originalPrice, originalCurrency)}</span>
             </div>
-            <div className="flex justify-between text-sm mb-2">
-              <span className="text-ink-600">Taxa de cÃ¢mbio</span>
-              <span className="font-medium text-ink-900">1 {originalCurrency} = {result.exchangeRate?.toFixed(2)} AOA</span>
-            </div>
-            <div className="flex justify-between text-sm mb-2">
-              <span className="text-ink-600">Taxa de serviÃ§o (12%)</span>
+            {result.exchangeRate && (
+              <div className="flex justify-between text-sm">
+                <span className="text-ink-600">Câmbio de conversão</span>
+                <span className="font-medium text-ink-900">1 {originalCurrency} ≈ {result.exchangeRate?.toFixed(2)} Kz</span>
+              </div>
+            )}
+            <div className="flex justify-between text-sm">
+              <span className="text-ink-600">Taxa de intermediação & serviço</span>
               <span className="font-medium text-ink-900">{formatAOA(result.serviceFee || 0)}</span>
             </div>
-            <div className="flex justify-between text-sm mb-2">
-              <span className="text-ink-600">LogÃ­stica & AlfÃ¢ndega</span>
+            <div className="flex justify-between text-sm">
+              <span className="text-ink-600">Transporte internacional & desalfandegamento</span>
               <span className="font-medium text-ink-900">{formatAOA(result.logisticsFee || 0)}</span>
             </div>
-            <div className="flex justify-between text-sm mb-2">
-              <span className="text-ink-600">Entrega em Angola</span>
+            <div className="flex justify-between text-sm">
+              <span className="text-ink-600">Entrega ao domicílio em Angola</span>
               <span className="font-medium text-ink-900">{formatAOA(result.deliveryFee || 0)}</span>
             </div>
             <div className="border-t border-brand-200 pt-3 flex justify-between text-lg font-bold">
-              <span className="text-ink-900">Total a pagar</span>
-              <span className="text-brand-600">{formatAOA(totalAOA)}</span>
+              <span className="text-ink-950">Total Final a Pagar</span>
+              <span className="text-brand-600 text-xl font-extrabold">{formatAOA(totalAOA)}</span>
             </div>
           </div>
 
-          {/* Estimated Delivery */}
-          <div className="flex items-center gap-3 p-4 bg-ink-50 rounded-xl">
-            <Clock className="w-5 h-5 text-brand-600" />
-            <div>
-              <p className="font-medium text-ink-900">Entrega estimada</p>
-              <p className="text-sm text-ink-600">{result.estimatedDays || 18} a {result.estimatedDays ? result.estimatedDays + 7 : 25} dias Ãºteis</p>
+          {/* Delivery & Payment note */}
+          <div className="flex items-center gap-3 p-3.5 bg-ink-50 rounded-xl border border-ink-100">
+            <Clock className="w-5 h-5 text-brand-600 flex-shrink-0" />
+            <div className="text-xs">
+              <p className="font-semibold text-ink-900">Prazo de entrega estimado</p>
+              <p className="text-ink-600">{result.estimatedDays || 15} a {result.estimatedDays ? result.estimatedDays + 8 : 25} dias úteis com rastreio</p>
             </div>
           </div>
         </div>
 
-        {/* CTA */}
-        <div className="border-t border-ink-200 pt-6">
+        {/* Call to Actions (Conversão Dupla: Checkout no Site ou WhatsApp Direto) */}
+        <div className="border-t border-ink-100 pt-5 space-y-3">
+          <Link
+            href={checkoutUrl}
+            className="w-full flex items-center justify-center gap-2 px-6 py-4 bg-brand-600 text-white font-bold text-base rounded-xl hover:bg-brand-700 transition shadow-lg shadow-brand-500/25 active:scale-[0.99]"
+          >
+            Avançar para Encomenda <ArrowRight className="w-5 h-5" />
+          </Link>
+
           <a
-            href={`https://wa.me/244922058136?text=${encodeURIComponent(
-              `Olá ImportEasy! Quero encomendar: ${result.title} (${result.platform}). Total: ${formatAOA(totalAOA)}. Link: ${result.sourceUrl || url || ''}`
+            href={`https://wa.me/244929423278?text=${encodeURIComponent(
+              `Olá ImportEasy! Simulei este produto e pretendo encomendar: ${result.title} (${result.platform}). Total: ${formatAOA(totalAOA)}. Link: ${url || result.sourceUrl || ''}`
             )}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="w-full flex items-center justify-center gap-3 px-6 py-4 bg-green-600 text-white font-semibold rounded-xl hover:bg-green-700 transition"
+            className="w-full flex items-center justify-center gap-2 px-6 py-3.5 border-2 border-emerald-600 text-emerald-700 font-bold rounded-xl hover:bg-emerald-50 transition text-sm"
           >
-            <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.263.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378 9.86 9.86 0 01-1.716-4.92 9.877 9.877 0 014.58-5.377 9.87 9.87 0 015.377 1.293c.66.786 1.067 1.87 1.067 3.071 0 2.454-2.4 4.547-5.377 4.547z"/></svg>
-            Encomendar via WhatsApp
+            Falar com Atendente no WhatsApp (+244 929 423 278)
           </a>
         </div>
       </div>
@@ -346,12 +412,12 @@ function SimulationResultCard({ result, onNewSimulation }: { result: SimulationR
 
 function FeatureCard({ icon: Icon, title, desc }: { icon: React.ComponentType<{ className?: string }>; title: string; desc: string }) {
   return (
-    <div className="bg-white rounded-2xl border border-ink-200 p-6 hover:border-brand-300 hover:shadow-lg transition">
-      <div className="w-12 h-12 rounded-xl bg-brand-100 flex items-center justify-center mb-4">
+    <div className="bg-white rounded-2xl border border-ink-200 p-6 hover:border-brand-300 hover:shadow-md transition">
+      <div className="w-12 h-12 rounded-xl bg-brand-50 border border-brand-100 flex items-center justify-center mb-4">
         <Icon className="w-6 h-6 text-brand-600" />
       </div>
       <h3 className="font-bold text-ink-900 mb-2">{title}</h3>
-      <p className="text-ink-600 text-sm">{desc}</p>
+      <p className="text-ink-600 text-sm leading-relaxed">{desc}</p>
     </div>
   );
 }

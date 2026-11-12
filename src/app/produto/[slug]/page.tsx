@@ -18,7 +18,7 @@ export async function generateMetadata({
   if (!product) return { title: "Produto não encontrado" };
   return {
     title: product.name,
-    description: product.description || "Produto disponível via SGEI.",
+    description: product.description || "Produto disponível para importação rápida e segura via ImportEasy.",
     openGraph: { images: product.defaultImage ? [product.defaultImage] : undefined },
   };
 }
@@ -50,13 +50,6 @@ export default async function ProdutoPage({
         <span className="mx-1.5">/</span>
         <span className="text-ink-700 line-clamp-1 inline-block align-bottom max-w-[200px]">{product.name}</span>
       </nav>
-      {product.source === "MOCK" && (
-        <div className="mb-4">
-          <Alert variant="warning" title="Produto de demonstração">
-            Este é um artigo de demonstração para mostrar a plataforma. Os produtos reais serão adicionados pelo administrador.
-          </Alert>
-        </div>
-      )}
       <ProductDetail product={product} />
     </Container>
   );

@@ -4,7 +4,7 @@ import HowItWorks from "@/components/landing/HowItWorks";
 import FeaturedProducts from "@/components/landing/FeaturedProducts";
 import { getFeaturedProducts } from "@/lib/actions/products";
 import Link from "next/link";
-import { ArrowRight, MessageCircle } from "lucide-react";
+import { ArrowRight, MessageCircle, Shield, Truck, CreditCard, CheckCircle2 } from "lucide-react";
 
 export default async function HomePage() {
   const featured = await getFeaturedProducts(24);
@@ -60,15 +60,40 @@ function TrustSection() {
         </div>
 
         {/* Link para Comunidade */}
-        <div className="text-center">
+        <div className="text-center mb-16">
           <Link
             href="/comunidade"
             className="inline-flex items-center gap-2 px-6 py-3 border-2 border-brand-600 text-brand-600 font-semibold rounded-xl hover:bg-brand-50 transition"
           >
             <MessageCircle className="w-5 h-5" />
-            Ver Comunidade Ativa
+            Ver Comunidade & Testemunhos
             <ArrowRight className="w-5 h-5" />
           </Link>
+        </div>
+
+        {/* Banner de Garantia & Pagamento Seguro em Angola */}
+        <div className="bg-gradient-to-br from-ink-900 to-ink-950 text-white p-8 sm:p-12 rounded-3xl shadow-xl">
+          <div className="max-w-3xl mx-auto text-center space-y-4">
+            <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-400 text-xs font-semibold uppercase tracking-wider">
+              <Shield className="w-4 h-4" /> Garantia 100% Livre de Risco
+            </span>
+            <h3 className="text-2xl sm:text-3xl font-bold">
+              Se não chegar ou tiver problemas, o seu dinheiro é devolvido.
+            </h3>
+            <p className="text-ink-300 text-sm sm:text-base leading-relaxed">
+              Tratamos de todo o processo de desalfandegamento em Angola. O preço simulado é final e garantido. Pague em Kwanzas através do ecossistema bancário angolano mais seguro.
+            </p>
+            <div className="pt-4 grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-lg mx-auto text-left">
+              <div className="bg-white/10 p-4 rounded-2xl border border-white/10">
+                <span className="text-xs text-ink-300 block">App Multicaixa Express</span>
+                <span className="text-lg font-mono font-bold text-white">929 423 278</span>
+              </div>
+              <div className="bg-white/10 p-4 rounded-2xl border border-white/10">
+                <span className="text-xs text-ink-300 block">Pagamento por Referência</span>
+                <span className="text-sm font-mono text-white">Entidade: <strong className="text-base text-emerald-400">10116</strong> · Ref: <strong className="text-base text-emerald-400">929 423 278</strong></span>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </section>
@@ -83,7 +108,7 @@ function FinalCTA() {
           Pronto para importar sem complicações?
         </h2>
         <p className="text-brand-100 text-lg mb-8 max-w-2xl mx-auto">
-          Cole o link do produto que você viu na Shein, AliExpress ou Vinted e veja o preço final em Kwanzas com entrega incluída.
+          Cole o link do produto que viu na Shein, AliExpress ou Vinted e veja o preço final em Kwanzas com entrega incluída.
         </p>
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
           <Link
@@ -94,13 +119,13 @@ function FinalCTA() {
             <ArrowRight className="w-5 h-5" />
           </Link>
           <a
-            href="https://wa.me/244922058136"
+            href="https://wa.me/244929423278?text=Ol%C3%A1%20ImportEasy!%20Gostaria%20de%20fazer%20uma%20encomenda."
             target="_blank"
             rel="noopener noreferrer"
             className="w-full sm:w-auto px-8 py-4 border-2 border-white text-white font-semibold rounded-xl hover:bg-white/10 transition flex items-center justify-center gap-2"
           >
             <MessageCircle className="w-5 h-5" />
-            Falar no WhatsApp
+            Falar no WhatsApp (+244 929 423 278)
           </a>
         </div>
       </div>

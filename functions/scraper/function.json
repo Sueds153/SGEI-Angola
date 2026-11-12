@@ -1,0 +1,17 @@
+{
+  "name": "daily-product-scraper",
+  "version": "1.0.0",
+  "description": "Daily product scraper for Vinted/AliExpress - Neon Function",
+  "entrypoint": "index.js",
+  "type": "module",
+  "schedule": "0 3 * * *",
+  "timezone": "UTC",
+  "env": [
+    "DATABASE_URL",
+    "SCRAPER_CRON_TOKEN",
+    "RAPIDAPI_KEY"
+  ],
+  "cpu": 1,
+  "memory": 512,
+  "maxDuration": 300
+}

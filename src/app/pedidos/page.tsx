@@ -5,7 +5,7 @@ import Link from "next/link";
 
 export const metadata: Metadata = {
   title: "Meus pedidos",
-  description: "Consulta os teus pedidos na SGEI.",
+  description: "Consulte os seus pedidos na ImportEasy.",
 };
 
 export default function MeusPedidosPage() {

@@ -27,7 +27,7 @@ export function OrderActions({ reference }: { reference: string }) {
         <Share2 className="h-4 w-4" /> Copiar link
       </Button>
       <a
-        href={`https://wa.me/244923000000?text=${encodeURIComponent(`Olá! Preciso de ajuda com o pedido #${reference}`)}`}
+        href={`https://wa.me/244929423278?text=${encodeURIComponent(`Olá! Preciso de ajuda com o pedido #${reference}`)}`}
         target="_blank"
         rel="noopener noreferrer"
       >

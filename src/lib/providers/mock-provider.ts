@@ -444,9 +444,9 @@ const DEMO_PRODUCTS: NormalizedProduct[] = [
     externalId: "876543210",
     source: "VINTED" as ProductSource,
     sourceUrl: "https://www.vinted.pt/items/876543210",
-    name: "Tênis Nike Air Force 1 '07 Branco Tamanho 41",
+    name: "Ténis Nike Air Force 1 '07 Branco Tamanho 41",
     slug: "vinted-nike-air-force-41",
-    description: "Nike Air Force 1 '07 branco, usado apenas 3x. Estado muito bom, sem marcas visíveis. Acompanha caixa original e extra lacetes.",
+    description: "Nike Air Force 1 '07 branco, calçado apenas 3 vezes. Estado excelente, sem marcas visíveis. Acompanha caixa original e atacadores extra.",
     category: CATEGORIES[3],
     images: [
       "/images/prod-10.jpg",
@@ -470,9 +470,9 @@ const DEMO_PRODUCTS: NormalizedProduct[] = [
     externalId: "765432109",
     source: "VINTED" as ProductSource,
     sourceUrl: "https://www.vinted.pt/items/765432109",
-    name: "Bolsa Michael Kors Jet Set Grande Marrom",
+    name: "Bolsa Michael Kors Jet Set Grande Castanha",
     slug: "vinted-michael-kors-bolsa",
-    description: "Bolsa Michael Kors Jet Set grande, cor marrom/couro sintético. Estado bom, sinais normais de uso nas alças. Interior limpo. Medidas: 40x30x15cm.",
+    description: "Bolsa Michael Kors Jet Set grande, cor castanha/pele sintética. Em ótimo estado, sinais normais de uso nas alças. Interior limpo. Medidas: 40x30x15cm.",
     category: CATEGORIES[4],
     images: [
       "/images/prod-11.jpg",
@@ -487,7 +487,7 @@ const DEMO_PRODUCTS: NormalizedProduct[] = [
     reviewCount: 234,
     weightGrams: 720,
     variants: [
-      { id: "vt3v1", externalId: "765432109", color: "Marrom", size: "Único", otherOptions: { condition: "Bom", brand: "Michael Kors", seller: "luxury_preloved", sellerRating: "234" }, sku: "VT-MK-JETSET-BR", priceModifierUsd: 0, stockQuantity: 1, available: true, imageUrl: null },
+      { id: "vt3v1", externalId: "765432109", color: "Castanho", size: "Único", otherOptions: { condition: "Bom", brand: "Michael Kors", seller: "luxury_preloved", sellerRating: "234" }, sku: "VT-MK-JETSET-BR", priceModifierUsd: 0, stockQuantity: 1, available: true, imageUrl: null },
     ],
   },
   {
@@ -495,9 +495,9 @@ const DEMO_PRODUCTS: NormalizedProduct[] = [
     externalId: "654321098",
     source: "VINTED" as ProductSource,
     sourceUrl: "https://www.vinted.pt/items/654321098",
-    name: "Casaco Levi's Trucker Jeans Azul Tamanho L",
+    name: "Casaco Levi's Trucker Ganga Azul Tamanho L",
     slug: "vinted-levis-trucker-l",
-    description: "Casaco Levi's Trucker clássico jeans azul, tamanho L. Vintage anos 90, estado muito bom. Botões originais, forro xadrez. Peça única.",
+    description: "Casaco Levi's Trucker clássico ganga azul, tamanho L. Peça vintage anos 90, estado excelente. Botões de origem, forro aos quadrados.",
     category: CATEGORIES[1],
     images: [
       "/images/prod-12.jpg",

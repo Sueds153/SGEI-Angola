@@ -19,7 +19,7 @@ import { eq } from "drizzle-orm";
 
 export async function seedDatabase() {
   // Evita duplicar
-  const existingAdmin = await db.select().from(users).where(eq(users.email, "admin@sgei.ao"));
+  const existingAdmin = await db.select().from(users).where(eq(users.email, "admin@importeasy.ao"));
   if (existingAdmin.length > 0) {
     console.log("[seed] Database already seeded.");
     return;
@@ -30,10 +30,10 @@ export async function seedDatabase() {
   const [adminUser] = await db
     .insert(users)
     .values({
-      email: "admin@sgei.ao",
+      email: "admin@importeasy.ao",
       passwordHash: adminPassword,
       role: "admin",
-      phone: "923456789",
+      phone: "929423278",
     })
     .returning();
   await db.insert(adminProfiles).values({ userId: adminUser.id, name: "Administrador" });
@@ -86,10 +86,10 @@ export async function seedDatabase() {
     roundToNearestCents: String(defaults.roundToNearestCents),
     estimatedCostPct: String(defaults.estimatedCostPct),
     deliveryByProvince: JSON.stringify(defaults.deliveryByProvince || {}),
-    platformName: "SGEI - Compra SHEIN para Angola",
-    supportPhone: "+244 923 000 000",
-    supportWhatsapp: "+244923000000",
-    supportEmail: "apoio@sgei.ao",
+    platformName: "ImportEasy - Importação Angola",
+    supportPhone: "+244 929 423 278",
+    supportWhatsapp: "+244929423278",
+    supportEmail: "apoio@importeasy.ao",
     paymentExpiryHours: "48",
   });
   for (const [key, value] of configEntries) {
@@ -314,13 +314,13 @@ export async function seedDatabase() {
   // Audit log inicial
   await db.insert(auditLogs).values({
     actorId: adminUser.id,
-    actorEmail: "admin@sgei.ao",
+    actorEmail: "admin@importeasy.ao",
     action: "SYSTEM_SEED",
     entityType: "system",
     entityId: "init",
   });
 
   console.log("[seed] Seed complete.");
-  console.log("[seed] Admin login: admin@sgei.ao / admin123");
+  console.log("[seed] Admin login: admin@importeasy.ao / admin123");
   console.log("[seed] Customer login: cliente@exemplo.ao / cliente123");
 }

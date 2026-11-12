@@ -157,11 +157,30 @@ export default async function OrderPage({
                 {payment.reference && <Row label="Referência" value={payment.reference} />}
               </dl>
               {payment.status === "WAITING" && (
-                <div className="mt-4 rounded-2xl bg-ink-50 px-4 py-3 text-xs text-ink-700 flex gap-2">
-                  <Clock className="h-4 w-4 text-ink-500 flex-shrink-0 mt-0.5" />
-                  <span>
-                    Assim que enviares o comprovativo pelo WhatsApp a nossa equipa confirma.
-                  </span>
+                <div className="mt-4 p-4 rounded-2xl bg-brand-50 border border-brand-200 text-xs text-ink-800 space-y-3">
+                  <div className="flex items-center gap-2 font-semibold text-brand-900">
+                    <Clock className="h-4 w-4 text-brand-600 flex-shrink-0" />
+                    <span>A aguardar pagamento:</span>
+                  </div>
+                  <div className="bg-white p-3 rounded-xl border border-brand-100 space-y-1.5">
+                    <p className="font-semibold text-ink-900 text-xs">Opção 1: Multicaixa Express (Número)</p>
+                    <p className="text-ink-600 font-mono text-sm font-bold">929 423 278</p>
+                  </div>
+                  <div className="bg-white p-3 rounded-xl border border-brand-100 space-y-1.5">
+                    <p className="font-semibold text-ink-900 text-xs">Opção 2: Pagamento por Referência</p>
+                    <p className="text-ink-600">Entidade: <strong className="font-mono text-ink-900">10116</strong></p>
+                    <p className="text-ink-600">Referência: <strong className="font-mono text-ink-900">929 423 278</strong></p>
+                  </div>
+                  <a
+                    href={`https://wa.me/244929423278?text=${encodeURIComponent(
+                      `Olá ImportEasy! Segue o comprovativo do pedido #${order.reference} no valor de ${formatKz(order.totalCents)}:`
+                    )}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-full inline-flex items-center justify-center gap-2 py-2.5 px-3 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-xl transition text-center shadow-sm"
+                  >
+                    <MessageCircle className="h-4 w-4" /> Enviar Comprovativo no WhatsApp
+                  </a>
                 </div>
               )}
             </Card>
@@ -196,14 +215,14 @@ export default async function OrderPage({
               {order.customerEmail && <p className="text-ink-500">{order.customerEmail}</p>}
             </div>
             <a
-              href={`https://wa.me/244923000000?text=${encodeURIComponent(
+              href={`https://wa.me/244929423278?text=${encodeURIComponent(
                 `Olá, tenho uma dúvida sobre o pedido #${order.reference}`
               )}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="mt-4 inline-flex items-center gap-2 text-[14px] font-medium text-ink-900 hover:text-primary-600"
+              className="mt-4 inline-flex items-center gap-2 text-[14px] font-medium text-brand-600 hover:text-brand-700"
             >
-              <MessageCircle className="h-4 w-4" /> Falar no WhatsApp
+              <MessageCircle className="h-4 w-4" /> Falar no WhatsApp (+244 929 423 278)
             </a>
           </Card>
         </div>

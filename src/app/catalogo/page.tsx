@@ -7,7 +7,7 @@ import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "Catálogo",
-  description: "Todos os produtos disponíveis para pedido através da SGEI.",
+  description: "Todos os produtos disponíveis para pedido através da ImportEasy.",
 };
 
 export const dynamic = "force-dynamic";

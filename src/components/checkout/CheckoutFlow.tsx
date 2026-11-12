@@ -14,6 +14,7 @@ import {
   Phone,
   AlertTriangle,
   ChevronRight,
+  Shield,
 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Input, Select, Textarea, Alert, Card } from "@/components/ui";
@@ -64,9 +65,10 @@ export function CheckoutFlow({ prefill }: { prefill: Prefill | null }) {
   const [referencePoint, setReferencePoint] = useState("");
   const [instructions, setInstructions] = useState("");
 
-  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("BANK_TRANSFER");
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("DIGITAL");
   const [notes, setNotes] = useState("");
   const [externalPriceUsd, setExternalPriceUsd] = useState("");
+  const [productCurrency, setProductCurrency] = useState<string>("USD");
 
   useEffect(() => {
     getPricingConfig().then(setCfg);
@@ -92,7 +94,7 @@ export function CheckoutFlow({ prefill }: { prefill: Prefill | null }) {
     if (!cfg || !prefill || prefill.type !== "external") return null;
     const usd = parseFloat(externalPriceUsd.replace(",", "."));
     if (!usd || isNaN(usd)) return null;
-    return clientCalculatePrice({ productPrice: usd, productCurrency, quantity: 1 }, cfg);
+    return clientCalculatePrice({ productPrice: usd, productCurrency: productCurrency as any, quantity: 1 }, cfg);
   }, [cfg, prefill, externalPriceUsd, productCurrency]);
 
   const pricing = prefill?.type === "product" ? catalogPricing : externalPricing;
@@ -183,7 +185,15 @@ export function CheckoutFlow({ prefill }: { prefill: Prefill | null }) {
     }
   }
 
-  if (step === 4 && createdRef) return <OrderSuccess reference={createdRef} />;
+  if (step === 4 && createdRef) {
+    return (
+      <OrderSuccess 
+        reference={createdRef} 
+        totalCents={pricing?.totalCents} 
+        paymentMethod={paymentMethod}
+      />
+    );
+  }
 
   return (
     <div className="grid lg:grid-cols-[1.4fr_1fr] gap-5 md:gap-8 lg:gap-10">
@@ -377,18 +387,36 @@ function Step2(props: any) {
 }
 
 function Step3(props: any) {
-  const methods: Array<{ id: PaymentMethod; name: string; desc: string }> = [
-    { id: "BANK_TRANSFER", name: "Transferência bancária", desc: "Transferência para conta SGEI" },
-    { id: "REFERENCE", name: "Referência multicaixa", desc: "Referência para pagamento no ATM" },
-    { id: "DIGITAL", name: "Express / Unitel Money", desc: "Pagamento por carteira digital" },
-    { id: "CASH", name: "Dinheiro na entrega", desc: "Pagar aquando da entrega (só Luanda)" },
+  const methods: Array<{ id: PaymentMethod; name: string; desc: string; badge?: string }> = [
+    {
+      id: "DIGITAL",
+      name: "Multicaixa Express (Envio por Número)",
+      desc: "Envio direto no app Express para o número 929 423 278",
+      badge: "Mais Rápido",
+    },
+    {
+      id: "REFERENCE",
+      name: "Pagamento por Referência (ATM / Express)",
+      desc: "Entidade: 10116 · Referência: 929 423 278",
+      badge: "Recomendado",
+    },
+    {
+      id: "BANK_TRANSFER",
+      name: "Transferência Bancária / IBAN",
+      desc: "Transferência bancária com envio de comprovativo via WhatsApp",
+    },
+    {
+      id: "CASH",
+      name: "Dinheiro na entrega",
+      desc: "Pagar aquando da entrega (apenas Luanda)",
+    },
   ];
 
   return (
     <div>
       <h2 className="text-2xl font-semibold tracking-tight text-ink-900">Pagamento</h2>
       <p className="mt-1 text-sm text-ink-500">
-        A confirmação é feita pela nossa equipa após envio do comprovativo.
+        Pague em Kwanzas através do Multicaixa Express ou Referência. Confirmação rápida após envio do comprovativo.
       </p>
 
       {props.isExternal && (
@@ -427,7 +455,7 @@ function Step3(props: any) {
             className={
               "flex items-start gap-3 p-4 rounded-2xl cursor-pointer ring-1 transition " +
               (props.paymentMethod === m.id
-                ? "bg-ink-50 ring-ink-900"
+                ? "bg-brand-50/60 ring-brand-600"
                 : "bg-white ring-ink-200 hover:ring-ink-300")
             }
           >
@@ -437,14 +465,31 @@ function Step3(props: any) {
               value={m.id}
               checked={props.paymentMethod === m.id}
               onChange={() => props.setPaymentMethod(m.id)}
-              className="mt-1 accent-ink-900"
+              className="mt-1 accent-brand-600"
             />
-            <div>
-              <p className="font-medium text-ink-900 text-[15px]">{m.name}</p>
+            <div className="flex-1">
+              <div className="flex items-center gap-2">
+                <p className="font-semibold text-ink-900 text-[15px]">{m.name}</p>
+                {m.badge && (
+                  <span className="text-[10px] bg-brand-100 text-brand-700 font-bold px-2 py-0.5 rounded-full uppercase">
+                    {m.badge}
+                  </span>
+                )}
+              </div>
               <p className="text-xs text-ink-500 mt-0.5">{m.desc}</p>
             </div>
           </label>
         ))}
+      </div>
+
+      {/* Caixa informativa com dados Express */}
+      <div className="mt-4 p-4 rounded-2xl bg-ink-50 border border-ink-200 text-xs text-ink-700 space-y-1.5">
+        <div className="font-semibold text-ink-900 flex items-center gap-1.5">
+          <CreditCard className="w-4 h-4 text-brand-600" />
+          Dados para Pagamento Imediato:
+        </div>
+        <p>• <strong>Multicaixa Express (Número):</strong> 929 423 278</p>
+        <p>• <strong>Pagamento por Referência:</strong> Entidade: 10116 | Referência: 929 423 278</p>
       </div>
 
       <div className="mt-5">
@@ -475,47 +520,179 @@ function SummaryRow({ label, value }: { label: string; value: string }) {
   );
 }
 
-function OrderSuccess({ reference }: { reference: string }) {
-  const [copied, setCopied] = useState(false);
+function OrderSuccess({
+  reference,
+  totalCents,
+  paymentMethod,
+}: {
+  reference: string;
+  totalCents?: number;
+  paymentMethod?: string;
+}) {
+  const [copiedRef, setCopiedRef] = useState(false);
+  const [copiedPhone, setCopiedPhone] = useState(false);
+  const [copiedEntity, setCopiedEntity] = useState(false);
+  const [copiedReference, setCopiedReference] = useState(false);
+
+  const formattedTotal = totalCents ? formatCents(totalCents) : null;
+  const whatsappUrl = `https://wa.me/244929423278?text=${encodeURIComponent(
+    `Olá ImportEasy! Acabei de criar o pedido #${reference}${
+      formattedTotal ? ` no valor de ${formattedTotal}` : ""
+    }. Segue o meu comprovativo de pagamento:`
+  )}`;
+
   return (
-    <Card className="p-8 md:p-14 text-center max-w-2xl mx-auto rounded-3xl">
-      <div className="h-20 w-20 rounded-full bg-ink-900 text-white grid place-items-center mx-auto">
-        <CheckCircle2 className="h-10 w-10" />
+    <Card className="p-6 md:p-10 max-w-2xl mx-auto rounded-3xl text-center">
+      <div className="h-16 w-16 rounded-full bg-emerald-100 text-emerald-600 grid place-items-center mx-auto mb-4">
+        <CheckCircle2 className="h-9 w-9" />
       </div>
-      <h2 className="mt-6 text-3xl md:text-4xl font-semibold tracking-tight text-ink-900">
-        Pedido criado.
+      <h2 className="text-2xl md:text-3xl font-bold tracking-tight text-ink-900">
+        Pedido Registado com Sucesso!
       </h2>
-      <p className="mt-3 text-ink-500 apple-lead max-w-md mx-auto">
-        O teu pedido foi registado. Irás receber instruções para o pagamento em breve.
+      <p className="mt-2 text-ink-600 text-sm md:text-base max-w-md mx-auto">
+        O seu pedido foi gerado. Efetue o pagamento abaixo para iniciarmos imediatamente a compra e o envio para Angola.
       </p>
-      <div className="mt-8 inline-flex items-center gap-3 bg-ink-50 rounded-full px-6 py-3">
-        <span className="text-[11px] uppercase tracking-widest text-ink-500">Referência</span>
-        <code className="text-2xl font-semibold tracking-tight">#{reference}</code>
-        <button
-          onClick={() => {
-            navigator.clipboard.writeText(reference);
-            setCopied(true);
-            setTimeout(() => setCopied(false), 1500);
-          }}
-          className="h-8 w-8 grid place-items-center rounded-full hover:bg-white"
-          aria-label="Copiar"
-        >
-          {copied ? <CheckCheck className="h-4 w-4 text-success-600" /> : <Copy className="h-4 w-4" />}
-        </button>
+
+      {/* Referência e Total */}
+      <div className="mt-6 p-4 rounded-2xl bg-ink-50 border border-ink-200 flex flex-col sm:flex-row items-center justify-between gap-3 text-left">
+        <div>
+          <span className="text-xs uppercase tracking-wider text-ink-500 font-semibold block">Código do Pedido</span>
+          <div className="flex items-center gap-2 mt-0.5">
+            <span className="text-xl font-mono font-bold text-ink-900">#{reference}</span>
+            <button
+              onClick={() => {
+                navigator.clipboard.writeText(reference);
+                setCopiedRef(true);
+                setTimeout(() => setCopiedRef(false), 1500);
+              }}
+              className="p-1 rounded-md hover:bg-ink-200 text-ink-600 transition"
+              title="Copiar Código"
+            >
+              {copiedRef ? <CheckCheck className="h-4 w-4 text-emerald-600" /> : <Copy className="h-4 w-4" />}
+            </button>
+          </div>
+        </div>
+        {formattedTotal && (
+          <div className="sm:text-right">
+            <span className="text-xs uppercase tracking-wider text-ink-500 font-semibold block">Total a Pagar</span>
+            <span className="text-2xl font-bold text-brand-600">{formattedTotal}</span>
+          </div>
+        )}
       </div>
+
+      {/* Caixa de Pagamento Angolana */}
+      <div className="mt-6 text-left p-6 rounded-2xl border-2 border-brand-200 bg-brand-50/50 space-y-5">
+        <div className="flex items-center justify-between border-b border-brand-100 pb-3">
+          <div className="flex items-center gap-2">
+            <CreditCard className="w-5 h-5 text-brand-600" />
+            <span className="font-bold text-ink-900 text-base">Instruções de Pagamento (Angola)</span>
+          </div>
+          <span className="text-[11px] font-semibold bg-brand-600 text-white px-2.5 py-0.5 rounded-full uppercase tracking-wider">
+            Oficial
+          </span>
+        </div>
+
+        {/* Opção 1: App Multicaixa Express */}
+        <div className="bg-white p-4 rounded-xl border border-ink-200 space-y-2">
+          <div className="flex items-center justify-between">
+            <span className="text-sm font-semibold text-ink-900 flex items-center gap-2">
+              <span className="w-5 h-5 rounded-full bg-brand-600 text-white text-xs grid place-items-center font-bold">1</span>
+              App Multicaixa Express (Transferência / Envio)
+            </span>
+            <span className="text-xs bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full font-medium">Instantâneo</span>
+          </div>
+          <p className="text-xs text-ink-500 pl-7">
+            Abra o app Express &gt; Enviar Dinheiro / Transferência &gt; Digite o número:
+          </p>
+          <div className="pl-7 flex items-center justify-between bg-ink-50 p-2.5 rounded-lg border border-ink-100">
+            <div>
+              <span className="text-xs text-ink-400 block">Número de Telemóvel Express</span>
+              <span className="font-mono text-base font-bold text-ink-900">929 423 278</span>
+            </div>
+            <button
+              onClick={() => {
+                navigator.clipboard.writeText("929423278");
+                setCopiedPhone(true);
+                setTimeout(() => setCopiedPhone(false), 1500);
+              }}
+              className="flex items-center gap-1 text-xs font-semibold px-3 py-1.5 bg-white border border-ink-300 rounded-lg text-ink-700 hover:bg-ink-100 transition shadow-sm"
+            >
+              {copiedPhone ? <CheckCheck className="h-3.5 w-3.5 text-emerald-600" /> : <Copy className="h-3.5 w-3.5" />}
+              {copiedPhone ? "Copiado!" : "Copiar"}
+            </button>
+          </div>
+        </div>
+
+        {/* Opção 2: Pagamento por Referência */}
+        <div className="bg-white p-4 rounded-xl border border-ink-200 space-y-2">
+          <div className="flex items-center justify-between">
+            <span className="text-sm font-semibold text-ink-900 flex items-center gap-2">
+              <span className="w-5 h-5 rounded-full bg-brand-600 text-white text-xs grid place-items-center font-bold">2</span>
+              Pagamento por Referência (ATM ou App Express)
+            </span>
+            <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full font-medium">Multicaixa</span>
+          </div>
+          <p className="text-xs text-ink-500 pl-7">
+            Escolha Pagamentos &gt; Pagamentos por Referência e insira os dados:
+          </p>
+          <div className="pl-7 grid grid-cols-1 sm:grid-cols-2 gap-2">
+            <div className="flex items-center justify-between bg-ink-50 p-2.5 rounded-lg border border-ink-100">
+              <div>
+                <span className="text-xs text-ink-400 block">Entidade</span>
+                <span className="font-mono text-base font-bold text-ink-900">10116</span>
+              </div>
+              <button
+                onClick={() => {
+                  navigator.clipboard.writeText("10116");
+                  setCopiedEntity(true);
+                  setTimeout(() => setCopiedEntity(false), 1500);
+                }}
+                className="text-xs font-semibold px-2 py-1 bg-white border border-ink-200 rounded hover:bg-ink-100 text-ink-700"
+              >
+                {copiedEntity ? "✓" : "Copiar"}
+              </button>
+            </div>
+            <div className="flex items-center justify-between bg-ink-50 p-2.5 rounded-lg border border-ink-100">
+              <div>
+                <span className="text-xs text-ink-400 block">Referência</span>
+                <span className="font-mono text-base font-bold text-ink-900">929 423 278</span>
+              </div>
+              <button
+                onClick={() => {
+                  navigator.clipboard.writeText("929423278");
+                  setCopiedReference(true);
+                  setTimeout(() => setCopiedReference(false), 1500);
+                }}
+                className="text-xs font-semibold px-2 py-1 bg-white border border-ink-200 rounded hover:bg-ink-100 text-ink-700"
+              >
+                {copiedReference ? "✓" : "Copiar"}
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Garantia */}
+        <div className="flex items-start gap-2.5 pt-1 text-xs text-ink-600">
+          <Shield className="w-4 h-4 text-emerald-600 flex-shrink-0 mt-0.5" />
+          <span><strong>Garantia 100% de Entrega:</strong> O seu pagamento é protegido. Nós tratamos do desalfandegamento e entregamos na sua porta.</span>
+        </div>
+      </div>
+
+      {/* Ações */}
       <div className="mt-8 flex flex-col sm:flex-row gap-3 justify-center">
-        <Link href={`/pedido/${reference}`}>
-          <Button size="lg">Ver pedido</Button>
-        </Link>
         <a
-          href={`https://wa.me/244923000000?text=${encodeURIComponent(`Olá! Acabei de criar o pedido #${reference}. Qual o próximo passo?`)}`}
+          href={whatsappUrl}
           target="_blank"
           rel="noopener noreferrer"
+          className="flex-1 inline-flex items-center justify-center gap-2 px-6 py-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-base transition shadow-lg shadow-emerald-600/25 active:scale-95"
         >
-          <Button size="lg" variant="secondary">
-            <Phone className="h-4 w-4" /> Falar no WhatsApp
-          </Button>
+          <Phone className="h-5 w-5" /> Enviar Comprovativo no WhatsApp
         </a>
+        <Link href={`/pedido/${reference}`} className="sm:w-auto w-full">
+          <Button size="lg" variant="secondary" className="w-full">
+            Acompanhar Pedido
+          </Button>
+        </Link>
       </div>
     </Card>
   );

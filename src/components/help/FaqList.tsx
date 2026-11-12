@@ -7,36 +7,36 @@ import { Plus, X } from "lucide-react";
 
 const FAQS = [
   {
-    q: "Vocês são a SHEIN?",
-    a: "Não. A SGEI é uma plataforma angolana de intermediação de compras. Nós tratamos da compra e entrega de produtos encontrados na SHEIN para clientes em Angola. Não somos afiliados oficialmente à SHEIN.",
+    q: "O que é a ImportEasy e como funciona?",
+    a: "A ImportEasy é uma plataforma angolana especializada em intermediação de compras internacionais da Shein, AliExpress e Vinted para clientes em Angola. Você escolhe o produto que deseja, nós compramos ao fornecedor internacional, tratamos de toda a logística e alfândega, e entregamos na sua porta.",
   },
   {
-    q: "Eu pago à SHEIN?",
-    a: "Não. Tu pagas diretamente à SGEI, em Kwanzas (Kz), através dos métodos disponíveis (transferência, referência, pagamento digital).",
+    q: "Como faço o pagamento em Kwanzas?",
+    a: "Paga comodamente em Kwanzas através de dois métodos simples: 1) Pelo aplicativo Multicaixa Express enviando diretamente para o número 929 423 278; ou 2) No ATM / Express por Pagamento por Referência (Entidade: 10116 · Referência: 929 423 278). Não necessita de cartão de crédito internacional nem de dólares/euros.",
   },
   {
-    q: "Como calculam o preço?",
-    a: "O preço em Kz inclui: o valor do produto (convertido com o câmbio do dia), uma taxa de serviço, custos de logística internacional e entrega em Angola. O valor total é sempre apresentado de forma transparente antes de confirmares o pedido.",
+    q: "Tenho de pagar alguma taxa extra na alfândega quando a encomenda chegar?",
+    a: "Não. O preço calculado e apresentado no simulador e no checkout é final e garantido. O desalfandegamento, impostos alfandegários (AGT) e frete internacional já estão 100% incluídos. Não existem taxas surpresa na entrega.",
   },
   {
-    q: "Quanto tempo demora a entrega?",
-    a: "Tipicamente entre 15 a 25 dias úteis após confirmação do pagamento. Esse prazo inclui compra, envio internacional e entrega local. Podes acompanhar tudo pela página do pedido.",
+    q: "E se a encomenda for extraviada ou tiver problemas na alfândega?",
+    a: "Com a nossa Garantia 100% de Entrega, você está totalmente protegido. Se houver qualquer extravio internacional ou problema irreversível na alfândega, nós realizamos novo envio sem qualquer custo adicional ou reembolsamos a totalidade do valor pago em Kwanzas.",
   },
   {
-    q: "Como acompanho o meu pedido?",
-    a: "Em /pedidos, usando a referência que recebes ao criar o pedido (ex: SG-28491). Também receberás atualizações via WhatsApp em etapas chave.",
+    q: "Quanto tempo demora a entrega em Angola?",
+    a: "O prazo médio de entrega por frete aéreo expresso é de 15 a 25 dias úteis após a confirmação do pagamento. Em Luanda a entrega é feita ao domicílio por estafeta; nas províncias (Benguela, Huambo, Lubango, Cabinda, etc.) a entrega é feita via transportadora ou ponto de recolha.",
   },
   {
-    q: "Posso mandar um link direto da SHEIN?",
-    a: "Sim! Na página inicial há um campo para colar o link do produto. Se o produto já estiver no nosso catálogo, verás o preço em Kz imediatamente. Se não, a nossa equipa irá confirmar o preço antes do pagamento.",
+    q: "Posso colar qualquer link da Shein, AliExpress ou Vinted?",
+    a: "Sim! Na nossa página de simulação (/importar) pode colar o link de qualquer produto destas plataformas. O nosso sistema calcula automaticamente o valor em Kwanzas na hora.",
   },
   {
-    q: "O preço pode mudar depois do pedido?",
-    a: "Não. O preço é congelado no momento em que o pedido é criado. Caso haja alguma alteração excepcional antes da compra, entramos em contacto contigo antes de prosseguir.",
+    q: "O preço pode mudar depois de eu fazer o pedido?",
+    a: "Não. O preço fica congelado e garantido a partir do momento em que o pedido é submetido. O valor que você vê é o valor exato que paga.",
   },
   {
-    q: "Como funciona a entrega?",
-    a: "Entregamos em todas as províncias de Angola. Em Luanda a entrega é feita por estafeta. Para outras províncias, a entrega pode ser feita através de transportadora ou ponto de recolha.",
+    q: "Como acompanho o estado do meu pedido?",
+    a: "Pode acompanhar em tempo real na página /rastrear usando a referência do pedido (ex: SG-14023) ou o seu número de telefone. Além disso, a nossa equipa envia notificações e confirmações pelo WhatsApp (+244 929 423 278).",
   },
 ];
 

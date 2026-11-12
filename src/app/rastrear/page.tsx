@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { Search, Truck, Package, CheckCircle, Clock, AlertCircle, MapPin, User, Clock as ClockIcon, Calendar } from "lucide-react";
 
 const ORDER_STATUSES = [
@@ -57,6 +58,7 @@ const MOCK_ORDERS: Record<string, any> = {
 };
 
 export default function RastrearPage() {
+  const router = useRouter();
   const [reference, setReference] = useState("");
   const [order, setOrder] = useState<any | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -68,14 +70,25 @@ export default function RastrearPage() {
     setOrder(null);
     setLoading(true);
 
-    // Simular busca
-    await new Promise((r) => setTimeout(r, 800));
+    const cleanInput = reference.trim().toUpperCase().replace(/^#/, "");
+    const normalizedRef = cleanInput.startsWith("SG-") ? cleanInput : `SG-${cleanInput.replace(/^SG/, "")}`;
 
-    const found = MOCK_ORDERS[reference.toUpperCase()];
+    try {
+      const res = await fetch(`/api/orders/lookup?reference=${encodeURIComponent(normalizedRef)}`);
+      if (res.ok) {
+        // Redireciona para o rastreio oficial em tempo real conectado à base de dados
+        router.push(`/pedido/${normalizedRef}`);
+        return;
+      }
+    } catch {
+      // continua para fallback mock
+    }
+
+    const found = MOCK_ORDERS[normalizedRef];
     if (found) {
       setOrder(found);
     } else {
-      setError("Pedido não encontrado. Verifique o código (ex: SG-14023).");
+      setError("Pedido não encontrado na base de dados. Verifique a referência (ex: SG-14023) ou fale no WhatsApp com o apoio ao cliente.");
     }
     setLoading(false);
   };
@@ -125,9 +138,21 @@ export default function RastrearPage() {
         </form>
 
         {error && (
-          <div className="mb-8 p-4 bg-red-50 border border-red-200 rounded-xl flex items-center gap-3 text-red-700 max-w-md mx-auto" role="alert">
-            <AlertCircle className="w-5 h-5 flex-shrink-0" />
-            <p>{error}</p>
+          <div className="mb-8 p-5 bg-amber-50 border border-amber-200 rounded-2xl max-w-md mx-auto space-y-3" role="alert">
+            <div className="flex items-start gap-3 text-amber-900 text-sm">
+              <AlertCircle className="w-5 h-5 flex-shrink-0 text-amber-600 mt-0.5" />
+              <p>{error}</p>
+            </div>
+            <a
+              href={`https://wa.me/244929423278?text=${encodeURIComponent(
+                `Olá ImportEasy! Gostaria de saber o estado do meu pedido: ${reference}`
+              )}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-full inline-flex items-center justify-center gap-2 py-2.5 px-4 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-xl text-xs transition shadow-sm"
+            >
+              Consultar suporte via WhatsApp (+244 929 423 278)
+            </a>
           </div>
         )}
 
@@ -258,12 +283,12 @@ export default function RastrearPage() {
                 Copiar código de rastreio
               </button>
               <a
-                href="https://wa.me/244922058136"
+                href="https://wa.me/244929423278?text=Ol%C3%A1%20ImportEasy!%20Preciso%20de%20ajuda%20para%20rastrear%20o%20meu%20pedido."
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex-1 py-3 px-6 bg-brand-600 text-white font-semibold rounded-xl hover:bg-brand-700 transition text-center"
               >
-                Falar com suporte
+                Falar com suporte no WhatsApp (+244 929 423 278)
               </a>
             </div>
           </div>

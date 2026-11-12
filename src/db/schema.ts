@@ -429,3 +429,16 @@ export const auditLogsRelations = relations(auditLogs, ({ one }) => ({
     references: [users.id],
   }),
 }));
+
+// ==================== COMMUNITY POSTS ====================
+export const {
+  communityPosts,
+  communityInteractions,
+  communityReports,
+  communityPostStatusEnum,
+} = {
+  communityPosts,
+  communityInteractions,
+  communityReports,
+  communityPostStatusEnum,
+} as const;

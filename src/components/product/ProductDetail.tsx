@@ -156,11 +156,9 @@ export function ProductDetail({ product }: { product: NormalizedProduct }) {
               </button>
             </>
           )}
-          {product.source === "MOCK" && (
-            <span className="absolute top-4 left-4 bg-black/80 text-white text-[10px] font-medium tracking-wide px-2.5 py-1 rounded-full backdrop-blur-sm">
-              DEMO
-            </span>
-          )}
+          <span className="absolute top-4 left-4 bg-brand-600/90 text-white text-[10px] font-semibold tracking-wide px-3 py-1 rounded-full backdrop-blur-sm shadow-sm">
+            Importação Garantida
+          </span>
           <button
             onClick={() => setLiked((v) => !v)}
             className="absolute top-4 right-4 h-10 w-10 rounded-full bg-white/90 backdrop-blur-sm grid place-items-center hover:bg-white transition"
@@ -355,7 +353,7 @@ export function ProductDetail({ product }: { product: NormalizedProduct }) {
             Fazer pedido
           </Button>
           <a
-            href={`https://wa.me/244923000000?text=${encodeURIComponent(
+            href={`https://wa.me/244929423278?text=${encodeURIComponent(
               `Olá, tenho uma dúvida sobre o produto: ${product.name}`
             )}`}
             target="_blank"
@@ -364,17 +362,17 @@ export function ProductDetail({ product }: { product: NormalizedProduct }) {
           >
             <Button size="lg" variant="secondary" fullWidth>
               <MessageCircle className="h-5 w-5" />
-              Tirar dúvidas
+              Tirar dúvidas no WhatsApp
             </Button>
           </a>
         </div>
 
         {/* Info servicos */}
         <div className="mt-8 grid grid-cols-2 gap-4 text-sm">
-          <InfoLine icon={<Truck className="h-4 w-4" />} text="Entrega em 15–25 dias" />
-          <InfoLine icon={<Shield className="h-4 w-4" />} text="Pagamento seguro em Kz" />
-          <InfoLine icon={<Clock className="h-4 w-4" />} text="Câmbio atualizado" />
-          <InfoLine icon={<Sparkles className="h-4 w-4" />} text="Acompanhamento online" />
+          <InfoLine icon={<Truck className="h-4 w-4" />} text="Entrega em 15–25 dias úteis" />
+          <InfoLine icon={<Shield className="h-4 w-4" />} text="Express 929 423 278 / Entidade 10116" />
+          <InfoLine icon={<Clock className="h-4 w-4" />} text="Desalfandegamento incluído" />
+          <InfoLine icon={<Sparkles className="h-4 w-4" />} text="Rastreio ponto a ponto" />
         </div>
 
         {product.description && (
@@ -384,19 +382,15 @@ export function ProductDetail({ product }: { product: NormalizedProduct }) {
           </div>
         )}
 
-        {product.sourceUrl && (
-          <div className="mt-6">
-            <a
-              href={product.sourceUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-[13px] text-ink-500 hover:text-ink-900 inline-flex items-center gap-1.5 transition"
-            >
-              <Globe className="h-3.5 w-3.5" />
-              Ver produto original na {getSourceDisplayName(product.source)}
-            </a>
+        <div className="mt-8 p-4 rounded-2xl bg-brand-50 border border-brand-200 text-xs text-ink-700 space-y-2">
+          <div className="flex items-center gap-2 font-semibold text-brand-900">
+            <Shield className="h-4 w-4 text-brand-600" />
+            <span>Garantia de Compra Protegida ImportEasy</span>
           </div>
-        )}
+          <p className="text-ink-600 leading-relaxed">
+            Compramos diretamente ao fornecedor internacional ({getSourceDisplayName(product.source)}), tratamos de todo o processo alfandegário e entregamos na sua morada em Luanda e províncias. Pague em Kwanzas com segurança via <strong>Multicaixa Express (929 423 278)</strong> ou <strong>Referência (Entidade 10116 / Ref 929423278)</strong>.
+          </p>
+        </div>
       </div>
     </div>
   );

@@ -32,7 +32,7 @@ export default function AdminLoginPage({
             <AdminLoginForm />
           </div>
           <div className="mt-6 p-3 rounded-xl bg-ink-50 text-xs text-ink-500">
-            Demo: <code className="text-ink-900">admin@sgei.ao</code> / <code className="text-ink-900">admin123</code>
+            Demo: <code className="text-ink-900">admin@importeasy.ao</code> / <code className="text-ink-900">admin123</code>
           </div>
         </Card>
       </div>

@@ -7,9 +7,9 @@ import { eq } from "drizzle-orm";
 import type { UserRole } from "./types";
 
 const JWT_SECRET = new TextEncoder().encode(
-  process.env.JWT_SECRET || "sgei-shein-angola-dev-secret-change-in-production"
+  process.env.JWT_SECRET || "importeasy-angola-dev-secret-change-in-production"
 );
-const COOKIE_NAME = "sgei_session";
+const COOKIE_NAME = "importeasy_session";
 const MAX_AGE = 60 * 60 * 24 * 7; // 7 dias
 
 export interface SessionPayload {
