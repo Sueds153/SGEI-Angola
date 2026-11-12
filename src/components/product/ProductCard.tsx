@@ -16,6 +16,7 @@ interface ProductCardProps {
 export function ProductCard({ product, compact }: ProductCardProps) {
   const [totalCents, setTotalCents] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
+  const [imageError, setImageError] = useState(false);
 
   // Ensure product has required fields
   const safeProduct = {
@@ -84,11 +85,12 @@ export function ProductCard({ product, compact }: ProductCardProps) {
       className="group block focus:outline-none"
     >
       <div className={cn("relative bg-ink-100 rounded-[20px] overflow-hidden aspect-[3/4]", compact && "aspect-[3/4]")}>
-        {image ? (
+        {image && !imageError ? (
           <img
             src={image}
             alt={product.name}
             loading="lazy"
+            onError={() => setImageError(true)}
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
           />
         ) : (

@@ -1,39 +1,50 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { MessageSquare, Heart, Clock, Shield, Star, MapPin, Send, Loader2, User, Smile, TrendingUp, CheckCircle2 } from "lucide-react";
+import { MessageSquare, Heart, Clock, Shield, Star, MapPin, Send, Loader2, Smile, TrendingUp, CheckCircle2, Users } from "lucide-react";
 import Link from "next/link";
 import { Logo } from "@/components/brand/Logo";
 
-// Avatares reais (usando DiceBear para avatares consistentes e diversos)
-const AVATAR_BASE = "https://api.dicebear.com/7.x/avataaars/svg";
-
-function getAvatarUrl(seed: string, skinTone?: string) {
-  const params = new URLSearchParams({
-    seed,
-    backgroundColor: "e8f5e9,bbdefb,ffe0b2,fce4ec,fff3e0",
-    eyes: "default,happy,wink,surprised",
-    mouth: "smile,twinkle,serious",
-    top: "shortHair,longHair,hat,hijab",
-  });
-  if (skinTone) params.set("skinColor", skinTone);
-  return `${AVATAR_BASE}?${params.toString()}`;
+// Avatares locais baseados nas iniciais do nome (sem dependências externas)
+function getAvatarUrl(seed: string): string {
+  // Gera cor baseada no seed para consistência
+  let hash = 0;
+  for (let i = 0; i < seed.length; i++) {
+    hash = seed.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  
+  const hue = Math.abs(hash) % 360;
+  const saturation = 55 + (Math.abs(hash) % 20);
+  const lightness = 45 + (Math.abs(hash) % 15);
+  
+  // Iniciais do nome
+  const initials = seed
+    .split(/[-_\s]+/)
+    .map(w => w[0]?.toUpperCase())
+    .filter(Boolean)
+    .slice(0, 2)
+    .join("");
+  
+  // Usa um data URI SVG inline - sem requisições externas
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="hsl(${hue}, ${saturation}%, ${lightness}%)"/><stop offset="100%" stop-color="hsl(${hue}, ${saturation}%, ${Math.max(25, lightness - 15)}%)"/></linearGradient></defs><circle cx="50" cy="50" r="50" fill="url(#g)"/><text x="50" y="62" font-family="system-ui, sans-serif" font-size="38" font-weight="600" fill="white" text-anchor="middle" dominant-baseline="middle">${initials || "?"}</text></svg>`;
+  
+  return `data:image/svg+xml;base64,${btoa(svg)}`;
 }
 
 // Dados base para gerar conversas realistas
 const USERS = [
-  { name: "Maria Fernanda", seed: "maria-fernanda-ao", location: "Luanda, Talatona", skin: "8d5524" },
-  { name: "João Pedro", seed: "joao-pedro-ao", location: "Benguela", skin: "5d4037" },
-  { name: "Ana Silva", seed: "ana-silva-ao", location: "Luanda, Kilamba", skin: "a1887f" },
-  { name: "Pedro Miguel", seed: "pedro-miguel-ao", location: "Huambo", skin: "6d4c41" },
-  { name: "Carla Nascimento", seed: "carla-nascimento-ao", location: "Luanda, Maianga", skin: "795548" },
-  { name: "Filipe Domingos", seed: "filipe-domingos-ao", location: "Cabinda", skin: "4e342e" },
-  { name: "Mariana Lopes", seed: "mariana-lopes-ao", location: "Luanda, Belas", skin: "8d6e63" },
-  { name: "António Vicente", seed: "antonio-vicente-ao", location: "Lubango", skin: "3e2723" },
-  { name: "Beatriz Almeida", seed: "beatriz-almeida-ao", location: "Luanda, Mutamba", skin: "a1887f" },
-  { name: "Carlos Eduardo", seed: "carlos-eduardo-ao", location: "Malanje", skin: "5d4037" },
-  { name: "Diana Costa", seed: "diana-costa-ao", location: "Luanda, Viana", skin: "6d4c41" },
-  { name: "Eduardo Santos", seed: "eduardo-santos-ao", location: "Namibe", skin: "4e342e" },
+  { name: "Maria Fernanda", seed: "maria-fernanda-ao", location: "Luanda, Talatona" },
+  { name: "João Pedro", seed: "joao-pedro-ao", location: "Benguela" },
+  { name: "Ana Silva", seed: "ana-silva-ao", location: "Luanda, Kilamba" },
+  { name: "Pedro Miguel", seed: "pedro-miguel-ao", location: "Huambo" },
+  { name: "Carla Nascimento", seed: "carla-nascimento-ao", location: "Luanda, Maianga" },
+  { name: "Filipe Domingos", seed: "filipe-domingos-ao", location: "Cabinda" },
+  { name: "Mariana Lopes", seed: "mariana-lopes-ao", location: "Luanda, Belas" },
+  { name: "António Vicente", seed: "antonio-vicente-ao", location: "Lubango" },
+  { name: "Beatriz Almeida", seed: "beatriz-almeida-ao", location: "Luanda, Mutamba" },
+  { name: "Carlos Eduardo", seed: "carlos-eduardo-ao", location: "Malanje" },
+  { name: "Diana Costa", seed: "diana-costa-ao", location: "Luanda, Viana" },
+  { name: "Eduardo Santos", seed: "eduardo-santos-ao", location: "Namibe" },
 ];
 
 const PRODUCTS = [
@@ -78,19 +89,23 @@ const MESSAGES = {
   ],
 };
 
-function pickRandom<T>(arr: T[]): T {
-  return arr[Math.floor(Math.random() * arr.length)];
+function pickRandom<T>(arr: T[], seed: number): T {
+  // Deterministic random based on seed
+  const x = Math.sin(seed) * 10000;
+  const idx = Math.floor((x - Math.floor(x)) * arr.length);
+  return arr[idx];
 }
 
-function generateRef(): string {
-  return `SG-${14000 + Math.floor(Math.random() * 300)}`;
+function generateRef(seed: number): string {
+  const x = Math.sin(seed + 1) * 10000;
+  return `SG-${14000 + Math.floor((x - Math.floor(x)) * 300)}`;
 }
 
 function generateMessage(template: string, data: Record<string, string>): string {
   return template.replace(/\{(\w+)\}/g, (_, key) => data[key] || "");
 }
 
-function getRandomStatus() {
+function getRandomStatus(seed: number): string {
   const weights = [
     { status: "ENTREGUE", weight: 45 },
     { status: "EM_TRANSITO", weight: 20 },
@@ -99,7 +114,8 @@ function getRandomStatus() {
     { status: "PERGUNTA", weight: 10 },
   ];
   const total = weights.reduce((s, w) => s + w.weight, 0);
-  let r = Math.random() * total;
+  const x = Math.sin(seed + 2) * 10000;
+  let r = (x - Math.floor(x)) * total;
   for (const w of weights) {
     r -= w.weight;
     if (r <= 0) return w.status;
@@ -107,17 +123,21 @@ function getRandomStatus() {
   return "ENTREGUE";
 }
 
+// Deterministic conversation generator
 function generateConversation(id: number, isNew = false): any {
-  const user = pickRandom(USERS);
-  const product = pickRandom(PRODUCTS);
-  const status = getRandomStatus();
-  const ref = generateRef();
-  const days = 12 + Math.floor(Math.random() * 15);
-  const aoa = Math.floor((parseFloat(product.price) * 830) + Math.random() * 50000);
-  const friends = 1 + Math.floor(Math.random() * 5);
+  const baseSeed = isNew ? Date.now() + id : id * 1000;
+  
+  const user = pickRandom(USERS, baseSeed);
+  const product = pickRandom(PRODUCTS, baseSeed + 100);
+  const status = getRandomStatus(baseSeed + 200);
+  const ref = generateRef(baseSeed + 300);
+  
+  const days = 12 + Math.floor((Math.sin(baseSeed + 400) * 10000 - Math.floor(Math.sin(baseSeed + 400) * 10000)) * 15);
+  const aoa = Math.floor((parseFloat(product.price) * 830) + (Math.sin(baseSeed + 500) * 10000 - Math.floor(Math.sin(baseSeed + 500) * 10000)) * 50000);
+  const friends = 1 + Math.floor((Math.sin(baseSeed + 600) * 10000 - Math.floor(Math.sin(baseSeed + 600) * 10000)) * 5);
 
   const templates = MESSAGES[status] || MESSAGES.ENTREGUE;
-  const message = generateMessage(pickRandom(templates), {
+  const message = generateMessage(pickRandom(templates, baseSeed + 700), {
     product: product.name,
     platform: product.platform,
     price: product.price,
@@ -129,24 +149,27 @@ function generateConversation(id: number, isNew = false): any {
   });
 
   const timeAgo = isNew ? "Agora" : 
-    Math.random() < 0.3 ? `${Math.floor(Math.random() * 5) + 1} min` :
-    Math.random() < 0.6 ? `${Math.floor(Math.random() * 12) + 1} horas` :
-    `${Math.floor(Math.random() * 3) + 1} dias`;
+    (Math.sin(baseSeed + 800) * 10000 - Math.floor(Math.sin(baseSeed + 800) * 10000)) < 0.3 
+      ? `${Math.floor((Math.sin(baseSeed + 900) * 10000 - Math.floor(Math.sin(baseSeed + 900) * 10000)) * 5) + 1} min` :
+      (Math.sin(baseSeed + 800) * 10000 - Math.floor(Math.sin(baseSeed + 800) * 10000)) < 0.6 
+        ? `${Math.floor((Math.sin(baseSeed + 1000) * 10000 - Math.floor(Math.sin(baseSeed + 1000) * 10000)) * 12) + 1} horas`
+        : `${Math.floor((Math.sin(baseSeed + 1100) * 10000 - Math.floor(Math.sin(baseSeed + 1100) * 10000)) * 3) + 1} dias`;
 
   return {
     id,
     user: user.name,
-    avatar: getAvatarUrl(user.seed, user.skin),
+    avatar: getAvatarUrl(user.seed),
     location: user.location,
     product: product.name,
     productEmoji: product.emoji,
     platform: product.platform,
     message,
-    likes: isNew ? 0 : Math.floor(Math.random() * 60),
+    likes: isNew ? 0 : Math.floor((Math.sin(baseSeed + 1200) * 10000 - Math.floor(Math.sin(baseSeed + 1200) * 10000)) * 60),
     timeAgo,
-    verified: status === "ENTREGUE" || status === "EM_TRANSITO" ? Math.random() > 0.3 : false,
+    verified: (status === "ENTREGUE" || status === "EM_TRANSITO") && (Math.sin(baseSeed + 1300) * 10000 - Math.floor(Math.sin(baseSeed + 1300) * 10000)) > 0.3,
     status,
     ref,
+    isOwn: false,
   };
 }
 
@@ -164,12 +187,15 @@ const PLATFORM_COLORS: Record<string, string> = {
   ALIEXPRESS: "bg-orange-100 text-orange-700",
 };
 
+// Imagens de fundo locais
 const bgImages = [
-  "https://images.unsplash.com/photo-1523293182086-7651a899d37f?w=200",
-  "https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=200",
-  "https://images.unsplash.com/photo-1595777457583-95e059d581b8?w=200",
-  "https://images.unsplash.com/photo-1609091839311-d5365f9ff1c5?w=200",
+  "/images/comm-bg-01.jpg",
+  "/images/comm-bg-02.jpg",
+  "/images/comm-bg-03.jpg",
+  "/images/comm-bg-04.jpg",
 ];
+
+const emojis = ["😍", "🔥", "👏", "🙌", "💪", "🎉", "❤️", "🚀", "💯", "🤝"];
 
 export default function ComunidadePage() {
   const [conversations, setConversations] = useState<any[]>([]);
@@ -180,7 +206,7 @@ export default function ComunidadePage() {
   const feedRef = useRef<HTMLDivElement>(null);
   const [isScrolledToBottom, setIsScrolledToBottom] = useState(true);
 
-  // Inicializa com conversas existentes
+  // Inicializa com conversas existentes (determinístico para evitar hydration mismatch)
   useEffect(() => {
     const initial = Array.from({ length: 12 }, (_, i) => generateConversation(i + 1));
     setConversations(initial);
@@ -263,8 +289,6 @@ export default function ComunidadePage() {
     setIsScrolledToBottom(scrollHeight - scrollTop - clientHeight < 100);
   };
 
-  const emojis = ["😍", "🔥", "👏", "🙌", "💪", "🎉", "❤️", "🚀", "💯", "🤝"];
-
   return (
     <div className="min-h-screen bg-gradient-to-b from-ink-50 via-white to-amber-50 relative overflow-hidden">
       {/* Background decorativo com acessórios */}
@@ -275,26 +299,6 @@ export default function ComunidadePage() {
         <div className="absolute bottom-20 right-5 w-32 h-32 opacity-5" style={{ backgroundImage: `url("${bgImages[3]}")` }} />
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] opacity-[0.02] rounded-full bg-brand-600" />
       </div>
-
-      {/* Header */}
-      <header className="relative bg-white/80 backdrop-blur-md border-b border-ink-200 sticky top-0 z-50">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            <Link href="/" className="flex items-center gap-2">
-              <Logo size="md" showTagline />
-            </Link>
-            <nav className="flex items-center gap-4 text-sm">
-              <Link href="/produtos" className="text-ink-600 hover:text-brand-600 font-medium transition">Produtos</Link>
-              <Link href="/importar" className="text-ink-600 hover:text-brand-600 font-medium transition">Simular</Link>
-              <Link href="/rastrear" className="text-ink-600 hover:text-brand-600 font-medium transition">Rastrear</Link>
-              <a href="https://wa.me/244922058136" target="_blank" rel="noopener noreferrer" className="px-4 py-2 bg-brand-600 text-white rounded-lg hover:bg-brand-700 font-medium transition flex items-center gap-2">
-                <MessageSquare className="w-4 h-4" />
-                Suporte
-              </a>
-            </nav>
-          </div>
-        </div>
-      </header>
 
       <main className="relative py-8 lg:py-12 pb-32">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -315,7 +319,7 @@ export default function ComunidadePage() {
 
           {/* Stats */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-            <StatCard icon={User} value="2.500+" label="Clientes ativos" />
+            <StatCard icon={Users} value="2.500+" label="Clientes ativos" />
             <StatCard icon={CheckCircle2} value="8.300+" label="Pedidos entregues" />
             <StatCard icon={Star} value="4,8/5" label="Avaliação média" />
             <StatCard icon={TrendingUp} value="18 dias" label="Média de entrega" />
@@ -417,26 +421,6 @@ export default function ComunidadePage() {
           </div>
         </div>
       </main>
-
-      {/* Footer CTA */}
-      <footer className="relative bg-gradient-to-r from-brand-600 to-brand-700 text-white py-16">
-        <div className="absolute inset-0 overflow-hidden" aria-hidden="true">
-          <div className="absolute top-0 right-0 w-1/2 h-full opacity-10" style={{ backgroundImage: `url("https://images.unsplash.com/photo-1523293182086-7651a899d37f?w=400")` }} />
-        </div>
-        <div className="relative max-w-4xl mx-auto px-4 text-center">
-          <h2 className="text-2xl sm:text-3xl font-bold mb-4">Pronto para fazer a sua importação?</h2>
-          <p className="text-brand-100 mb-6 max-w-xl mx-auto">
-            Junte-se a mais de 2.500 clientes satisfeitos em Angola. Simule o preço final em Kwanzas agora.
-          </p>
-          <Link
-            href="/importar"
-            className="inline-flex items-center gap-2 px-8 py-4 bg-white text-brand-600 font-semibold rounded-xl hover:bg-brand-50 transition text-lg"
-          >
-            Simular Importação Agora
-            <TrendingUp className="w-5 h-5" />
-          </Link>
-        </div>
-      </footer>
     </div>
   );
 }

@@ -27,7 +27,7 @@ interface Piece {
 
 const LIGHT_PIECES: Piece[] = [
   {
-    src: "https://images.unsplash.com/photo-1542272604-787c3835535d?w=500&h=600&fit=crop&auto=format",
+    src: "/images/fg-01.jpg",
     alt: "Ténis branco",
     top: "12%",
     left: "-3%",
@@ -38,7 +38,7 @@ const LIGHT_PIECES: Piece[] = [
     speed: 0.14,
   },
   {
-    src: "https://images.unsplash.com/photo-1584917865442-de89df76afd3?w=400&h=500&fit=crop&auto=format",
+    src: "/images/fg-02.jpg",
     alt: "Mala",
     top: "6%",
     right: "-2%",
@@ -50,7 +50,7 @@ const LIGHT_PIECES: Piece[] = [
     speed: -0.10,
   } as any,
   {
-    src: "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=500&h=600&fit=crop&auto=format",
+    src: "/images/fg-03.jpg",
     alt: "Vestido",
     top: "55%",
     left: "-4%",
@@ -62,7 +62,7 @@ const LIGHT_PIECES: Piece[] = [
     mobileHide: true,
   },
   {
-    src: "https://images.unsplash.com/photo-1594223274512-ad4803739b7c?w=400&h=500&fit=crop&auto=format",
+    src: "/images/fg-04.jpg",
     alt: "Óculos de sol",
     top: "40%",
     right: "2%",
@@ -74,7 +74,7 @@ const LIGHT_PIECES: Piece[] = [
     speed: -0.18,
   },
   {
-    src: "https://images.unsplash.com/photo-1572804013309-59a88b7e92f1?w=500&h=600&fit=crop&auto=format",
+    src: "/images/fg-05.jpg",
     alt: "Casaco",
     top: "78%",
     left: "40%",
@@ -86,7 +86,7 @@ const LIGHT_PIECES: Piece[] = [
     mobileHide: true,
   },
   {
-    src: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=400&h=400&fit=crop&auto=format",
+    src: "/images/fg-06.jpg",
     alt: "Relógio",
     top: "8%",
     left: "36%",
@@ -101,7 +101,7 @@ const LIGHT_PIECES: Piece[] = [
 
 const DARK_PIECES: Piece[] = [
   {
-    src: "https://images.unsplash.com/photo-1551232864-3f0890e580d9?w=500&h=600&fit=crop&auto=format",
+    src: "/images/fg-07.jpg",
     alt: "Sapatilhas",
     top: "-5%",
     left: "-3%",
@@ -112,7 +112,7 @@ const DARK_PIECES: Piece[] = [
     speed: 0.10,
   },
   {
-    src: "https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=500&h=500&fit=crop&auto=format",
+    src: "/images/fg-08.jpg",
     alt: "Mala de mão",
     top: "8%",
     right: "-3%",
@@ -124,7 +124,7 @@ const DARK_PIECES: Piece[] = [
     speed: -0.12,
   } as any,
   {
-    src: "https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=500&h=600&fit=crop&auto=format",
+    src: "/images/fg-09.jpg",
     alt: "Óculos",
     top: "70%",
     right: "-2%",
@@ -137,7 +137,7 @@ const DARK_PIECES: Piece[] = [
     mobileHide: true,
   } as any,
   {
-    src: "https://images.unsplash.com/photo-1596755094514-f87e34085b2c?w=400&h=500&fit=crop&auto=format",
+    src: "/images/fg-10.jpg",
     alt: "Vestido fluido",
     top: "60%",
     left: "-4%",

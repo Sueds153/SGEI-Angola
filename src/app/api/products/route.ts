@@ -6,48 +6,44 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const platform = searchParams.get("platform");
     const category = searchParams.get("category");
-    const sort = searchParams.get("sort");
-    const limit = parseInt(searchParams.get("limit") || "50");
-    const offset = parseInt(searchParams.get("offset") || "0");
+    const sort = searchParams.get("sort") || "relevance";
+    const limit = parseInt(searchParams.get("limit") || "50", 10);
+    const offset = parseInt(searchParams.get("offset") || "0", 10);
 
     const provider = await getActiveProvider();
 
-    let products: any[] = [];
+    // Busca catálogo (admin + mock) — não limitado aos "featured"
+    let all = await provider.searchProducts("", { limit: 200 });
 
-    // Se tem plataforma específica, busca via provider unificado
-    if (platform && platform !== "TODAS") {
-      // Para plataformas externas, usa featured + mock
-      products = await provider.getFeaturedProducts(limit);
-    } else {
-      // Busca geral
-      products = await provider.getFeaturedProducts(limit + offset);
+    // Filtro por plataforma
+    if (platform) {
+      const p = platform.toUpperCase();
+      all = all.filter((prod) => {
+        const source = (prod.source || "").toUpperCase();
+        // Produtos mock são tratados como SHEIN para fins de filtro
+        if (p === "SHEIN") return source === "SHEIN" || source === "MOCK";
+        return source === p;
+      });
     }
 
-    // Filtrar por plataforma se necessário
-    if (platform && platform !== "TODAS") {
-      products = products.filter(p => p.source === platform);
-    }
-
-    // Filtrar por categoria se necessário
+    // Filtro por categoria
     if (category) {
-      products = products.filter(p => p.category?.slug === category);
+      all = all.filter((prod) => prod.category?.slug === category);
     }
 
-    // Ordenar
+    // Ordenação
     if (sort === "price-asc") {
-      products.sort((a, b) => (a.priceAOA || 0) - (b.priceAOA || 0));
+      all.sort((a, b) => (a.originalPriceUsd ?? 0) - (b.originalPriceUsd ?? 0));
     } else if (sort === "price-desc") {
-      products.sort((a, b) => (b.priceAOA || 0) - (a.priceAOA || 0));
-    } else if (sort === "newest") {
-      products.sort((a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime());
+      all.sort((a, b) => (b.originalPriceUsd ?? 0) - (a.originalPriceUsd ?? 0));
     }
 
-    // Paginação
-    const paginatedProducts = products.slice(offset, offset + limit);
+    const total = all.length;
+    const products = all.slice(offset, offset + limit);
 
     return NextResponse.json({
-      products: paginatedProducts,
-      total: products.length,
+      products,
+      total,
       page: Math.floor(offset / limit) + 1,
       limit,
     });

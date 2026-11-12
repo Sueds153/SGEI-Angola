@@ -6,16 +6,16 @@ import { Footer } from "@/components/layout/Footer";
 
 export const metadata: Metadata = {
   title: {
-    default: "SGEI — SHEIN direto para Angola.",
-    template: "%s · SGEI",
+    default: "ImportEasy — Sua ponte para o mundo",
+    template: "%s · ImportEasy",
   },
   description:
-    "Encontra na SHEIN. Nós tratamos da compra e entregamos em Angola. Preços em Kz, sem cartão internacional, acompanhamento em tempo real.",
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"),
+    "Importe da Shein, AliExpress e Vinted para Angola. Preços em Kwanzas, sem cartão internacional, acompanhamento em tempo real.",
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "https://importeasy-angola.vercel.app"),
   openGraph: {
-    title: "SGEI — SHEIN direto para Angola.",
+    title: "ImportEasy — Sua ponte para o mundo",
     description:
-      "Encontra na SHEIN. Nós tratamos da compra e entregamos em Angola.",
+      "Importe da Shein, AliExpress e Vinted para Angola. Preços em Kwanzas, sem cartão internacional.",
     type: "website",
     locale: "pt_AO",
   },

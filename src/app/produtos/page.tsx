@@ -32,14 +32,19 @@ export default function ProdutosPage() {
   const [sort, setSort] = useState("relevance");
   const [showFilters, setShowFilters] = useState(false);
 
-  const fetchProducts = async () => {
+  // fetchProducts recebe os parâmetros explicitamente para evitar stale closures
+  const fetchProducts = async (
+    pPlatform: string,
+    pCategory: string,
+    pSort: string
+  ) => {
     setLoading(true);
     try {
       const params = new URLSearchParams();
-      if (platform) params.set("platform", platform);
-      if (category) params.set("category", category);
-      if (sort) params.set("sort", sort);
-      
+      if (pPlatform) params.set("platform", pPlatform);
+      if (pCategory) params.set("category", pCategory);
+      if (pSort && pSort !== "relevance") params.set("sort", pSort);
+
       const response = await fetch(`/api/products?${params.toString()}`);
       if (response.ok) {
         const data = await response.json();
@@ -57,7 +62,7 @@ export default function ProdutosPage() {
 
   // Initial load on mount
   useEffect(() => {
-    fetchProducts();
+    fetchProducts("", "", "relevance");
   }, []);
 
   const handleSearch = (e: React.FormEvent) => {

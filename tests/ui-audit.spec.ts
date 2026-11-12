@@ -40,7 +40,8 @@ test.describe('ImportEasy Production UI/UX Audit', () => {
     await expect(page.locator('text=Clientes ativos')).toBeVisible();
     await expect(page.locator('text=Pedidos entregues')).toBeVisible();
     
-    const avatars = page.locator('img[src*="dicebear"]');
+    // Avatares agora são data URIs locais (SVG inline) - verifica se existem imagens de avatar
+    const avatars = page.locator('img[src^="data:image/svg"]');
     await expect(avatars.first()).toBeVisible();
     
     await expect(page.locator('textarea[placeholder*="Partilhe"]')).toBeVisible();
