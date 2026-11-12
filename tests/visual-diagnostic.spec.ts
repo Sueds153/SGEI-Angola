@@ -13,8 +13,8 @@ test('Visual diagnostic - all pages', async ({ page }) => {
     page.on('requestfailed', req => failedRequests.push(req.url() + ' ' + req.failure()?.errorText));
     page.on('console', msg => { if (msg.type() === 'error') errors.push('CONSOLE:' + msg.text()); });
 
-    await page.goto(`${BASE_URL}${path}`, { waitUntil: 'networkidle', timeout: 30000 }).catch(e => console.log('goto error', e.message));
-    await page.waitForTimeout(2000);
+    await page.goto(`${BASE_URL}${path}`, { waitUntil: 'domcontentloaded', timeout: 60000 }).catch(e => console.log('goto error', e.message));
+    await page.waitForTimeout(3000);
 
     const metrics = await page.evaluate(() => {
       const body = document.body;

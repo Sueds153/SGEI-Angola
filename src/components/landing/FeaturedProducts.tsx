@@ -13,8 +13,9 @@ export default function FeaturedProducts({ featuredProducts }: FeaturedProductsP
   const products = Array.isArray(featuredProducts) ? featuredProducts : [];
   
   // Filtrar produtos por plataforma para destaques específicos
+  // Produtos MOCK são tratados como SHEIN para fins de filtro (consistente com API)
   const vintedProducts = products.filter(p => p && p.source === "VINTED").slice(0, 4);
-  const sheinProducts = products.filter(p => p && p.source === "SHEIN").slice(0, 4);
+  const sheinProducts = products.filter(p => p && (p.source === "SHEIN" || p.source === "MOCK")).slice(0, 4);
   const aliexpressProducts = products.filter(p => p && p.source === "ALIEXPRESS").slice(0, 4);
 
   const sections = [

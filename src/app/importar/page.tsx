@@ -329,7 +329,7 @@ function SimulationResultCard({ result, onNewSimulation }: { result: SimulationR
         <div className="border-t border-ink-200 pt-6">
           <a
             href={`https://wa.me/244922058136?text=${encodeURIComponent(
-              `OlÃ¡ ImportEasy! Quero encomendar: ${result.title} (${result.platform}). Total: ${formatAOA(totalAOA)}. Link: ${url}`
+              `Olá ImportEasy! Quero encomendar: ${result.title} (${result.platform}). Total: ${formatAOA(totalAOA)}. Link: ${result.sourceUrl || url || ''}`
             )}`}
             target="_blank"
             rel="noopener noreferrer"

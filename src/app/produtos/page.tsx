@@ -73,7 +73,7 @@ export default function ProdutosPage() {
   };
 
   const handleFilterChange = () => {
-    fetchProducts();
+    fetchProducts(platform, category, sort);
   };
 
   return (

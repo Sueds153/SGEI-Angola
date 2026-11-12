@@ -7,7 +7,7 @@ import Link from "next/link";
 import { ArrowRight, MessageCircle } from "lucide-react";
 
 export default async function HomePage() {
-  const featured = await getFeaturedProducts(8);
+  const featured = await getFeaturedProducts(24);
 
   return (
     <>
