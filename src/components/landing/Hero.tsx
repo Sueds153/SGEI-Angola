@@ -20,7 +20,7 @@ export default function Hero() {
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand-400 opacity-75" />
               <span className="relative inline-flex rounded-full h-2 w-2 bg-brand-500" />
             </span>
-            Novo: iPhones e Tech da Vinted já disponíveis
+            Novo: iPhones e acessórios da Vinted já disponíveis
           </div>
 
           {/* Main Headline */}
@@ -28,14 +28,14 @@ export default function Hero() {
             O mundo na palma da sua mão.
             <br />
             <span className="text-brand-600">Importe da Shein, AliExpress e Vinted</span>
-            diretamente para Angola.
+             diretamente para Angola.
           </h1>
 
           {/* Subheadline */}
           <p className="text-lg sm:text-xl text-ink-600 mb-10 max-w-2xl mx-auto leading-relaxed">
-            Encontre a moda da <strong>Shein</strong>, gadgets em conta no <strong>AliExpress</strong> e os melhores 
+            Encontre a moda da <strong>Shein</strong>, produtos baratos no <strong>AliExpress</strong> e os melhores 
             <strong>iPhones na Vinted</strong>. Nós tratamos da compra, alfândega e entrega na sua porta. 
-            Pagamento em Kz, sem complicações.
+            Pagamento em Kz, tudo fácil.
           </p>
 
           {/* CTAs */}
@@ -52,7 +52,7 @@ export default function Hero() {
               className="w-full sm:w-auto px-8 py-4 border-2 border-brand-600 text-brand-600 font-semibold rounded-xl hover:bg-brand-50 transition-all duration-200 flex items-center justify-center gap-2"
             >
               <Smartphone className="w-5 h-5" />
-              Simular Importação
+              Simular a minha Importação
             </Link>
           </div>
 
@@ -68,7 +68,7 @@ export default function Hero() {
             </div>
             <div className="flex items-center gap-2">
               <Truck className="w-5 h-5 text-brand-500" />
-              <span>Entrega em Luanda e províncias</span>
+              <span>Entregas em toda Angola</span>
             </div>
           </div>
         </div>

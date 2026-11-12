@@ -186,21 +186,21 @@ export default function ComunidadePage() {
     setConversations(initial);
   }, []);
 
-  // Simula tempo real: novas mensagens a cada 2-4 minutos
+  // Simula tempo real: novas mensagens a cada 5 segundos
   useEffect(() => {
     const interval = setInterval(() => {
       const fresh = generateConversation(Date.now(), true);
       setConversations((prev) => [fresh, ...prev.slice(0, 20)]);
-      
+
       // Notificação visual
       setNotifications((prev) => [...prev, `Nova partilha de ${fresh.user}`]);
       setTimeout(() => setNotifications((p) => p.slice(1)), 5000);
-      
+
       // Auto-scroll se estava no fundo
       if (isScrolledToBottom && feedRef.current) {
         feedRef.current.scrollTop = feedRef.current.scrollHeight;
       }
-    }, 180000 + Math.random() * 60000); // 3-4 min
+    }, 5000); // 5 segundos
 
     // Atualiza timestamps existentes
     const timeInterval = setInterval(() => {

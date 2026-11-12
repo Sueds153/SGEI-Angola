@@ -25,8 +25,8 @@ Esta plataforma permite que clientes em Angola comprem produtos de **Shein**, **
                               ↓
 ┌─────────────────────────────────────────────────────────────────┐
 │  3. Conversão automática para AOA                               │
-│     • USD → AOA (taxa: 920)                                     │
-│     • EUR → AOA (taxa: 980 = 920 × 1.06)                        │
+│     • USD → AOA (taxa: 1190)                                     │
+│     • EUR → AOA (taxa: 1200 = 920 × 1.06)                        │
 │     • CNY → AOA (taxa: 127 = 920 × 0.138)                       │
 │     • + Taxas de serviço, logística, entrega                    │
 └─────────────────────────────────────────────────────────────────┘

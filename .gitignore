@@ -58,4 +58,8 @@ logs
 check-*.cjs
 test-*.mjs
 create-*.cjs
+
+# Test artefacts
+screenshots/
+test-results/
 .vercel

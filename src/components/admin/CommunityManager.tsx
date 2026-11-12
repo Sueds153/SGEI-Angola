@@ -64,8 +64,8 @@ const PLATFORM_COLORS: Record<string, string> = {
 };
 
 export function CommunityManager() {
-  const [messages, setMessages] = useState<CommunityMessage[]>([]);
-  const [loading, setLoading] = useState(true);
+  // Initialize with deterministic mock data for consistent SSR/client hydration
+  const [messages, setMessages] = useState<CommunityMessage[]>(() => generateMockMessages());
   const [search, setSearch] = useState("");
   const [filterStatus, setFilterStatus] = useState("");
   const [filterPlatform, setFilterPlatform] = useState("");
@@ -76,32 +76,26 @@ export function CommunityManager() {
   const [messageToDelete, setMessageToDelete] = useState<number | null>(null);
   const [messageToToggleHide, setMessageToToggleHide] = useState<number | null>(null);
 
+  // Load from localStorage on client only
   useEffect(() => {
-    fetchMessages();
+    if (typeof window !== 'undefined') {
+      try {
+        const stored = localStorage.getItem("community_messages");
+        if (stored) {
+          setMessages(JSON.parse(stored));
+        } else {
+          localStorage.setItem("community_messages", JSON.stringify(generateMockMessages()));
+        }
+      } catch (error) {
+        console.error("Erro ao carregar mensagens:", error);
+      }
+    }
   }, []);
 
-  async function fetchMessages() {
-    setLoading(true);
-    try {
-      // Buscar do localStorage (simulação) ou API
-      const stored = localStorage.getItem("community_messages");
-      if (stored) {
-        setMessages(JSON.parse(stored));
-      } else {
-        // Dados iniciais de exemplo
-        const initial = generateMockMessages();
-        setMessages(initial);
-        localStorage.setItem("community_messages", JSON.stringify(initial));
-      }
-    } catch (error) {
-      console.error("Erro ao carregar mensagens:", error);
-    } finally {
-      setLoading(false);
-    }
-  }
-
   function saveMessages(updated: CommunityMessage[]) {
-    localStorage.setItem("community_messages", JSON.stringify(updated));
+    if (typeof window !== 'undefined') {
+      localStorage.setItem("community_messages", JSON.stringify(updated));
+    }
     setMessages(updated);
   }
 
@@ -125,13 +119,19 @@ export function CommunityManager() {
     ];
 
     const statuses = ["ENTREGUE", "EM_TRANSITO", "PENDENTE", "EM_ANALISE", "PERGUNTA"] as const;
-    
+
+    // Deterministic pseudo-random based on index for consistent SSR/client hydration
+    function pseudoRandom(seed: number): number {
+      const x = Math.sin(seed * 9999) * 10000;
+      return x - Math.floor(x);
+    }
+
     return Array.from({ length: 20 }, (_, i) => {
-      const user = users[Math.floor(Math.random() * users.length)];
-      const product = products[Math.floor(Math.random() * products.length)];
-      const status = statuses[Math.floor(Math.random() * statuses.length)];
-      const ref = `SG-${14000 + Math.floor(Math.random() * 300)}`;
-      
+      const user = users[Math.floor(pseudoRandom(i * 2 + 1) * users.length)];
+      const product = products[Math.floor(pseudoRandom(i * 2 + 2) * products.length)];
+      const status = statuses[Math.floor(pseudoRandom(i * 2 + 3) * statuses.length)];
+      const ref = `SG-${14000 + Math.floor(pseudoRandom(i * 2 + 4) * 300)}`;
+
       return {
         id: i + 1,
         user: user.name,
@@ -141,14 +141,14 @@ export function CommunityManager() {
         productEmoji: product.emoji,
         platform: product.platform,
         message: `Mensagem de exemplo ${i + 1} sobre ${product.name}...`,
-        likes: Math.floor(Math.random() * 50),
-        timeAgo: `${Math.floor(Math.random() * 48) + 1}h`,
-        verified: status === "ENTREGUE" || status === "EM_TRANSITO" ? Math.random() > 0.3 : false,
+        likes: Math.floor(pseudoRandom(i * 2 + 5) * 50),
+        timeAgo: `${Math.floor(pseudoRandom(i * 2 + 6) * 48) + 1}h`,
+        verified: status === "ENTREGUE" || status === "EM_TRANSITO" ? pseudoRandom(i * 2 + 7) > 0.3 : false,
         status,
         ref,
         isOwn: false,
         isHidden: false,
-        reported: Math.random() < 0.1,
+        reported: pseudoRandom(i * 2 + 8) < 0.1,
       };
     });
   }
@@ -214,30 +214,27 @@ export function CommunityManager() {
     saveMessages(updated);
   };
 
-  if (loading) {
-    return (
-      <div className="space-y-6">
-        <div className="flex items-center justify-between">
-          <h2 className="text-xl font-semibold text-ink-900">Gestão da Comunidade</h2>
-          <Loader2 className="h-6 w-6 animate-spin text-brand-600" />
-        </div>
-        {[...Array(5)].map((_, i) => (
-          <Card key={i} className="p-6 animate-pulse">
-            <div className="h-4 bg-ink-100 rounded w-3/4 mb-4" />
-            <div className="h-4 bg-ink-100 rounded w-1/2 mb-2" />
-            <div className="h-4 bg-ink-100 rounded w-1/3" />
-          </Card>
-        ))}
-      </div>
-    );
-  }
+  const handleRefresh = () => {
+    if (typeof window !== 'undefined') {
+      try {
+        const stored = localStorage.getItem("community_messages");
+        if (stored) {
+          setMessages(JSON.parse(stored));
+        } else {
+          setMessages(generateMockMessages());
+        }
+      } catch (error) {
+        console.error("Erro ao carregar mensagens:", error);
+      }
+    }
+  };
 
   return (
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
         <h2 className="text-xl font-semibold text-ink-900">Gestão da Comunidade</h2>
-        <Button variant="secondary" size="sm" onClick={fetchMessages}>
+        <Button variant="secondary" size="sm" onClick={handleRefresh}>
           <RefreshCw className="h-4 w-4 mr-2" />
           Atualizar
         </Button>

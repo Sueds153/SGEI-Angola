@@ -72,7 +72,14 @@ export const unifiedProvider = {
   },
 
   async getProductBySlug(slug: string): Promise<NormalizedProduct | null> {
-    // Tenta identificar provider pelo prefixo do slug
+    // 1) Admin + Mock primeiro (instantâneo, em memória) — inclui produtos demo
+    //    com slugs vinted-*/aliexpress-* para não disparar scraping desnecessário
+    const admin = await adminCatalogProvider.getProductBySlug(slug);
+    if (admin) return admin;
+    const mock = await mockProductProvider.getProductBySlug(slug);
+    if (mock) return mock;
+
+    // 2) Só então tenta provider externo (scraping real) para slugs desconhecidos
     if (slug.startsWith("aliexpress-")) {
       const cached = providerCache.get(getCacheKey("ALIEXPRESS", slug.replace("aliexpress-", "")));
       if (cached) return cached;
@@ -87,10 +94,7 @@ export const unifiedProvider = {
       if (product) providerCache.set(getCacheKey("VINTED", product.externalId!), product);
       return product;
     }
-    // Admin + Mock
-    const admin = await adminCatalogProvider.getProductBySlug(slug);
-    if (admin) return admin;
-    return mockProductProvider.getProductBySlug(slug);
+    return null;
   },
 
   async getProductByExternalId(externalId: string): Promise<NormalizedProduct | null> {
