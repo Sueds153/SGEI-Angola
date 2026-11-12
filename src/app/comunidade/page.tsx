@@ -1,13 +1,13 @@
-"use client";
+﻿"use client";
 
 import { useState, useEffect, useRef } from "react";
-import { MessageSquare, Heart, Clock, Shield, Star, MapPin, Send, Loader2, Smile, TrendingUp, CheckCircle2, Users } from "lucide-react";
+import { MessageSquare, Heart, Clock, Shield, Star, MapPin, Send, Loader2, TrendingUp, CheckCircle2, Users } from "lucide-react";
 import Link from "next/link";
 import { Logo } from "@/components/brand/Logo";
 
-// Avatares locais baseados nas iniciais do nome (sem dependências externas)
+// Avatares locais baseados nas iniciais do nome (sem dependÃªncias externas)
 function getAvatarUrl(seed: string): string {
-  // Gera cor baseada no seed para consistência
+  // Gera cor baseada no seed para consistÃªncia
   let hash = 0;
   for (let i = 0; i < seed.length; i++) {
     hash = seed.charCodeAt(i) + ((hash << 5) - hash);
@@ -25,7 +25,7 @@ function getAvatarUrl(seed: string): string {
     .slice(0, 2)
     .join("");
   
-  // Usa um data URI SVG inline - sem requisições externas
+  // Usa um data URI SVG inline - sem requisiÃ§Ãµes externas
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="hsl(${hue}, ${saturation}%, ${lightness}%)"/><stop offset="100%" stop-color="hsl(${hue}, ${saturation}%, ${Math.max(25, lightness - 15)}%)"/></linearGradient></defs><circle cx="50" cy="50" r="50" fill="url(#g)"/><text x="50" y="62" font-family="system-ui, sans-serif" font-size="38" font-weight="600" fill="white" text-anchor="middle" dominant-baseline="middle">${initials || "?"}</text></svg>`;
   
   return `data:image/svg+xml;base64,${btoa(svg)}`;
@@ -34,13 +34,13 @@ function getAvatarUrl(seed: string): string {
 // Dados base para gerar conversas realistas
 const USERS = [
   { name: "Maria Fernanda", seed: "maria-fernanda-ao", location: "Luanda, Talatona" },
-  { name: "João Pedro", seed: "joao-pedro-ao", location: "Benguela" },
+  { name: "JoÃ£o Pedro", seed: "joao-pedro-ao", location: "Benguela" },
   { name: "Ana Silva", seed: "ana-silva-ao", location: "Luanda, Kilamba" },
   { name: "Pedro Miguel", seed: "pedro-miguel-ao", location: "Huambo" },
   { name: "Carla Nascimento", seed: "carla-nascimento-ao", location: "Luanda, Maianga" },
   { name: "Filipe Domingos", seed: "filipe-domingos-ao", location: "Cabinda" },
   { name: "Mariana Lopes", seed: "mariana-lopes-ao", location: "Luanda, Belas" },
-  { name: "António Vicente", seed: "antonio-vicente-ao", location: "Lubango" },
+  { name: "AntÃ³nio Vicente", seed: "antonio-vicente-ao", location: "Lubango" },
   { name: "Beatriz Almeida", seed: "beatriz-almeida-ao", location: "Luanda, Mutamba" },
   { name: "Carlos Eduardo", seed: "carlos-eduardo-ao", location: "Malanje" },
   { name: "Diana Costa", seed: "diana-costa-ao", location: "Luanda, Viana" },
@@ -48,44 +48,44 @@ const USERS = [
 ];
 
 const PRODUCTS = [
-  { name: "iPhone 13 Pro 128GB", platform: "VINTED", emoji: "📱", category: "Tech", price: "450€" },
-  { name: "Vestido Floral Midi", platform: "SHEIN", emoji: "👗", category: "Moda", price: "18€" },
-  { name: "Ténis Nike Air Max", platform: "ALIEXPRESS", emoji: "👟", category: "Calçados", price: "42€" },
-  { name: "MacBook Air M1", platform: "VINTED", emoji: "💻", category: "Tech", price: "620€" },
-  { name: "Bolsa Transversal", platform: "VINTED", emoji: "👜", category: "Acessórios", price: "28€" },
-  { name: "Smartwatch Series 8", platform: "ALIEXPRESS", emoji: "⌚", category: "Tech", price: "22€" },
-  { name: "Conjunto Moletom", platform: "SHEIN", emoji: "👚", category: "Moda", price: "25€" },
-  { name: "AirPods Pro 2ª Gen", platform: "VINTED", emoji: "🎧", category: "Tech", price: "180€" },
-  { name: "Carregador GaN 65W", platform: "ALIEXPRESS", emoji: "🔌", category: "Tech", price: "12€" },
-  { name: "Jaqueta Jeans", platform: "SHEIN", emoji: "🧥", category: "Moda", price: "32€" },
+  { name: "iPhone 13 Pro 128GB", platform: "VINTED", category: "Tech", price: "450EUR" },
+  { name: "Vestido Floral Midi", platform: "SHEIN", category: "Moda", price: "18EUR" },
+  { name: "Tenis Nike Air Max", platform: "ALIEXPRESS", category: "Calcados", price: "42EUR" },
+  { name: "MacBook Air M1", platform: "VINTED", category: "Tech", price: "620EUR" },
+  { name: "Bolsa Transversal", platform: "VINTED", category: "Acessorios", price: "28EUR" },
+  { name: "Smartwatch Series 8", platform: "ALIEXPRESS", category: "Tech", price: "22EUR" },
+  { name: "Conjunto Moletom", platform: "SHEIN", category: "Moda", price: "25EUR" },
+  { name: "AirPods Pro 2a Gen", platform: "VINTED", category: "Tech", price: "180EUR" },
+  { name: "Carregador GaN 65W", platform: "ALIEXPRESS", category: "Tech", price: "12EUR" },
+  { name: "Jaqueta Jeans", platform: "SHEIN", category: "Moda", price: "32EUR" },
 ];
 
 const MESSAGES = {
   ENTREGUE: [
     "Recebi o meu {product} hoje! Veio tudo certinho, exatamente como nas fotos. Demorou {days} dias. Recomendo muito!",
-    "Primeira vez que uso o ImportEasy. O {product} chegou em {days} dias! Paguei por transferência e foi super rápido o comprovativo.",
+    "Primeira vez que uso o ImportEasy. O {product} chegou em {days} dias! Paguei por transferencia e foi super rapido o comprovativo.",
     "Melhor investimento! O {product} custou {price} na {platform} + taxas = {aoa} Kz. Aqui em Angola custa o dobro. Poupei muito!",
-    "Pedido {ref} chegou! O {product} funciona perfeitamente. O suporte no WhatsApp ajudou muito quando tive dúvida na alfândega.",
-    "Segunda compra feita! Da primeira vez demorou {days} dias. Espero que desta seja mais rápido. Já recomendei a {friends} amigos!",
+    "Pedido {ref} chegou! O {product} funciona perfeitamente. O suporte no WhatsApp ajudou muito quando tive duvida na alfandega.",
+    "Segunda compra feita! Da primeira vez demorou {days} dias. Espero que desta seja mais rapido. Ja recomendei a {friends} amigos!",
   ],
   EM_TRANSITO: [
-    "Estou na espera do meu pedido {ref}. Já está em Luanda segundo o rastreio! Ansiosa 😍",
-    "Meu {product} saiu da China ontem. Rastreio atualizou: 'Em trânsito para Angola'. Contando os dias!",
-    "Pedido {ref} com {product} está a caminho. O rastreio mostra que já passou pela alfândega. Boa!",
+    "Estou na espera do meu pedido {ref}. Ja esta em Luanda segundo o rastreio! Ansiosa!",
+    "Meu {product} saiu da China ontem. Rastreio atualizou: 'Em transito para Angola'. Contando os dias!",
+    "Pedido {ref} com {product} esta a caminho. O rastreio mostra que ja passou pela alfandega. Boa!",
   ],
   PENDENTE: [
-    "Acabei de fazer o pedido! Pela primeira vez. O simulador foi muito fácil de usar. Já paguei e estou a aguardar confirmação 🤞",
-    "Fiz o pagamento do meu {product} há 2 horas. Aguardando o email de confirmação. Alguém sabe quanto tempo demora?",
+    "Acabei de fazer o pedido! Pela primeira vez. O simulador foi muito facil de usar. Ja paguei e estou a aguardar confirmacao!",
+    "Fiz o pagamento do meu {product} ha 2 horas. Aguardando o email de confirmacao. Alguem sabe quanto tempo demora?",
     "Primeiro pedido pelo ImportEasy. Comprei {product} por {price}. Espero que corra tudo bem!",
   ],
   PERGUNTA: [
-    "Alguém já importou {product}? Estou a pensar pegar um da {platform}. Vale a pena o preço de {aoa} Kz?",
-    "Dúvida: o {product} da {platform} vem com garantia? Alguém sabe me dizer?",
-    "Para quem já comprou {category} na {platform}: o tamanho vem certo? Tenho receio de pedir errado.",
+    "Alguem ja importou {product}? Estou a pensar pegar um da {platform}. Vale a pena o preco de {aoa} Kz?",
+    "Duvida: o {product} da {platform} vem com garantia? Alguem sabe me dizer?",
+    "Para quem ja comprou {category} na {platform}: o tamanho vem certo? Tenho receio de pedir errado.",
   ],
   EM_ANALISE: [
-    "Meu pedido {ref} está em análise há 2 dias. Normal? Comprei {product} por {price}.",
-    "Pagamento confirmado ontem, mas pedido ainda em análise. Alguém sabe quanto tempo costuma demorar?",
+    "Meu pedido {ref} esta em analise ha 2 dias. Normal? Comprei {product} por {price}.",
+    "Pagamento confirmado ontem, mas pedido ainda em analise. Alguem sabe quanto tempo costuma demorar?",
   ],
 };
 
@@ -161,7 +161,6 @@ function generateConversation(id: number, isNew = false): any {
     avatar: getAvatarUrl(user.seed),
     location: user.location,
     product: product.name,
-    productEmoji: product.emoji,
     platform: product.platform,
     message,
     likes: isNew ? 0 : Math.floor((Math.sin(baseSeed + 1200) * 10000 - Math.floor(Math.sin(baseSeed + 1200) * 10000)) * 60),
@@ -178,7 +177,7 @@ const STATUS_CONFIG: Record<string, { label: string; color: string; icon: React.
   EM_TRANSITO: { label: "Em trânsito", color: "bg-blue-100 text-blue-700", icon: <TrendingUp className="w-3 h-3" /> },
   PENDENTE: { label: "Pendente", color: "bg-amber-100 text-amber-700", icon: <Clock className="w-3 h-3" /> },
   EM_ANALISE: { label: "Em análise", color: "bg-purple-100 text-purple-700", icon: <Shield className="w-3 h-3" /> },
-  PERGUNTA: { label: "Pergunta", color: "bg-ink-100 text-ink-700", icon: <Smile className="w-3 h-3" /> },
+  PERGUNTA: { label: "Pergunta", color: "bg-ink-100 text-ink-700", icon: <MessageSquare className="w-3 h-3" /> },
 };
 
 const PLATFORM_COLORS: Record<string, string> = {
@@ -195,18 +194,17 @@ const bgImages = [
   "/images/comm-bg-04.jpg",
 ];
 
-const emojis = ["😍", "🔥", "👏", "🙌", "💪", "🎉", "❤️", "🚀", "💯", "🤝"];
+
 
 export default function ComunidadePage() {
   const [conversations, setConversations] = useState<any[]>([]);
   const [newMessage, setNewMessage] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [notifications, setNotifications] = useState<string[]>([]);
   const feedRef = useRef<HTMLDivElement>(null);
   const [isScrolledToBottom, setIsScrolledToBottom] = useState(true);
 
-  // Inicializa com conversas existentes (determinístico para evitar hydration mismatch)
+  // Inicializa com conversas existentes (determinÃ­stico para evitar hydration mismatch)
   useEffect(() => {
     const initial = Array.from({ length: 12 }, (_, i) => generateConversation(i + 1));
     setConversations(initial);
@@ -218,7 +216,7 @@ export default function ComunidadePage() {
       const fresh = generateConversation(Date.now(), true);
       setConversations((prev) => [fresh, ...prev.slice(0, 20)]);
 
-      // Notificação visual
+      // NotificaÃ§Ã£o visual
       setNotifications((prev) => [...prev, `Nova partilha de ${fresh.user}`]);
       setTimeout(() => setNotifications((p) => p.slice(1)), 5000);
 
@@ -253,11 +251,11 @@ export default function ComunidadePage() {
     const userSeed = `user-${Date.now()}`;
     const message = {
       id: Date.now(),
-      user: "Você",
+      user: "VocÃª",
       avatar: getAvatarUrl(userSeed),
       location: "Angola",
       product: "ImportEasy",
-      productEmoji: "📦",
+      product,
       platform: "IMPORTEASY",
       message: newMessage,
       likes: 0,
@@ -273,7 +271,7 @@ export default function ComunidadePage() {
     setIsSubmitting(false);
     setShowEmojiPicker(false);
     
-    // Notificação de envio
+    // NotificaÃ§Ã£o de envio
     setNotifications((p) => [...p, "Mensagem publicada!"]);
     setTimeout(() => setNotifications((p) => p.slice(1)), 3000);
   };
@@ -291,7 +289,7 @@ export default function ComunidadePage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-ink-50 via-white to-amber-50 relative overflow-hidden">
-      {/* Background decorativo com acessórios */}
+      {/* Background decorativo com acessÃ³rios */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none" aria-hidden="true">
         <div className="absolute top-20 left-5 w-32 h-32 opacity-5" style={{ backgroundImage: `url("${bgImages[0]}")` }} />
         <div className="absolute top-40 right-10 w-24 h-24 opacity-5 rotate-12" style={{ backgroundImage: `url("${bgImages[1]}")` }} /> 
@@ -306,14 +304,14 @@ export default function ComunidadePage() {
           <div className="text-center mb-10 relative">
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-brand-100 text-brand-700 text-sm font-medium mb-4">
               <TrendingUp className="w-4 h-4" />
-              <span>Comunidade ativa · Tempo real</span>
+              <span>Comunidade ativa Â· Tempo real</span>
             </div>
             <h1 className="text-3xl sm:text-4xl font-bold text-ink-900 mb-3">
               Comunidade <span className="text-brand-600">ImportEasy</span>
             </h1>
             <p className="text-lg text-ink-600 max-w-2xl mx-auto">
-              Partilhe a sua experiência, tire dúvidas e veja o que outros clientes em Angola estão a importar.
-              <span className="font-medium text-brand-600"> Mais de 2.500 angolanos já confiam.</span>
+              Partilhe a sua experiÃªncia, tire dÃºvidas e veja o que outros clientes em Angola estÃ£o a importar.
+              <span className="font-medium text-brand-600"> Mais de 2.500 angolanos jÃ¡ confiam.</span>
             </p>
           </div>
 
@@ -321,48 +319,26 @@ export default function ComunidadePage() {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
             <StatCard icon={Users} value="2.500+" label="Clientes ativos" />
             <StatCard icon={CheckCircle2} value="8.300+" label="Pedidos entregues" />
-            <StatCard icon={Star} value="4,8/5" label="Avaliação média" />
-            <StatCard icon={TrendingUp} value="18 dias" label="Média de entrega" />
+            <StatCard icon={Star} value="4,8/5" label="AvaliaÃ§Ã£o mÃ©dia" />
+            <StatCard icon={TrendingUp} value="18 dias" label="MÃ©dia de entrega" />
           </div>
 
           {/* Composer */}
           <div className="bg-white rounded-2xl border border-ink-200 p-4 mb-8 shadow-sm relative">
             <div className="flex items-start gap-3">
-              <img src={getAvatarUrl("current-user")} alt="Você" className="w-10 h-10 rounded-full ring-2 ring-brand-200" />
+              <img src={getAvatarUrl("current-user")} alt="VocÃª" className="w-10 h-10 rounded-full ring-2 ring-brand-200" />
               <div className="flex-1">
                 <form onSubmit={handleSubmit} className="space-y-3">
                   <textarea
                     value={newMessage}
                     onChange={(e) => setNewMessage(e.target.value)}
-                    placeholder="O que está a pensar importar? Partilhe a sua experiência ou faça uma pergunta..."
+                    placeholder="O que estÃ¡ a pensar importar? Partilhe a sua experiÃªncia ou faÃ§a uma pergunta..."
                     rows={3}
                     className="w-full resize-none border border-ink-200 rounded-xl p-3 text-ink-900 placeholder-ink-400 focus:ring-2 focus:ring-brand-500 focus:border-transparent transition"
                     disabled={isSubmitting}
                   />
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                      <button
-                        type="button"
-                        onClick={() => setShowEmojiPicker(!showEmojiPicker)}
-                        className="p-2 rounded-lg hover:bg-ink-100 transition"
-                        aria-label="Emojis"
-                      >
-                        <Smile className="w-5 h-5 text-ink-500" />
-                      </button>
-                      {showEmojiPicker && (
-                        <div className="absolute bottom-full left-10 mb-2 flex flex-wrap gap-1 p-2 bg-white border border-ink-200 rounded-xl shadow-lg">
-                          {emojis.map((e) => (
-                            <button
-                              key={e}
-                              type="button"
-                              onClick={() => setNewMessage(newMessage + " " + e)}
-                              className="text-xl hover:scale-110 transition"
-                            >
-                              {e}
-                            </button>
-                          ))}
-                        </div>
-                      )}
                       <span className="text-xs text-ink-500 flex items-center gap-1">
                         <Shield className="w-3 h-3" />
                         Mensagens moderadas
@@ -471,12 +447,12 @@ function ConversationCard({ conversation, onLike }: { conversation: any; onLike:
                 <CheckCircle2 className="w-3 h-3" /> Verificado
               </span>
             )}
-            <span className="text-ink-400">•</span>
+            <span className="text-ink-400">â€¢</span>
             <span className="text-sm text-ink-500 flex items-center gap-1">
               <MapPin className="w-3 h-3" />
               {conversation.location}
             </span>
-            <span className="text-ink-400">•</span>
+            <span className="text-ink-400">â€¢</span>
             <span className="text-sm text-ink-500 flex items-center gap-1">
               <Clock className="w-3 h-3" />
               {conversation.timeAgo}
@@ -485,7 +461,6 @@ function ConversationCard({ conversation, onLike }: { conversation: any; onLike:
 
           {/* Product & Status */}
           <div className="flex items-center gap-2 mb-3 flex-wrap">
-            <span className="text-lg">{conversation.productEmoji}</span>
             <span className="text-sm font-medium text-ink-700">{conversation.product}</span>
             <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${platformColor}`}>
               {conversation.platform}

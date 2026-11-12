@@ -1,9 +1,10 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Loader2, AlertCircle, CheckCircle, Link as LinkIcon, Shield, Clock, Calculator } from "lucide-react";
+import { Loader2, AlertCircle, CheckCircle, Link as LinkIcon, Shield, Clock, Calculator, CheckCircle2 } from "lucide-react";
 import Link from "next/link";
+import { Logo } from "@/components/brand/Logo";
 
 interface SimulationResult {
   success: boolean;
@@ -25,9 +26,9 @@ interface SimulationResult {
 }
 
 const PLATFORMS = [
-  { name: "Shein", icon: "🛍️", color: "bg-pink-100 text-pink-600", domains: ["shein.com"] },
-  { name: "AliExpress", icon: "📱", color: "bg-orange-100 text-orange-600", domains: ["aliexpress.com", "pt.aliexpress.com"] },
-  { name: "Vinted", icon: "👗", color: "bg-brand-100 text-brand-600", domains: ["vinted.com", "vinted.pt", "vinted.fr", "vinted.es"] },
+  { name: "Shein", icon: "Shein", color: "bg-pink-100 text-pink-600", domains: ["shein.com"] },
+  { name: "AliExpress", icon: "AliExpress", color: "bg-orange-100 text-orange-600", domains: ["aliexpress.com", "pt.aliexpress.com"] },
+  { name: "Vinted", icon: "Vinted", color: "bg-brand-100 text-brand-600", domains: ["vinted.com", "vinted.pt", "vinted.fr", "vinted.es"] },
 ];
 
 export default function ImportarPage() {
@@ -65,7 +66,7 @@ export default function ImportarPage() {
         throw new Error(data.error || "Erro ao processar o link");
       }
 
-      // Se precisa de confirmação (Shein/AliExpress sem premium)
+      // Se precisa de confirmaÃ§Ã£o (Shein/AliExpress sem premium)
       if (data.needs_confirmation) {
         setResult({
           success: true,
@@ -87,7 +88,7 @@ export default function ImportarPage() {
       } else if (data.product) {
         setResult(data.product);
       } else {
-        throw new Error("Não foi possível obter os dados do produto");
+        throw new Error("NÃ£o foi possÃ­vel obter os dados do produto");
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Erro desconhecido");
@@ -111,7 +112,7 @@ export default function ImportarPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <Link href="/" className="flex items-center gap-2">
-              <span className="text-2xl">📦</span>
+              <Logo className="h-8 w-auto" />
               <span className="font-bold text-xl text-brand-600">ImportEasy</span>
             </Link>
             <nav className="hidden md:flex items-center gap-6 text-sm">
@@ -131,10 +132,10 @@ export default function ImportarPage() {
           {/* Hero Section */}
           <div className="text-center max-w-3xl mx-auto mb-12">
             <h1 className="text-3xl sm:text-4xl font-bold text-ink-900 mb-4">
-              Simule a sua <span className="text-brand-600">importação</span>
+              Simule a sua <span className="text-brand-600">importaÃ§Ã£o</span>
             </h1>
             <p className="text-lg text-ink-600">
-              Cole o link de qualquer produto da Shein, AliExpress ou Vinted e veja o preço final em Kwanzas com entrega incluída.
+              Cole o link de qualquer produto da Shein, AliExpress ou Vinted e veja o preÃ§o final em Kwanzas com entrega incluÃ­da.
             </p>
           </div>
 
@@ -144,14 +145,14 @@ export default function ImportarPage() {
               <span className="text-sm text-ink-500">Plataformas suportadas:</span>
               {PLATFORMS.map((p) => (
                 <span key={p.name} className={`px-3 py-1 rounded-full text-sm font-medium ${p.color} flex items-center gap-1`}>
-                  {p.icon} {p.name}
+                  {p.name}
                 </span>
               ))}
             </div>
             
             {platform && (
               <div className="text-center text-sm text-brand-600 font-medium mb-4">
-                ✓ Detectado: <strong>{platform.name}</strong> — {platform.domains[0]}
+                <CheckCircle2 className="w-4 h-4 inline mr-1" /> Detectado: <strong>{platform.name}</strong> — {platform.domains[0]}
               </div>
             )}
           </div>
@@ -188,12 +189,12 @@ export default function ImportarPage() {
               {loading ? (
                 <>
                   <Loader2 className="w-5 h-5 animate-spin" />
-                  A calcular preço final...
+                  A calcular preÃ§o final...
                 </>
               ) : (
                 <>
                   <Calculator className="w-5 h-5" />
-                  Simular Importação
+                  Simular ImportaÃ§Ã£o
                 </>
               )}
             </button>
@@ -219,9 +220,9 @@ export default function ImportarPage() {
 
           {/* Features */}
           <div className="mt-16 grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
-            <FeatureCard icon={Shield} title="Preço Final Garantido" desc="O valor simulado já inclui: produto + taxa de câmbio + taxa de serviço + logística + alfândega + entrega. Sem surpresas." />
-            <FeatureCard icon={Clock} title="Prazo Realista" desc="Entrega estimada em 15-25 dias úteis. Acompanha tudo no seu painel com rastreio em tempo real." />
-            <FeatureCard icon={Calculator} title="Pagamento em Kz" desc="Transferência, Multicaixa Express ou Referência. Comprovativo validado em minutos via WhatsApp." />
+            <FeatureCard icon={Shield} title="PreÃ§o Final Garantido" desc="O valor simulado jÃ¡ inclui: produto + taxa de cÃ¢mbio + taxa de serviÃ§o + logÃ­stica + alfÃ¢ndega + entrega. Sem surpresas." />
+            <FeatureCard icon={Clock} title="Prazo Realista" desc="Entrega estimada em 15-25 dias Ãºteis. Acompanha tudo no seu painel com rastreio em tempo real." />
+            <FeatureCard icon={Calculator} title="Pagamento em Kz" desc="TransferÃªncia, Multicaixa Express ou ReferÃªncia. Comprovativo validado em minutos via WhatsApp." />
           </div>
         </div>
       </main>
@@ -258,12 +259,12 @@ function SimulationResultCard({ result, onNewSimulation }: { result: SimulationR
         <div className="flex items-center gap-3">
           <CheckCircle className="w-8 h-8" />
           <div>
-            <h2 className="text-xl font-bold">Simulação concluída</h2>
-            <p className="text-brand-100 text-sm">{result.platform} • {result.title?.substring(0, 60)}...</p>
+            <h2 className="text-xl font-bold">SimulaÃ§Ã£o concluÃ­da</h2>
+            <p className="text-brand-100 text-sm">{result.platform} â€¢ {result.title?.substring(0, 60)}...</p>
           </div>
         </div>
         <button onClick={onNewSimulation} className="text-brand-100 hover:text-white text-sm font-medium">
-          Nova simulação
+          Nova simulaÃ§Ã£o
         </button>
       </div>
 
@@ -274,34 +275,34 @@ function SimulationResultCard({ result, onNewSimulation }: { result: SimulationR
             {result.images?.[0] ? (
               <img src={result.images[0]} alt={result.title} className="w-full h-full object-cover rounded-xl" />
             ) : (
-              <span className="text-4xl">📦</span>
+              <LinkIcon className="w-10 h-10 text-ink-400" />
             )}
           </div>
           <div className="flex-1 min-w-0">
             <h3 className="font-semibold text-ink-900 truncate">{result.title}</h3>
-            <p className="text-sm text-ink-500">ID: {result.productId} • {result.platform}</p>
+            <p className="text-sm text-ink-500">ID: {result.productId} â€¢ {result.platform}</p>
           </div>
         </div>
 
         {/* Price Breakdown */}
         <div className="border-t border-ink-200 pt-6 space-y-3">
-          <h4 className="font-semibold text-ink-900">Detalhe do preço</h4>
+          <h4 className="font-semibold text-ink-900">Detalhe do preÃ§o</h4>
           
           <div className="bg-brand-50 rounded-xl p-4">
             <div className="flex justify-between text-sm mb-2">
-              <span className="text-ink-600">Preço original ({originalCurrency})</span>
+              <span className="text-ink-600">PreÃ§o original ({originalCurrency})</span>
               <span className="font-medium text-ink-900">{formatCurrency(originalPrice, originalCurrency)}</span>
             </div>
             <div className="flex justify-between text-sm mb-2">
-              <span className="text-ink-600">Taxa de câmbio</span>
+              <span className="text-ink-600">Taxa de cÃ¢mbio</span>
               <span className="font-medium text-ink-900">1 {originalCurrency} = {result.exchangeRate?.toFixed(2)} AOA</span>
             </div>
             <div className="flex justify-between text-sm mb-2">
-              <span className="text-ink-600">Taxa de serviço (12%)</span>
+              <span className="text-ink-600">Taxa de serviÃ§o (12%)</span>
               <span className="font-medium text-ink-900">{formatAOA(result.serviceFee || 0)}</span>
             </div>
             <div className="flex justify-between text-sm mb-2">
-              <span className="text-ink-600">Logística & Alfândega</span>
+              <span className="text-ink-600">LogÃ­stica & AlfÃ¢ndega</span>
               <span className="font-medium text-ink-900">{formatAOA(result.logisticsFee || 0)}</span>
             </div>
             <div className="flex justify-between text-sm mb-2">
@@ -319,7 +320,7 @@ function SimulationResultCard({ result, onNewSimulation }: { result: SimulationR
             <Clock className="w-5 h-5 text-brand-600" />
             <div>
               <p className="font-medium text-ink-900">Entrega estimada</p>
-              <p className="text-sm text-ink-600">{result.estimatedDays || 18} a {result.estimatedDays ? result.estimatedDays + 7 : 25} dias úteis</p>
+              <p className="text-sm text-ink-600">{result.estimatedDays || 18} a {result.estimatedDays ? result.estimatedDays + 7 : 25} dias Ãºteis</p>
             </div>
           </div>
         </div>
@@ -328,7 +329,7 @@ function SimulationResultCard({ result, onNewSimulation }: { result: SimulationR
         <div className="border-t border-ink-200 pt-6">
           <a
             href={`https://wa.me/244922058136?text=${encodeURIComponent(
-              `Olá ImportEasy! Quero encomendar: ${result.title} (${result.platform}). Total: ${formatAOA(totalAOA)}. Link: ${url}`
+              `OlÃ¡ ImportEasy! Quero encomendar: ${result.title} (${result.platform}). Total: ${formatAOA(totalAOA)}. Link: ${url}`
             )}`}
             target="_blank"
             rel="noopener noreferrer"

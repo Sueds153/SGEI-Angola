@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/Button";
@@ -33,7 +33,6 @@ interface CommunityMessage {
   avatar: string;
   location: string;
   product: string;
-  productEmoji: string;
   platform: string;
   message: string;
   likes: number;
@@ -50,9 +49,9 @@ interface CommunityMessage {
 
 const STATUS_CONFIG: Record<string, { label: string; color: string }> = {
   ENTREGUE: { label: "Entregue", color: "bg-emerald-100 text-emerald-700" },
-  EM_TRANSITO: { label: "Em trânsito", color: "bg-blue-100 text-blue-700" },
+  EM_TRANSITO: { label: "Em trÃ¢nsito", color: "bg-blue-100 text-blue-700" },
   PENDENTE: { label: "Pendente", color: "bg-amber-100 text-amber-700" },
-  EM_ANALISE: { label: "Em análise", color: "bg-purple-100 text-purple-700" },
+  EM_ANALISE: { label: "Em anÃ¡lise", color: "bg-purple-100 text-purple-700" },
   PERGUNTA: { label: "Pergunta", color: "bg-ink-100 text-ink-700" },
 };
 
@@ -102,7 +101,7 @@ export function CommunityManager() {
   function generateMockMessages(): CommunityMessage[] {
     const users = [
       { name: "Maria Fernanda", seed: "maria-fernanda-ao", location: "Luanda, Talatona", skin: "8d5524" },
-      { name: "João Pedro", seed: "joao-pedro-ao", location: "Benguela", skin: "5d4037" },
+      { name: "JoÃ£o Pedro", seed: "joao-pedro-ao", location: "Benguela", skin: "5d4037" },
       { name: "Ana Silva", seed: "ana-silva-ao", location: "Luanda, Kilamba", skin: "a1887f" },
       { name: "Pedro Miguel", seed: "pedro-miguel-ao", location: "Huambo", skin: "6d4c41" },
       { name: "Carla Nascimento", seed: "carla-nascimento-ao", location: "Luanda, Maianga", skin: "795548" },
@@ -110,12 +109,12 @@ export function CommunityManager() {
     ];
 
     const products = [
-      { name: "iPhone 13 Pro 128GB", platform: "VINTED", emoji: "📱" },
-      { name: "Vestido Floral Midi", platform: "SHEIN", emoji: "👗" },
-      { name: "Ténis Nike Air Max", platform: "ALIEXPRESS", emoji: "👟" },
-      { name: "MacBook Air M1", platform: "VINTED", emoji: "💻" },
-      { name: "Bolsa Transversal", platform: "VINTED", emoji: "👜" },
-      { name: "Smartwatch Series 8", platform: "ALIEXPRESS", emoji: "⌚" },
+      { name: "iPhone 13 Pro 128GB", platform: "VINTED" },
+      { name: "Vestido Floral Midi", platform: "SHEIN" },
+      { name: "Tenis Nike Air Max", platform: "ALIEXPRESS" },
+      { name: "MacBook Air M1", platform: "VINTED" },
+      { name: "Bolsa Transversal", platform: "VINTED" },
+      { name: "Smartwatch Series 8", platform: "ALIEXPRESS" },
     ];
 
     const statuses = ["ENTREGUE", "EM_TRANSITO", "PENDENTE", "EM_ANALISE", "PERGUNTA"] as const;
@@ -138,7 +137,6 @@ export function CommunityManager() {
         avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${user.seed}&skinColor=${user.skin}&backgroundColor=e8f5e9,bbdefb,ffe0b2,fce4ec,fff3e0`,
         location: user.location,
         product: product.name,
-        productEmoji: product.emoji,
         platform: product.platform,
         message: `Mensagem de exemplo ${i + 1} sobre ${product.name}...`,
         likes: Math.floor(pseudoRandom(i * 2 + 5) * 50),
@@ -233,7 +231,7 @@ export function CommunityManager() {
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <h2 className="text-xl font-semibold text-ink-900">Gestão da Comunidade</h2>
+        <h2 className="text-xl font-semibold text-ink-900">GestÃ£o da Comunidade</h2>
         <Button variant="secondary" size="sm" onClick={handleRefresh}>
           <RefreshCw className="h-4 w-4 mr-2" />
           Atualizar
@@ -291,7 +289,7 @@ export function CommunityManager() {
                 className="rounded border-ink-300 text-brand-600 focus:ring-brand-500"
               />
               <Flag className="w-4 h-4" />
-              Só reportadas
+              SÃ³ reportadas
             </label>
           </div>
         </div>
@@ -307,7 +305,7 @@ export function CommunityManager() {
                 <th className="px-4 py-3 text-left text-xs font-semibold text-ink-500 uppercase">Produto / Plataforma</th>
                 <th className="px-4 py-3 text-left text-xs font-semibold text-ink-500 uppercase">Mensagem</th>
                 <th className="px-4 py-3 text-left text-xs font-semibold text-ink-500 uppercase">Status</th>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-ink-500 uppercase">Ações</th>
+                <th className="px-4 py-3 text-left text-xs font-semibold text-ink-500 uppercase">AÃ§Ãµes</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-ink-100">
@@ -336,7 +334,7 @@ export function CommunityManager() {
                           </div>
                           <div className="flex items-center gap-2 text-xs text-ink-500">
                             <MapPin className="w-3 h-3" /> {msg.location}
-                            <span>•</span>
+                            <span>â€¢</span>
                             <Clock className="w-3 h-3" /> {msg.timeAgo}
                             {msg.ref && <span className="font-mono">Ref: {msg.ref}</span>}
                           </div>
@@ -345,7 +343,6 @@ export function CommunityManager() {
                     </td>
                     <td className="px-4 py-4">
                       <div className="flex items-center gap-2">
-                        <span className="text-lg">{msg.productEmoji}</span>
                         <span className="text-sm font-medium text-ink-700 max-w-xs truncate">{msg.product}</span>
                       </div>
                       <span className={cn("inline-block mt-1 px-2 py-0.5 rounded-full text-xs font-medium", PLATFORM_COLORS[msg.platform])}>

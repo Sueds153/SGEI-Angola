@@ -15,16 +15,17 @@ test.describe('ImportEasy Production UI/UX Audit', () => {
   test('Homepage - renders correctly with branding', async ({ page }) => {
     await page.goto(BASE_URL, { waitUntil: 'networkidle' });
     
-    await expect(page).toHaveTitle(/ImportEasy|SGEI/);
+    await expect(page).toHaveTitle(/ImportEasy/);
     
     const h1 = page.locator('h1').first();
-    await expect(h1).toContainText('Angola');
     await expect(h1).toContainText('Shein');
+    await expect(h1).toContainText('AliExpress');
     
     await expect(page.locator('body')).toContainText('ImportEasy');
     await expect(page.locator('body')).toContainText('Shein');
     await expect(page.locator('body')).toContainText('AliExpress');
     await expect(page.locator('body')).toContainText('Vinted');
+    await expect(page.locator('body')).toContainText('Angola');
     
     await expect(page.locator('a[href="/importar"]').first()).toBeVisible();
     await expect(page.locator('a[href="/produtos"]').first()).toBeVisible();
