@@ -1,0 +1,48 @@
+
+> lint
+> eslint .
+
+
+C:\Users\Pagora\OneDrive\Desktop\shein-intermediary-platform-angola\src\app\(admin)\admin\pedidos\[id]\page.tsx
+  84:21  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+C:\Users\Pagora\OneDrive\Desktop\shein-intermediary-platform-angola\src\app\carrinho\page.tsx
+  128:23  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+C:\Users\Pagora\OneDrive\Desktop\shein-intermediary-platform-angola\src\app\comunidade\page.tsx
+  460:15  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+  601:11  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+C:\Users\Pagora\OneDrive\Desktop\shein-intermediary-platform-angola\src\app\importar\page.tsx
+  351:15  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+C:\Users\Pagora\OneDrive\Desktop\shein-intermediary-platform-angola\src\app\pedido\[reference]\page.tsx
+  94:21  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+C:\Users\Pagora\OneDrive\Desktop\shein-intermediary-platform-angola\src\components\admin\AdminPaymentApproval.tsx
+  97:17  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+C:\Users\Pagora\OneDrive\Desktop\shein-intermediary-platform-angola\src\components\admin\BulkPurchasingModal.tsx
+  103:25  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+C:\Users\Pagora\OneDrive\Desktop\shein-intermediary-platform-angola\src\components\admin\CommunityManager.tsx
+  325:25  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+C:\Users\Pagora\OneDrive\Desktop\shein-intermediary-platform-angola\src\components\admin\ProductListManager.tsx
+  271:25  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+C:\Users\Pagora\OneDrive\Desktop\shein-intermediary-platform-angola\src\components\cart\CartDrawer.tsx
+  182:23  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+C:\Users\Pagora\OneDrive\Desktop\shein-intermediary-platform-angola\src\components\checkout\CheckoutFlow.tsx
+  258:15  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+C:\Users\Pagora\OneDrive\Desktop\shein-intermediary-platform-angola\src\components\order\PaymentProofUpload.tsx
+  197:15  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+C:\Users\Pagora\OneDrive\Desktop\shein-intermediary-platform-angola\src\components\visual\FloatingGarments.tsx
+  189:6   warning  React Hook useEffect has a missing dependency: 'pieces'. Either include it or remove the dependency array                                                                                                                                                                                react-hooks/exhaustive-deps
+  202:11  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+✖ 15 problems (0 errors, 15 warnings)
+

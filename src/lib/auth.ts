@@ -6,11 +6,26 @@ import { users, adminProfiles, customerProfiles } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import type { UserRole } from "./types";
 
+const isProductionBuild = process.env.NEXT_PHASE === "phase-production-build";
+const configuredJwtSecret = process.env.JWT_SECRET;
+
+if (
+  process.env.NODE_ENV === "production" &&
+  !isProductionBuild &&
+  (!configuredJwtSecret || configuredJwtSecret.length < 32)
+) {
+  throw new Error("JWT_SECRET deve estar configurado com pelo menos 32 caracteres em produção.");
+}
+
 const JWT_SECRET = new TextEncoder().encode(
-  process.env.JWT_SECRET || "importeasy-angola-dev-secret-change-in-production"
+  configuredJwtSecret ||
+    (isProductionBuild
+      ? "build-only-secret-not-valid-at-runtime"
+      : "importeasy-angola-dev-secret-change-in-production-secure-key")
 );
 const COOKIE_NAME = "importeasy_session";
-const MAX_AGE = 60 * 60 * 24 * 7; // 7 dias
+const CUSTOMER_MAX_AGE = 60 * 60 * 24 * 7; // 7 dias para clientes comuns
+const ADMIN_MAX_AGE = 60 * 60 * 4; // 4 horas para administradores (norma bancária estrita)
 
 export interface SessionPayload {
   userId: number;
@@ -20,7 +35,7 @@ export interface SessionPayload {
 }
 
 export async function hashPassword(plain: string): Promise<string> {
-  return bcrypt.hash(plain, 10);
+  return bcrypt.hash(plain, 12); // Nível 12 de salt rounds para maior resistência
 }
 
 export async function verifyPassword(plain: string, hash: string): Promise<boolean> {
@@ -28,10 +43,12 @@ export async function verifyPassword(plain: string, hash: string): Promise<boole
 }
 
 export async function createSession(payload: SessionPayload) {
+  const maxAge = payload.role === "admin" ? ADMIN_MAX_AGE : CUSTOMER_MAX_AGE;
+
   const token = await new SignJWT({ ...payload })
     .setProtectedHeader({ alg: "HS256" })
     .setIssuedAt()
-    .setExpirationTime(`${MAX_AGE}s`)
+    .setExpirationTime(`${maxAge}s`)
     .sign(JWT_SECRET);
 
   const cookieStore = await cookies();
@@ -40,7 +57,7 @@ export async function createSession(payload: SessionPayload) {
     secure: process.env.NODE_ENV === "production",
     sameSite: "lax",
     path: "/",
-    maxAge: MAX_AGE,
+    maxAge: maxAge,
   });
 }
 

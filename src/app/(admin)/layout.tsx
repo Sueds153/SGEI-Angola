@@ -15,6 +15,8 @@ import {
   BarChart3,
   Shield,
   MessageSquare,
+  Banknote,
+  Search,
 } from "lucide-react";
 import { getSession } from "@/lib/auth";
 import { Logo } from "@/components/brand/Logo";
@@ -27,12 +29,14 @@ export const metadata: Metadata = {
 const adminNav = [
   { href: "/admin", label: "Dashboard", icon: LayoutDashboard },
   { href: "/admin/pedidos", label: "Pedidos", icon: ShoppingBag },
+  { href: "/admin/rastreio", label: "Rastreio & Intervenção", icon: Search },
+  { href: "/admin/cambio", label: "Câmbio Informal", icon: Banknote },
+  { href: "/admin/pagamentos", label: "Pagamentos", icon: CreditCard },
+  { href: "/admin/logistica", label: "Logística", icon: Truck },
   { href: "/admin/produtos", label: "Produtos", icon: PackageIcon },
   { href: "/admin/categorias", label: "Categorias", icon: Tags },
   { href: "/admin/clientes", label: "Clientes", icon: Users },
-  { href: "/admin/pagamentos", label: "Pagamentos", icon: CreditCard },
-  { href: "/admin/logistica", label: "Logística", icon: Truck },
-  { href: "/admin/precos", label: "Preços & câmbio", icon: BarChart3 },
+  { href: "/admin/precos", label: "Preços & Margens", icon: BarChart3 },
   { href: "/admin/comunidade", label: "Comunidade", icon: MessageSquare },
   { href: "/admin/configuracoes", label: "Configurações", icon: Settings },
   { href: "/admin/logs", label: "Logs", icon: FileText },

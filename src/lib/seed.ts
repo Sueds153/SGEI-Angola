@@ -1,4 +1,4 @@
-import { db } from "@/db";
+import { getDb } from "@/db";
 import {
   users,
   adminProfiles,
@@ -18,6 +18,7 @@ import { getDefaultPricingConfig } from "./pricing";
 import { eq } from "drizzle-orm";
 
 export async function seedDatabase() {
+  const db = await getDb();
   // Evita duplicar
   const existingAdmin = await db.select().from(users).where(eq(users.email, "admin@importeasy.ao"));
   if (existingAdmin.length > 0) {
@@ -87,7 +88,7 @@ export async function seedDatabase() {
     estimatedCostPct: String(defaults.estimatedCostPct),
     deliveryByProvince: JSON.stringify(defaults.deliveryByProvince || {}),
     platformName: "ImportEasy - Importação Angola",
-    supportPhone: "+244 929 423 278",
+    supportPhone: "+244 922 058 136",
     supportWhatsapp: "+244929423278",
     supportEmail: "apoio@importeasy.ao",
     paymentExpiryHours: "48",

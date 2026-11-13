@@ -18,16 +18,20 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Input, Select, Textarea, Alert, Card } from "@/components/ui";
+import { ResponsiveImage } from "@/components/ui/ResponsiveImage";
 import type { NormalizedProduct, NormalizedVariant, PaymentMethod } from "@/lib/types";
 import {
   clientCalculatePrice,
   formatCents,
   getPricingConfig,
   type ClientPricingConfig,
+  type SupportedCurrency,
 } from "@/lib/pricing-client";
-import { PROVINCES_OF_ANGOLA, PAYMENT_METHOD_LABELS } from "@/lib/types";
+import { PROVINCES_OF_ANGOLA, PAYMENT_METHOD_LABELS, formatKz } from "@/lib/types";
 import Link from "next/link";
 import { useEffect } from "react";
+import { PaymentProofUpload } from "@/components/order/PaymentProofUpload";
+import { useCart } from "@/context/CartContext";
 
 type Step = 1 | 2 | 3 | 4;
 
@@ -47,6 +51,7 @@ type Prefill = ProductPrefill | ExternalPrefill;
 
 export function CheckoutFlow({ prefill }: { prefill: Prefill | null }) {
   const router = useRouter();
+  const { items: cartItems, totalKz: cartTotalKz, clearCart } = useCart();
   const [step, setStep] = useState<Step>(1);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -70,6 +75,8 @@ export function CheckoutFlow({ prefill }: { prefill: Prefill | null }) {
   const [externalPriceUsd, setExternalPriceUsd] = useState("");
   const [productCurrency, setProductCurrency] = useState<string>("USD");
 
+  const isCartCheckout = prefill?.type !== "product" && cartItems.length > 0;
+
   useEffect(() => {
     getPricingConfig().then(setCfg);
   }, []);
@@ -80,10 +87,11 @@ export function CheckoutFlow({ prefill }: { prefill: Prefill | null }) {
     if (product.originalPriceUsd == null) return null;
     return clientCalculatePrice(
       {
-        productPriceUsd: product.originalPriceUsd,
+        productPrice: product.originalPriceUsd,
+        productCurrency: ((product as any).originalCurrency || product.currency || "USD") as SupportedCurrency,
         quantity,
         weightGrams: product.weightGrams,
-        variantPriceModifierUsd: variant?.priceModifierUsd || 0,
+        variantPriceModifier: variant?.priceModifierUsd || 0,
         province,
       },
       cfg
@@ -91,15 +99,31 @@ export function CheckoutFlow({ prefill }: { prefill: Prefill | null }) {
   }, [cfg, prefill, province]);
 
   const externalPricing = useMemo(() => {
-    if (!cfg || !prefill || prefill.type !== "external") return null;
+    if (!cfg || !prefill || prefill.type !== "external" || isCartCheckout) return null;
     const usd = parseFloat(externalPriceUsd.replace(",", "."));
     if (!usd || isNaN(usd)) return null;
     return clientCalculatePrice({ productPrice: usd, productCurrency: productCurrency as any, quantity: 1 }, cfg);
-  }, [cfg, prefill, externalPriceUsd, productCurrency]);
+  }, [cfg, prefill, externalPriceUsd, productCurrency, isCartCheckout]);
 
-  const pricing = prefill?.type === "product" ? catalogPricing : externalPricing;
-  const isExternal = prefill?.type === "external";
-  const itemName = prefill?.type === "product" ? prefill.product.name : prefill?.productName || "Produto externo";
+  const cartPricing = useMemo(() => {
+    if (!isCartCheckout) return null;
+    const subtotalCents = Math.round(cartTotalKz * 100);
+    return {
+      subtotalCents,
+      serviceFeeCents: 0,
+      logisticsFeeCents: 0, // Mala Coletiva - Frete Grátis!
+      deliveryFeeCents: 0,
+      totalCents: subtotalCents,
+    };
+  }, [isCartCheckout, cartTotalKz]);
+
+  const pricing = isCartCheckout ? cartPricing : (prefill?.type === "product" ? catalogPricing : externalPricing);
+  const isExternal = !isCartCheckout && prefill?.type === "external";
+  const itemName = isCartCheckout
+    ? `Mala Coletiva (${cartItems.length} artigos)`
+    : prefill?.type === "product"
+    ? prefill.product.name
+    : prefill?.productName || "Produto externo";
   const itemImage = prefill?.type === "product" ? prefill.product.defaultImage || prefill.product.images[0] : null;
 
   function validateStep1(): string | null {
@@ -117,43 +141,58 @@ export function CheckoutFlow({ prefill }: { prefill: Prefill | null }) {
     setError(null);
     setSubmitting(true);
     try {
+      const orderItems = isCartCheckout
+        ? cartItems.map((ci) => ({
+            productName: ci.title,
+            productImage: ci.image || null,
+            sourceUrl: ci.sourceUrl || null,
+            variantColor: ci.variantColor || null,
+            variantSize: ci.variantSize || null,
+            variantLabel: [ci.variantColor, ci.variantSize].filter(Boolean).join(" · ") || null,
+            quantity: ci.quantity,
+            unitPriceCents: Math.round((ci.priceKz / ci.quantity) * 100),
+            originalPriceUsd: ci.priceUsd || null,
+            originalCurrency: ci.originalCurrency || "USD",
+          }))
+        : [
+            prefill?.type === "product"
+              ? {
+                  productId: Number(prefill.product.id) || undefined,
+                  variantId: prefill.variant ? Number(prefill.variant.id) : undefined,
+                  productName: prefill.product.name,
+                  productImage: prefill.product.defaultImage || prefill.product.images[0] || null,
+                  sourceUrl: prefill.product.sourceUrl,
+                  sku: prefill.variant?.sku || prefill.product.sku,
+                  variantColor: prefill.variant?.color || null,
+                  variantSize: prefill.variant?.size || null,
+                  variantLabel: [prefill.variant?.color, prefill.variant?.size].filter(Boolean).join(" · "),
+                  quantity: prefill.quantity,
+                  unitPriceCents: catalogPricing ? Math.round(catalogPricing.subtotalCents / prefill.quantity) : 0,
+                  originalPriceUsd: prefill.product.originalPriceUsd,
+                  priceSnapshot: {
+                    productPriceUsd: prefill.product.originalPriceUsd || 0,
+                    productCurrency: (prefill.product as any).originalCurrency || prefill.product.currency || "USD",
+                    exchangeRate: cfg?.exchangeRateUsdToAoa || 0,
+                    serviceFeeCents: catalogPricing?.serviceFeeCents || 0,
+                    logisticsFeeCents: catalogPricing?.logisticsFeeCents || 0,
+                    deliveryFeeCents: catalogPricing?.deliveryFeeCents || 0,
+                  },
+                }
+              : {
+                  productName: (prefill as ExternalPrefill).productName,
+                  sourceUrl: (prefill as ExternalPrefill).externalUrl,
+                  quantity: 1,
+                  unitPriceCents: externalPricing?.subtotalCents || 0,
+                  originalPriceUsd: externalPriceUsd ? parseFloat(externalPriceUsd) : null,
+                },
+          ];
+
       const payload = {
         customerName: name.trim(),
         customerEmail: email.trim() || "",
         customerPhone: phone.trim(),
         customerWhatsapp: whatsapp.trim() || phone.trim(),
-        items: [
-          prefill?.type === "product"
-            ? {
-                productId: Number(prefill.product.id) || undefined,
-                variantId: prefill.variant ? Number(prefill.variant.id) : undefined,
-                productName: prefill.product.name,
-                productImage: prefill.product.defaultImage || prefill.product.images[0] || null,
-                sourceUrl: prefill.product.sourceUrl,
-                sku: prefill.variant?.sku || prefill.product.sku,
-                variantColor: prefill.variant?.color || null,
-                variantSize: prefill.variant?.size || null,
-                variantLabel: [prefill.variant?.color, prefill.variant?.size].filter(Boolean).join(" · "),
-                quantity: prefill.quantity,
-                unitPriceCents: catalogPricing ? Math.round(catalogPricing.subtotalCents / prefill.quantity) : 0,
-                originalPriceUsd: prefill.product.originalPriceUsd,
-                priceSnapshot: {
-                  productPriceUsd: prefill.product.originalPriceUsd || 0,
-                  productCurrency: (prefill.product as any).originalCurrency || prefill.product.currency || "USD",
-                  exchangeRate: cfg?.exchangeRateUsdToAoa || 0,
-                  serviceFeeCents: catalogPricing?.serviceFeeCents || 0,
-                  logisticsFeeCents: catalogPricing?.logisticsFeeCents || 0,
-                  deliveryFeeCents: catalogPricing?.deliveryFeeCents || 0,
-                },
-              }
-            : {
-                productName: (prefill as ExternalPrefill).productName,
-                sourceUrl: (prefill as ExternalPrefill).externalUrl,
-                quantity: 1,
-                unitPriceCents: externalPricing?.subtotalCents || 0,
-                originalPriceUsd: externalPriceUsd ? parseFloat(externalPriceUsd) : null,
-              },
-        ],
+        items: orderItems,
         address: {
           province,
           municipality,
@@ -176,6 +215,9 @@ export function CheckoutFlow({ prefill }: { prefill: Prefill | null }) {
         setError(data.error || "Erro ao criar pedido.");
         return;
       }
+      if (isCartCheckout) {
+        clearCart();
+      }
       setCreatedRef(data.order.reference);
       setStep(4);
     } catch {
@@ -192,6 +234,28 @@ export function CheckoutFlow({ prefill }: { prefill: Prefill | null }) {
         totalCents={pricing?.totalCents} 
         paymentMethod={paymentMethod}
       />
+    );
+  }
+
+  if (!prefill && cartItems.length === 0) {
+    return (
+      <Card className="p-8 sm:p-12 text-center max-w-xl mx-auto rounded-3xl">
+        <div className="w-16 h-16 rounded-full bg-brand-50 text-brand-600 grid place-items-center mx-auto mb-4">
+          <Package className="w-8 h-8" />
+        </div>
+        <h2 className="text-xl sm:text-2xl font-bold text-ink-900">A tua Mala Coletiva está vazia</h2>
+        <p className="mt-2 text-sm text-ink-600 leading-relaxed max-w-md mx-auto">
+          Ainda não adicionaste nenhum artigo à tua encomenda. Cola o link de uma peça da SHEIN ou explora o nosso catálogo para comprar em Kwanzas.
+        </p>
+        <div className="mt-6 flex flex-col sm:flex-row gap-3 justify-center">
+          <Link href="/importar" className="px-5 py-3 rounded-xl bg-brand-600 hover:bg-brand-700 text-white font-bold text-sm transition">
+            Colar Link da SHEIN
+          </Link>
+          <Link href="/produtos" className="px-5 py-3 rounded-xl border border-ink-300 hover:bg-ink-50 text-ink-800 font-bold text-sm transition">
+            Ver Catálogo
+          </Link>
+        </div>
+      </Card>
     );
   }
 
@@ -234,7 +298,7 @@ export function CheckoutFlow({ prefill }: { prefill: Prefill | null }) {
               onBack={() => { setError(null); setStep(2); }}
               onSubmit={handleSubmit}
               submitting={submitting}
-              canSubmit={!!(pricing || isExternal && externalPricing)}
+              canSubmit={!!(pricing || (isExternal && externalPricing))}
             />
           )}
         </Card>
@@ -249,46 +313,113 @@ export function CheckoutFlow({ prefill }: { prefill: Prefill | null }) {
       {/* Resumo */}
       <aside className="lg:sticky lg:top-24 order-1 lg:order-2 h-fit">
         <Card className="p-4 sm:p-6 rounded-3xl">
-          <h3 className="font-semibold text-ink-900 text-lg">Resumo</h3>
-          <div className="flex gap-3 py-5 border-b border-ink-100">
-            {itemImage ? (
-              <img src={itemImage} alt="" className="h-20 w-20 rounded-xl object-cover bg-ink-100" />
-            ) : (
-              <div className="h-20 w-20 rounded-xl bg-ink-100 grid place-items-center text-ink-400">
-                <Package className="h-7 w-7" />
-              </div>
+          <div className="flex items-center justify-between pb-3 border-b border-ink-100">
+            <h3 className="font-semibold text-ink-900 text-lg">Resumo</h3>
+            {isCartCheckout && (
+              <span className="text-[11px] font-extrabold bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full">
+                MALA COLETIVA
+              </span>
             )}
-            <div className="flex-1 min-w-0">
-              <p className="text-[15px] font-medium text-ink-900 line-clamp-2">{itemName}</p>
-              {prefill?.type === "product" && (
-                <p className="text-xs text-ink-500 mt-1">
-                  Qtd: {prefill.quantity}
-                  {prefill.variant?.color && ` · ${prefill.variant.color}`}
-                  {prefill.variant?.size && ` · ${prefill.variant.size}`}
-                </p>
-              )}
-              {isExternal && <p className="text-xs text-warning-700 mt-1">A confirmar pela equipa</p>}
-            </div>
           </div>
+
+          {isCartCheckout ? (
+            <div className="divide-y divide-ink-100 max-h-72 overflow-y-auto pr-1 py-2">
+              {cartItems.map((it) => (
+                <div key={it.id} className="flex gap-3 py-3">
+                  {it.image ? (
+                    <ResponsiveImage
+                      src={it.image}
+                      alt={it.title}
+                      width={56}
+                      height={56}
+                      className="rounded-xl object-cover bg-ink-100 shrink-0"
+                      fallbackText="Item"
+                    />
+                  ) : (
+                    <div className="h-14 w-14 rounded-xl bg-ink-100 grid place-items-center text-ink-400 shrink-0">
+                      <Package className="h-5 w-5" />
+                    </div>
+                  )}
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xs font-semibold text-ink-900 line-clamp-1">{it.title}</p>
+                    <p className="text-[11px] text-ink-500 mt-0.5">
+                      {it.quantity}x · {it.platform}
+                      {it.variantColor && ` · ${it.variantColor}`}
+                      {it.variantSize && ` · ${it.variantSize}`}
+                    </p>
+                    <p className="text-xs font-bold text-brand-600 mt-1">{formatKz(it.priceKz)}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="flex gap-3 py-5 border-b border-ink-100">
+              {itemImage ? (
+                <ResponsiveImage
+                  src={itemImage}
+                  alt={itemName}
+                  width={80}
+                  height={80}
+                  className="rounded-xl object-cover bg-ink-100"
+                  fallbackText="Item"
+                />
+              ) : (
+                <div className="h-20 w-20 rounded-xl bg-ink-100 grid place-items-center text-ink-400">
+                  <Package className="h-7 w-7" />
+                </div>
+              )}
+              <div className="flex-1 min-w-0">
+                <p className="text-[15px] font-medium text-ink-900 line-clamp-2">{itemName}</p>
+                {prefill?.type === "product" && (
+                  <p className="text-xs text-ink-500 mt-1">
+                    Qtd: {prefill.quantity}
+                    {prefill.variant?.color && ` · ${prefill.variant.color}`}
+                    {prefill.variant?.size && ` · ${prefill.variant.size}`}
+                  </p>
+                )}
+                {isExternal && <p className="text-xs text-warning-700 mt-1">A confirmar pela equipa</p>}
+              </div>
+            </div>
+          )}
 
           {pricing ? (
             <div className="mt-4 space-y-2 text-sm">
-              <SummaryRow label="Produto" value={formatCents(pricing.subtotalCents)} />
-              <SummaryRow label="Taxa de serviço" value={formatCents(pricing.serviceFeeCents)} />
-              <SummaryRow label="Logística" value={formatCents(pricing.logisticsFeeCents)} />
-              <SummaryRow label="Entrega" value={formatCents(pricing.deliveryFeeCents)} />
-              <div className="pt-4 mt-2 border-t border-ink-100 flex justify-between font-semibold text-ink-900 text-lg">
-                <span>Total</span>
-                <span className="tracking-tight">{formatCents(pricing.totalCents)}</span>
-              </div>
-              <p className="text-[11px] text-ink-500">
-                Câmbio: 1 USD = {cfg?.exchangeRateUsdToAoa ?? "..."} Kz · 1 EUR = {cfg?.exchangeRateEurToAoa ?? "..."} Kz
-              </p>
-              <p className="text-[11px] text-ink-500 mt-0.5">
-                {isExternal
-                  ? "Preço calculado em USD. Para produtos de outros sites, indica a moeda no campo abaixo."
-                  : "Preço final inclui taxa, logística e entrega."}
-              </p>
+              {isCartCheckout ? (
+                <>
+                  <SummaryRow label="Artigos no lote" value={formatKz(cartTotalKz)} />
+                  <div className="flex justify-between text-ink-700">
+                    <span className="text-emerald-700 font-medium">Frete Internacional & Alfândega</span>
+                    <span className="font-extrabold text-emerald-600">0 Kz (Mala Coletiva)</span>
+                  </div>
+                  <SummaryRow label="Entrega ao domicílio" value="Grátis" />
+                  <div className="pt-4 mt-2 border-t border-ink-100 flex justify-between font-semibold text-ink-900 text-lg">
+                    <span>Total</span>
+                    <span className="tracking-tight text-brand-600 font-extrabold">{formatKz(cartTotalKz)}</span>
+                  </div>
+                  <div className="p-2.5 bg-emerald-50 rounded-xl border border-emerald-200 text-[11px] text-emerald-800">
+                    ✓ <strong>Benefício Ativo:</strong> As tuas peças viajam no Lote Luanda #48 sem custos alfandegários extras.
+                  </div>
+                </>
+              ) : (
+                <>
+                  <SummaryRow label="Produto" value={formatCents(pricing.subtotalCents)} />
+                  <SummaryRow label="Taxa de serviço" value={formatCents(pricing.serviceFeeCents)} />
+                  <SummaryRow label="Logística" value={formatCents(pricing.logisticsFeeCents)} />
+                  <SummaryRow label="Entrega" value={formatCents(pricing.deliveryFeeCents)} />
+                  <div className="pt-4 mt-2 border-t border-ink-100 flex justify-between font-semibold text-ink-900 text-lg">
+                    <span>Total</span>
+                    <span className="tracking-tight">{formatCents(pricing.totalCents)}</span>
+                  </div>
+                  <p className="text-[11px] text-ink-500">
+                    Câmbio: 1 USD = {cfg?.exchangeRateUsdToAoa ?? "..."} Kz · 1 EUR = {cfg?.exchangeRateEurToAoa ?? "..."} Kz
+                  </p>
+                  <p className="text-[11px] text-ink-500 mt-0.5">
+                    {isExternal
+                      ? "Preço calculado em USD. Para produtos de outros sites, indica a moeda no campo abaixo."
+                      : "Preço final inclui taxa, logística e entrega."}
+                  </p>
+                </>
+              )}
             </div>
           ) : isExternal ? (
             <div className="mt-4 text-sm text-ink-600 space-y-2">
@@ -535,10 +666,10 @@ function OrderSuccess({
   const [copiedReference, setCopiedReference] = useState(false);
 
   const formattedTotal = totalCents ? formatCents(totalCents) : null;
-  const whatsappUrl = `https://wa.me/244929423278?text=${encodeURIComponent(
-    `Olá ImportEasy! Acabei de criar o pedido #${reference}${
+  const whatsappUrl = `https://wa.me/244922058136?text=${encodeURIComponent(
+    `Olá ImportEasy! Gostaria de falar com o apoio ao cliente sobre o pedido #${reference}${
       formattedTotal ? ` no valor de ${formattedTotal}` : ""
-    }. Segue o meu comprovativo de pagamento:`
+    }.`
   )}`;
 
   return (
@@ -678,21 +809,31 @@ function OrderSuccess({
         </div>
       </div>
 
+      {/* Submissão Direta de Comprovativo para o Painel Admin */}
+      <div className="mt-6 text-left">
+        <PaymentProofUpload
+          orderReference={reference}
+          paymentStatus="WAITING"
+        />
+      </div>
+
       {/* Ações */}
-      <div className="mt-8 flex flex-col sm:flex-row gap-3 justify-center">
-        <a
-          href={whatsappUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="flex-1 inline-flex items-center justify-center gap-2 px-6 py-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-base transition shadow-lg shadow-emerald-600/25 active:scale-95"
-        >
-          <Phone className="h-5 w-5" /> Enviar Comprovativo no WhatsApp
-        </a>
-        <Link href={`/pedido/${reference}`} className="sm:w-auto w-full">
-          <Button size="lg" variant="secondary" className="w-full">
-            Acompanhar Pedido
+      <div className="mt-6 flex flex-col sm:flex-row gap-3 justify-center">
+        <Link href={`/pedido/${reference}`} className="flex-1">
+          <Button size="lg" className="w-full bg-brand-600 hover:bg-brand-700 text-white font-bold">
+            Ver Estado & Tracking do Pedido
           </Button>
         </Link>
+        <a
+          href={`https://wa.me/244922058136?text=${encodeURIComponent(
+            `Olá ImportEasy! Criei o pedido #${reference} e gostaria de falar com o apoio ao cliente.`
+          )}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl border-2 border-emerald-600 text-emerald-700 hover:bg-emerald-50 font-semibold text-sm transition"
+        >
+          <Phone className="h-4 w-4" /> Apoio no WhatsApp (+244 922 058 136)
+        </a>
       </div>
     </Card>
   );

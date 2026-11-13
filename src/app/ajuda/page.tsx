@@ -53,7 +53,7 @@ export default function AjudaPage() {
               </p>
               <div className="mt-8">
                 <a
-                  href="https://wa.me/244929423278?text=Ol%C3%A1%20ImportEasy!%20Gostaria%20de%20tirar%20uma%20d%C3%BAvida."
+                  href="https://wa.me/244922058136?text=Ol%C3%A1%20ImportEasy!%20Gostaria%20de%20tirar%20uma%20d%C3%BAvida."
                   target="_blank"
                   rel="noopener noreferrer"
                 >

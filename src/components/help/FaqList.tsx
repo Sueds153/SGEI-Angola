@@ -36,7 +36,7 @@ const FAQS = [
   },
   {
     q: "Como acompanho o estado do meu pedido?",
-    a: "Pode acompanhar em tempo real na página /rastrear usando a referência do pedido (ex: SG-14023) ou o seu número de telefone. Além disso, a nossa equipa envia notificações e confirmações pelo WhatsApp (+244 929 423 278).",
+    a: "Pode acompanhar em tempo real na página /rastrear usando a referência do pedido (ex: SG-14023) ou o seu número de telefone. Além disso, a nossa equipa envia notificações e confirmações pelo WhatsApp de apoio (+244 922 058 136).",
   },
 ];
 

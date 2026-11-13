@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/db";
-import { communityPosts, users } from "@/db/schema";
+import { communityPosts, users, customerProfiles } from "@/db/schema";
 import { eq, desc, and, like, or, count } from "drizzle-orm";
 
 export async function GET(request: NextRequest) {
@@ -26,7 +26,7 @@ export async function GET(request: NextRequest) {
     }
     
     if (status) {
-      conditions.push(eq(communityPosts.status, status));
+      conditions.push(eq(communityPosts.status, status as "PENDING_REVIEW" | "APPROVED" | "REJECTED" | "HIDDEN"));
     }
     
     if (search) {
@@ -35,7 +35,7 @@ export async function GET(request: NextRequest) {
           like(communityPosts.content, `%${search}%`),
           like(communityPosts.productInfo || "", `%${search}%`),
           like(communityPosts.location || "", `%${search}%`),
-          like(users.name, `%${search}%`)
+          like(customerProfiles.name, `%${search}%`)
         )
       );
     }
@@ -47,6 +47,7 @@ export async function GET(request: NextRequest) {
       .select()
       .from(communityPosts)
       .leftJoin(users, eq(communityPosts.userId, users.id))
+      .leftJoin(customerProfiles, eq(communityPosts.userId, customerProfiles.userId))
       .where(whereClause)
       .orderBy(desc(communityPosts.createdAt))
       .limit(limit)
@@ -62,8 +63,8 @@ export async function GET(request: NextRequest) {
     
     // Processar posts para formatar
     const processedPosts = posts.map(post => {
-      const postData = post.communityPosts;
-      const userData = post.users;
+      const postData = post.community_posts;
+      const userData = post.customer_profiles;
       
       return {
         id: postData.id,

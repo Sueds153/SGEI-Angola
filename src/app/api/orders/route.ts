@@ -3,6 +3,15 @@ import { z } from "zod";
 import { createOrderFromInput } from "@/lib/orders";
 import type { PaymentMethod } from "@/lib/types";
 
+// Rate Limiter para Criação de Pedidos (Prevenção de Abuso / Bots)
+const orderCreationMap = new Map<string, { count: number; resetAt: number }>();
+
+function getClientIp(req: Request): string {
+  const forwarded = req.headers.get("x-forwarded-for");
+  if (forwarded) return forwarded.split(",")[0].trim();
+  return req.headers.get("x-real-ip") || "127.0.0.1";
+}
+
 const createSchema = z.object({
   customerName: z.string().min(2, "Nome obrigatório").max(200),
   customerEmail: z.string().email("Email inválido").optional().or(z.literal("")),
@@ -41,6 +50,22 @@ const createSchema = z.object({
 });
 
 export async function POST(req: Request) {
+  const clientIp = getClientIp(req);
+  const now = Date.now();
+
+  const record = orderCreationMap.get(clientIp);
+  if (record && record.resetAt > now) {
+    if (record.count >= 20) {
+      return NextResponse.json(
+        { error: "Demasiados pedidos gerados em pouco tempo. Por favor aguarda antes de tentar novamente." },
+        { status: 429 }
+      );
+    }
+    record.count++;
+  } else {
+    orderCreationMap.set(clientIp, { count: 1, resetAt: now + 60 * 60 * 1000 });
+  }
+
   const body = await req.json().catch(() => null);
   const parsed = createSchema.safeParse(body);
   if (!parsed.success) {

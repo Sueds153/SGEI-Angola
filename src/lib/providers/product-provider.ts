@@ -9,6 +9,7 @@ export interface ProductProvider {
     status: "found" | "needs_confirmation" | "unsupported";
     externalId?: string;
     product?: NormalizedProduct | null;
+    message?: string;
   }>;
   getProductsByCategory(
     categorySlug: string,

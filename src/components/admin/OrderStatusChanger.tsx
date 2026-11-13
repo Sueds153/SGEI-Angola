@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/Button";
 import { Select } from "@/components/ui";
 import type { OrderStatus, PaymentStatus } from "@/lib/types";
 import { ORDER_STATUS_LABELS } from "@/lib/types";
-import { Loader2, CheckCircle2 } from "lucide-react";
+import { Loader2, CheckCircle2, MessageSquare } from "lucide-react";
 
 const ORDER_STATUSES: OrderStatus[] = [
   "PENDING_PAYMENT",
@@ -36,10 +36,16 @@ export function OrderStatusChanger({
   orderId,
   currentStatus,
   currentPaymentStatus,
+  orderReference,
+  customerName,
+  customerPhone,
 }: {
   orderId: number;
   currentStatus: string;
   currentPaymentStatus: string;
+  orderReference?: string;
+  customerName?: string;
+  customerPhone?: string;
 }) {
   const router = useRouter();
   const [status, setStatus] = useState<OrderStatus>(currentStatus as OrderStatus);
@@ -112,6 +118,21 @@ export function OrderStatusChanger({
         {loading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : ok ? <CheckCircle2 className="h-3.5 w-3.5" /> : null}
         {ok ? "Guardado" : "Guardar"}
       </Button>
+
+      {customerPhone && orderReference && (
+        <a
+          href={`https://wa.me/${customerPhone.replace(/\D/g, "").startsWith("244") ? customerPhone.replace(/\D/g, "") : `244${customerPhone.replace(/\D/g, "")}`}?text=${encodeURIComponent(
+            `Olá ${customerName || "estimado cliente"}! 👋\n\nA tua encomenda *#${orderReference}* na ImportEasy foi atualizada para: *${ORDER_STATUS_LABELS[status]?.label || status}*.\n\nEstamos a acompanhar tudo para que chegue com segurança em Angola!`
+          )}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-sm transition"
+          title="Enviar notificação ao cliente no WhatsApp"
+        >
+          <MessageSquare className="w-3.5 h-3.5" />
+          Avisar no WhatsApp
+        </a>
+      )}
     </form>
   );
 }

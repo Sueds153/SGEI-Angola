@@ -42,10 +42,10 @@ function TrustSection() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center max-w-3xl mx-auto mb-16">
           <h2 id="trust-title" className="text-3xl sm:text-4xl font-bold text-ink-900 mb-4">
-            Confiam na <span className="text-brand-600">ImportEasy</span>
+            Quem encomenda connosco <span className="text-brand-600">não se arrepende</span>
           </h2>
           <p className="text-lg text-ink-600">
-            Milhares de angolanos já receberam as suas encomendas sem stress.
+            Mais de 8.300 encomendas já desalfandegadas e entregues diretamente na mão dos nossos clientes em Luanda e nas províncias.
           </p>
         </div>
 
@@ -105,27 +105,27 @@ function FinalCTA() {
     <section className="py-20 bg-brand-600 text-white" aria-labelledby="cta-title">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
         <h2 id="cta-title" className="text-3xl sm:text-4xl font-bold mb-4">
-          Pronto para importar sem complicações?
+          Pronto para fazer a tua encomenda da SHEIN?
         </h2>
         <p className="text-brand-100 text-lg mb-8 max-w-2xl mx-auto">
-          Cole o link do produto que viu na Shein, AliExpress ou Vinted e veja o preço final em Kwanzas com entrega incluída.
+          Cola o link da peça que viste na SHEIN ou AliExpress. Vê o valor em Kwanzas na hora e junta à carga aérea da semana com Frete Grátis!
         </p>
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
           <Link
             href="/importar"
-            className="w-full sm:w-auto px-8 py-4 bg-white text-brand-600 font-semibold rounded-xl hover:bg-brand-50 transition flex items-center justify-center gap-2"
+            className="w-full sm:w-auto px-8 py-4 bg-white text-brand-600 font-bold rounded-xl hover:bg-brand-50 transition flex items-center justify-center gap-2 shadow-lg"
           >
-            Simular Importação
+            Simular Preço Agora
             <ArrowRight className="w-5 h-5" />
           </Link>
           <a
-            href="https://wa.me/244929423278?text=Ol%C3%A1%20ImportEasy!%20Gostaria%20de%20fazer%20uma%20encomenda."
+            href="https://wa.me/244922058136?text=Ol%C3%A1%20ImportEasy!%20Gostaria%20de%20fazer%20uma%20encomenda."
             target="_blank"
             rel="noopener noreferrer"
-            className="w-full sm:w-auto px-8 py-4 border-2 border-white text-white font-semibold rounded-xl hover:bg-white/10 transition flex items-center justify-center gap-2"
+            className="w-full sm:w-auto px-8 py-4 border-2 border-white text-white font-bold rounded-xl hover:bg-white/10 transition flex items-center justify-center gap-2"
           >
             <MessageCircle className="w-5 h-5" />
-            Falar no WhatsApp (+244 929 423 278)
+            Falar no WhatsApp (+244 922 058 136)
           </a>
         </div>
       </div>

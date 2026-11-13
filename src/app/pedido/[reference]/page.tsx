@@ -7,6 +7,8 @@ import type { Metadata } from "next";
 import { TrackingTimeline } from "@/components/order/TrackingTimeline";
 import { Package, Phone, MapPin, CreditCard, MessageCircle, Clock } from "lucide-react";
 import { OrderActions } from "@/components/order/OrderActions";
+import { PaymentProofUpload } from "@/components/order/PaymentProofUpload";
+import { ResponsiveImage } from "@/components/ui/ResponsiveImage";
 
 export const dynamic = "force-dynamic";
 
@@ -90,10 +92,13 @@ export default async function OrderPage({
               {items.map((i) => (
                 <div key={i.id} className="py-4 flex gap-4 items-center first:pt-0 last:pb-0">
                   {i.productImage ? (
-                    <img
+                    <ResponsiveImage
                       src={i.productImage}
-                      className="h-16 w-16 rounded-xl object-cover bg-ink-100"
-                      alt=""
+                      alt={i.productName}
+                      width={64}
+                      height={64}
+                      className="rounded-xl object-cover bg-ink-100"
+                      fallbackText="Item"
                     />
                   ) : (
                     <div className="h-16 w-16 rounded-xl bg-ink-100 grid place-items-center text-ink-400">
@@ -160,7 +165,7 @@ export default async function OrderPage({
                 <div className="mt-4 p-4 rounded-2xl bg-brand-50 border border-brand-200 text-xs text-ink-800 space-y-3">
                   <div className="flex items-center gap-2 font-semibold text-brand-900">
                     <Clock className="h-4 w-4 text-brand-600 flex-shrink-0" />
-                    <span>A aguardar pagamento:</span>
+                    <span>Dados para efetuar pagamento:</span>
                   </div>
                   <div className="bg-white p-3 rounded-xl border border-brand-100 space-y-1.5">
                     <p className="font-semibold text-ink-900 text-xs">Opção 1: Multicaixa Express (Número)</p>
@@ -171,18 +176,17 @@ export default async function OrderPage({
                     <p className="text-ink-600">Entidade: <strong className="font-mono text-ink-900">10116</strong></p>
                     <p className="text-ink-600">Referência: <strong className="font-mono text-ink-900">929 423 278</strong></p>
                   </div>
-                  <a
-                    href={`https://wa.me/244929423278?text=${encodeURIComponent(
-                      `Olá ImportEasy! Segue o comprovativo do pedido #${order.reference} no valor de ${formatKz(order.totalCents)}:`
-                    )}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="w-full inline-flex items-center justify-center gap-2 py-2.5 px-3 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-xl transition text-center shadow-sm"
-                  >
-                    <MessageCircle className="h-4 w-4" /> Enviar Comprovativo no WhatsApp
-                  </a>
                 </div>
               )}
+
+              {/* Submissão de comprovativo direto para o Painel Admin */}
+              <div className="mt-4">
+                <PaymentProofUpload
+                  orderReference={order.reference}
+                  currentProofUrl={order.paymentProofUrl || payment.proofUrl}
+                  paymentStatus={payment.status}
+                />
+              </div>
             </Card>
           )}
 
@@ -215,14 +219,14 @@ export default async function OrderPage({
               {order.customerEmail && <p className="text-ink-500">{order.customerEmail}</p>}
             </div>
             <a
-              href={`https://wa.me/244929423278?text=${encodeURIComponent(
-                `Olá, tenho uma dúvida sobre o pedido #${order.reference}`
+              href={`https://wa.me/244922058136?text=${encodeURIComponent(
+                `Olá ImportEasy! Tenho uma dúvida sobre o pedido #${order.reference}`
               )}`}
               target="_blank"
               rel="noopener noreferrer"
               className="mt-4 inline-flex items-center gap-2 text-[14px] font-medium text-brand-600 hover:text-brand-700"
             >
-              <MessageCircle className="h-4 w-4" /> Falar no WhatsApp (+244 929 423 278)
+              <MessageCircle className="h-4 w-4 text-emerald-600" /> Falar no WhatsApp (+244 922 058 136)
             </a>
           </Card>
         </div>

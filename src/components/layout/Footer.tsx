@@ -34,7 +34,7 @@ export function Footer() {
             </p>
             <div className="mt-6 flex items-center gap-2">
               <a
-                href="https://wa.me/244929423278"
+                href="https://wa.me/244922058136"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="h-10 w-10 rounded-full bg-ink-800 hover:bg-brand-600 text-white grid place-items-center transition"
@@ -78,7 +78,7 @@ export function Footer() {
             <ul className="space-y-3 text-sm">
               <li className="flex items-start gap-2">
                 <Phone className="h-4 w-4 mt-0.5 text-ink-500" />
-                <span>+244 929 423 278</span>
+                <span>+244 922 058 136</span>
               </li>
               <li className="flex items-start gap-2">
                 <Mail className="h-4 w-4 mt-0.5 text-ink-500" />
@@ -115,8 +115,8 @@ export function Footer() {
             © {new Date().getFullYear()} ImportEasy. Intermediação de compras Shein, AliExpress e Vinted para Angola. Não somos afiliados oficialmente a nenhuma plataforma.
           </p>
           <div className="flex gap-5">
-            <Link href="/ajuda#termos" className="hover:text-white transition">Termos</Link>
-            <Link href="/ajuda#privacidade" className="hover:text-white transition">Privacidade</Link>
+            <Link href="/termos" className="hover:text-white transition">Termos e Condições</Link>
+            <Link href="/privacidade" className="hover:text-white transition">Privacidade</Link>
           </div>
         </div>
       </div>

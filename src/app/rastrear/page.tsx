@@ -144,14 +144,14 @@ export default function RastrearPage() {
               <p>{error}</p>
             </div>
             <a
-              href={`https://wa.me/244929423278?text=${encodeURIComponent(
+              href={`https://wa.me/244922058136?text=${encodeURIComponent(
                 `Olá ImportEasy! Gostaria de saber o estado do meu pedido: ${reference}`
               )}`}
               target="_blank"
               rel="noopener noreferrer"
               className="w-full inline-flex items-center justify-center gap-2 py-2.5 px-4 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-xl text-xs transition shadow-sm"
             >
-              Consultar suporte via WhatsApp (+244 929 423 278)
+              Consultar suporte via WhatsApp (+244 922 058 136)
             </a>
           </div>
         )}
@@ -283,12 +283,12 @@ export default function RastrearPage() {
                 Copiar código de rastreio
               </button>
               <a
-                href="https://wa.me/244929423278?text=Ol%C3%A1%20ImportEasy!%20Preciso%20de%20ajuda%20para%20rastrear%20o%20meu%20pedido."
+                href="https://wa.me/244922058136?text=Ol%C3%A1%20ImportEasy!%20Preciso%20de%20ajuda%20para%20rastrear%20o%20meu%20pedido."
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex-1 py-3 px-6 bg-brand-600 text-white font-semibold rounded-xl hover:bg-brand-700 transition text-center"
               >
-                Falar com suporte no WhatsApp (+244 929 423 278)
+                Falar com suporte no WhatsApp (+244 922 058 136)
               </a>
             </div>
           </div>

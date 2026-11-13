@@ -1,13 +1,21 @@
 import { NextResponse } from "next/server";
-import { runDailyScraper } from "@/functions/scraper/index";
+// This Azure Function is JavaScript maintained outside the Next.js source tree.
+// @ts-expect-error The function's ESM entry point does not ship TypeScript declarations.
+import { runDailyScraper } from "../../../../../../functions/scraper/index.js";
+import { requireAdmin } from "@/lib/auth";
 
 export async function POST(req: Request) {
-  // Verificar autenticação admin
+  // Autenticação Bancária Dupla: Token Cron Seguro OU Sessão Admin Autenticada
   const authHeader = req.headers.get("authorization");
   const expectedToken = process.env.SCRAPER_CRON_TOKEN;
-  
-  if (expectedToken && authHeader !== `Bearer ${expectedToken}`) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const isCronAuthorized = expectedToken && authHeader === `Bearer ${expectedToken}`;
+
+  if (!isCronAuthorized) {
+    try {
+      await requireAdmin();
+    } catch {
+      return NextResponse.json({ error: "Não autorizado" }, { status: 401 });
+    }
   }
   
   const body = await req.json().catch(() => ({}));
@@ -23,6 +31,12 @@ export async function POST(req: Request) {
 }
 
 export async function GET() {
+  try {
+    await requireAdmin();
+  } catch {
+    return NextResponse.json({ error: "Não autorizado" }, { status: 401 });
+  }
+
   return NextResponse.json({
     message: "Daily Product Scraper",
     usage: {

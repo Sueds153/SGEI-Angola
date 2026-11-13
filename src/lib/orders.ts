@@ -38,8 +38,7 @@ export async function createOrderFromInput(input: OrderCreateInput): Promise<Cre
     if (!unitCents && item.originalPriceUsd) {
       const p = calculatePrice(
         {
-          productPrice: item.originalPriceUsd,
-          productCurrency: (item as any).originalCurrency || "USD",
+          productPriceUsd: item.originalPriceUsd,
           quantity: 1,
         },
         cfg

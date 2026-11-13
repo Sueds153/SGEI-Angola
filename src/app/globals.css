@@ -104,16 +104,41 @@ html {
 }
 body {
   font-family: var(--font-sans);
-  background: #ffffff;
+  background:
+    radial-gradient(ellipse at 8% 18%, rgba(59, 130, 246, 0.045), transparent 28rem),
+    radial-gradient(ellipse at 94% 54%, rgba(224, 168, 74, 0.045), transparent 30rem),
+    #ffffff;
   color: var(--color-ink-900);
   font-feature-settings: "ss01", "cv11";
   letter-spacing: -0.011em;
   overflow-x: clip;
 }
 
+/* Formas editoriais discretas inspiradas em moda e tecnologia. */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  opacity: 0.12;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='440' height='520' viewBox='0 0 440 520' fill='none'%3E%3Cg stroke='%2394a3b8' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3C!-- hanger --%3E%3Cpath d='M62 92c0-8 13-8 13 0 0 5-7 7-7 12l52 31c5 3 3 10-3 10H45c-6 0-8-7-3-10l18-11'/%3E%3Cpath d='m49 136 19 47 19-47'/%3E%3C!-- phone --%3E%3Crect x='325' y='250' width='56' height='98' rx='10'/%3E%3Cpath d='M344 261h18m-9 74h1'/%3E%3C!-- handbag --%3E%3Cpath d='M287 421h89l-8-59h-73l-8 59Z M311 362c0-27 41-27 41 0'/%3E%3C!-- sparkle --%3E%3Cpath d='m159 301 5 14 14 5-14 5-5 14-5-14-14-5 14-5 5-14ZM82 392l3 9 9 3-9 3-3 9-3-9-9-3 9-3 3-9Z'/%3E%3C/g%3E%3C/svg%3E");
+  background-repeat: repeat;
+  background-size: 440px 520px;
+}
+
 /* Links globais */
 a {
   text-decoration: none;
+}
+
+:where(a, button, input, select, textarea, summary):focus-visible {
+  outline: 3px solid var(--color-brand-500);
+  outline-offset: 3px;
+}
+
+button, a {
+  -webkit-tap-highlight-color: transparent;
 }
 
 /* Scrollbar */

@@ -1,12 +1,13 @@
 import { db } from "@/db";
-import { orders } from "@/db/schema";
-import { desc, eq, sql } from "drizzle-orm";
+import { orders, orderItems } from "@/db/schema";
+import { desc, eq, sql, inArray } from "drizzle-orm";
 import { Card, Badge, Input, Select } from "@/components/ui";
 import { Button } from "@/components/ui/Button";
 import Link from "next/link";
 import type { Metadata } from "next";
 import { ORDER_STATUS_LABELS, formatDateTime, formatKz } from "@/lib/types";
 import { Search } from "lucide-react";
+import { BulkPurchasingModal } from "@/components/admin/BulkPurchasingModal";
 
 export const metadata: Metadata = { title: "Pedidos" };
 
@@ -47,12 +48,48 @@ export default async function AdminPedidosPage({
     );
   }
 
+  // Busca artigos prontos para comprar na SHEIN (pedidos pagos a aguardar compra)
+  const paidOrdersToBuy = await db
+    .select({
+      orderId: orders.id,
+      orderReference: orders.reference,
+      customerName: orders.customerName,
+      itemId: orderItems.id,
+      productName: orderItems.productName,
+      productImage: orderItems.productImage,
+      sourceUrl: orderItems.sourceUrl,
+      quantity: orderItems.quantity,
+      variantColor: orderItems.variantColor,
+      variantSize: orderItems.variantSize,
+      originalPriceUsd: orderItems.originalPriceUsd,
+    })
+    .from(orders)
+    .innerJoin(orderItems, eq(orderItems.orderId, orders.id))
+    .where(eq(orders.paymentStatus, "PAID"))
+    .limit(80);
+
+  const bulkItems = paidOrdersToBuy.map((i) => ({
+    id: i.itemId,
+    orderReference: i.orderReference,
+    customerName: i.customerName,
+    productName: i.productName,
+    productImage: i.productImage,
+    sourceUrl: i.sourceUrl,
+    quantity: i.quantity,
+    variantColor: i.variantColor,
+    variantSize: i.variantSize,
+    originalPriceUsd: i.originalPriceUsd,
+  }));
+
   return (
     <div>
       <div className="flex flex-wrap items-end justify-between gap-4 mb-8">
         <div>
           <h1 className="text-3xl font-semibold tracking-tight text-ink-900">Pedidos</h1>
-          <p className="mt-1 text-sm text-ink-500">{list.length} pedidos</p>
+          <p className="mt-1 text-sm text-ink-500">{list.length} pedidos no total</p>
+        </div>
+        <div className="flex items-center gap-2">
+          <BulkPurchasingModal items={bulkItems} />
         </div>
       </div>
 

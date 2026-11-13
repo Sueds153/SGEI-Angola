@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { db } from "@/db";
 import { communityPosts, products, orders } from "@/db/schema";
-import { count, eq, gte, sql } from "drizzle-orm";
+import { count, eq, gte, isNotNull, sql } from "drizzle-orm";
 
 import { asc } from "drizzle-orm";
 
@@ -50,8 +50,8 @@ export async function GET() {
         count: count(),
       })
       .from(communityPosts)
-      .groupBy(communityPosts.category)
-      .where(communityPosts.category.isNotNull());
+      .where(isNotNull(communityPosts.category))
+      .groupBy(communityPosts.category);
     
     const postsByCategory = postsByCategoryResult.reduce((acc, item) => ({ ...acc, [item.category || 'unknown']: item.count }), {});
     

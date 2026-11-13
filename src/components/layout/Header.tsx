@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Logo } from "@/components/brand/Logo";
+import { useCart } from "@/context/CartContext";
 
 const navItems = [
   { href: "/produtos", label: "Produtos", icon: Grid3x3 },
@@ -31,6 +32,7 @@ const navItems = [
 export function Header() {
   const pathname = usePathname();
   const router = useRouter();
+  const { itemCount, setIsOpen } = useCart();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [searchValue, setSearchValue] = useState("");
@@ -46,8 +48,11 @@ export function Header() {
   }, []);
 
   useEffect(() => {
-    setMobileOpen(false);
-    setSearchOpen(false);
+    const resetNavigation = window.setTimeout(() => {
+      setMobileOpen(false);
+      setSearchOpen(false);
+    }, 0);
+    return () => window.clearTimeout(resetNavigation);
   }, [pathname]);
 
   const isAdmin = pathname.startsWith("/admin");
@@ -72,7 +77,7 @@ export function Header() {
         )}
       >
         <div className="mx-auto max-w-[1200px] px-5 sm:px-8">
-          <div className="flex h-12 md:h-[52px] items-center justify-between">
+          <div className="flex h-14 md:h-[60px] items-center justify-between">
             <Logo size="md" />
 
             {/* Nav desktop */}
@@ -102,11 +107,26 @@ export function Header() {
             <div className="flex items-center gap-1">
               <button
                 onClick={() => setSearchOpen((v) => !v)}
-                className="h-9 w-9 grid place-items-center rounded-full text-ink-700 hover:bg-ink-100 transition"
+                className="h-11 w-11 grid place-items-center rounded-full text-ink-700 hover:bg-ink-100 transition"
                 aria-label="Pesquisar"
               >
                 <Search className="h-[18px] w-[18px]" />
               </button>
+
+              {/* Botão Mala Coletiva / Carrinho com Frete Grátis */}
+              <button
+                onClick={() => setIsOpen(true)}
+                className="relative h-11 w-11 grid place-items-center rounded-full text-ink-700 hover:bg-ink-100 transition"
+                aria-label="Mala Coletiva / Carrinho"
+              >
+                <ShoppingBag className="h-[20px] w-[20px] text-ink-800" />
+                {itemCount > 0 && (
+                  <span className="absolute top-1.5 right-1.5 min-w-[18px] h-[18px] px-1 rounded-full bg-emerald-600 text-white text-[10px] font-extrabold grid place-items-center animate-scale-in shadow-sm">
+                    {itemCount}
+                  </span>
+                )}
+              </button>
+
               <Link
                 href="/pedidos"
                 className="hidden sm:inline-flex h-9 items-center rounded-full px-3 text-[13px] font-medium text-ink-700 hover:bg-ink-100"
@@ -115,7 +135,7 @@ export function Header() {
                 Pedidos
               </Link>
               <a
-                href="https://wa.me/244929423278?text=Ol%C3%A1%20ImportEasy!"
+                href="https://wa.me/244922058136?text=Ol%C3%A1%20ImportEasy!"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="hidden sm:inline-flex h-9 items-center rounded-full px-3 text-[13px] font-medium text-ink-700 hover:bg-ink-100"
@@ -138,8 +158,10 @@ export function Header() {
               </Link>
               <button
                 onClick={() => setMobileOpen((v) => !v)}
-                className="md:hidden h-9 w-9 grid place-items-center rounded-full text-ink-700 hover:bg-ink-100"
+                className="md:hidden h-11 w-11 grid place-items-center rounded-full text-ink-700 hover:bg-ink-100"
                 aria-label="Menu"
+                aria-expanded={mobileOpen}
+                aria-controls="mobile-navigation"
               >
                 {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
               </button>
@@ -176,7 +198,7 @@ export function Header() {
 
       {/* Menu mobile */}
       {mobileOpen && (
-        <div className="fixed inset-0 z-40 bg-white md:hidden animate-fade-in">
+        <div id="mobile-navigation" className="fixed inset-0 z-[60] bg-white md:hidden animate-fade-in">
           <div className="flex h-14 items-center justify-between px-5 border-b border-ink-200">
             <Logo size="sm" />
             <button

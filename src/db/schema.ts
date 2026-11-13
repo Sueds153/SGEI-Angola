@@ -430,15 +430,10 @@ export const auditLogsRelations = relations(auditLogs, ({ one }) => ({
   }),
 }));
 
-// ==================== COMMUNITY POSTS ====================
-export const {
+// Community tables are defined separately to keep this schema file manageable.
+export {
   communityPosts,
   communityInteractions,
   communityReports,
   communityPostStatusEnum,
-} = {
-  communityPosts,
-  communityInteractions,
-  communityReports,
-  communityPostStatusEnum,
-} as const;
+} from "./schema-community";

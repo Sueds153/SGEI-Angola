@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { ShoppingBag, Tag } from "lucide-react";
 import type { NormalizedProduct } from "@/lib/types";
 import { useEffect, useState } from "react";
@@ -26,14 +27,14 @@ export function ProductCard({ product, compact }: ProductCardProps) {
     source: product.source || "MOCK",
     availability: product.availability || "IN_STOCK",
   };
+  const price = safeProduct.originalPriceUsd;
+  const currency = (safeProduct as any).originalCurrency || safeProduct.currency || "USD";
+  const weightGrams = safeProduct.weightGrams;
 
   useEffect(() => {
     let alive = true;
     (async () => {
       // Usa originalPriceUsd (que agora contém o preço na moeda original) e currency
-      const price = safeProduct.originalPriceUsd;
-      const currency = (safeProduct as any).originalCurrency || safeProduct.currency || "USD";
-      
       if (price == null) {
         if (alive) {
           setLoading(false);
@@ -48,7 +49,7 @@ export function ProductCard({ product, compact }: ProductCardProps) {
             productPrice: price, 
             productCurrency: currency as "USD" | "EUR" | "CNY" | "AOA",
             quantity: 1, 
-            weightGrams: safeProduct.weightGrams 
+            weightGrams
           },
           cfg
         );
@@ -60,7 +61,7 @@ export function ProductCard({ product, compact }: ProductCardProps) {
       }
     })();
     return () => { alive = false; };
-  }, [safeProduct.originalPriceUsd, safeProduct.currency, safeProduct.weightGrams]);
+  }, [price, currency, weightGrams]);
 
   const image = safeProduct.defaultImage || safeProduct.images?.[0];
   const colors = Array.from(
@@ -86,12 +87,14 @@ export function ProductCard({ product, compact }: ProductCardProps) {
     >
       <div className={cn("relative bg-ink-100 rounded-[20px] overflow-hidden aspect-[3/4]", compact && "aspect-[3/4]")}>
         {image && !imageError ? (
-          <img
+          <Image
             src={image}
             alt={product.name}
-            loading="lazy"
+            fill
+            sizes="(max-width: 640px) 46vw, (max-width: 1024px) 30vw, 23vw"
+            unoptimized={!image.startsWith("/")}
             onError={() => setImageError(true)}
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
+            className="object-cover group-hover:scale-105 transition-transform duration-500 ease-out"
           />
         ) : (
           <div className="w-full h-full grid place-items-center text-ink-300">

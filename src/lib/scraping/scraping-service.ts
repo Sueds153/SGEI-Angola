@@ -177,7 +177,7 @@ async function scrapeWithZenRows(url: string, options: ScrapingOptions): Promise
   }
 }
 
-async function scrapeWithRapidApi(url: string, productId: string): Promise<ScrapingResult> {
+async function scrapeWithRapidApi(url: string, productId: string, options: ScrapingOptions): Promise<ScrapingResult> {
   const start = Date.now();
   const provider = PROVIDERS.rapidapi;
   
@@ -296,7 +296,7 @@ export async function scrapeWithFallback(
     // Fallback para ZenRows
     () => scrapeWithZenRows(url, opts),
     // Para AliExpress, tenta RapidAPI (dados estruturados)
-    productId.length >= 12 ? () => scrapeWithRapidApi(url, productId) : null,
+    productId.length >= 12 ? () => scrapeWithRapidApi(url, productId, opts) : null,
     // Último recurso: fetch direto (provavelmente vai falhar)
     () => scrapeDirect(url, opts),
   ].filter(Boolean) as Array<() => Promise<ScrapingResult>>;

@@ -21,9 +21,9 @@ export function Logo({
 }) {
   const isLight = variant === "light";
   const sizeMap = {
-    sm: { box: 28, word: "text-[13px]", tag: "text-[8px]" },
-    md: { box: 36, word: "text-[16px]", tag: "text-[9px]" },
-    lg: { box: 52, word: "text-xl", tag: "text-xs" },
+    sm: { box: 36, word: "text-[13px]", tag: "text-[8px]" },
+    md: { box: 48, word: "text-[17px]", tag: "text-[9px]" },
+    lg: { box: 64, word: "text-xl", tag: "text-xs" },
   } as const;
   const s = sizeMap[size];
 
@@ -31,7 +31,7 @@ export function Logo({
     <Link href={href} className="group inline-flex items-center gap-2.5">
       <span
         className={cn(
-          "relative inline-flex items-center justify-center overflow-hidden rounded-xl transition-transform group-hover:scale-105",
+          "relative inline-flex shrink-0 items-center justify-center overflow-hidden rounded-xl bg-white p-0.5 transition-transform group-hover:scale-105",
           isLight ? "ring-1 ring-white/20" : "ring-1 ring-black/10"
         )}
         style={{ width: s.box, height: s.box }}

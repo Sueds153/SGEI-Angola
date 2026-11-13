@@ -6,8 +6,9 @@ import { Card, Badge } from "@/components/ui";
 import { Button } from "@/components/ui/Button";
 import { ORDER_STATUS_LABELS, PAYMENT_METHOD_LABELS, formatKz, formatDateTime } from "@/lib/types";
 import Link from "next/link";
-import { ArrowLeft, Package, User, MapPin, CreditCard, Truck } from "lucide-react";
+import { ArrowLeft, Package, User, MapPin, CreditCard, Truck, MessageSquare, Search } from "lucide-react";
 import { OrderStatusChanger } from "@/components/admin/OrderStatusChanger";
+import { AdminPaymentApproval } from "@/components/admin/AdminPaymentApproval";
 
 export const dynamic = "force-dynamic";
 
@@ -60,7 +61,14 @@ export default async function AdminOrderDetail({
           </div>
           <p className="mt-1 text-sm text-ink-500">Criado {formatDateTime(order.createdAt)}</p>
         </div>
-        <OrderStatusChanger orderId={order.id} currentStatus={order.status} currentPaymentStatus={order.paymentStatus} />
+        <OrderStatusChanger
+          orderId={order.id}
+          currentStatus={order.status}
+          currentPaymentStatus={order.paymentStatus}
+          orderReference={order.reference}
+          customerName={order.customerName}
+          customerPhone={order.customerPhone}
+        />
       </div>
 
       <div className="grid lg:grid-cols-3 gap-5">
@@ -149,6 +157,26 @@ export default async function AdminOrderDetail({
                 <p className="text-ink-500 text-xs mt-2">WhatsApp: {order.customerWhatsapp}</p>
               )}
             </div>
+
+            <div className="mt-4 pt-3 border-t border-ink-100 flex flex-col gap-2">
+              <a
+                href={`https://wa.me/${(order.customerWhatsapp || order.customerPhone).replace(/\D/g, "").startsWith("244") ? (order.customerWhatsapp || order.customerPhone).replace(/\D/g, "") : `244${(order.customerWhatsapp || order.customerPhone).replace(/\D/g, "")}`}?text=${encodeURIComponent(`Olá ${order.customerName}! Daqui fala a equipa da ImportEasy Angola относительно ao seu pedido #${order.reference}. Como podemos ajudar?`)}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-full inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs transition shadow-sm"
+              >
+                <MessageSquare className="w-3.5 h-3.5" />
+                Contactar Cliente no WhatsApp
+              </a>
+
+              <Link
+                href={`/admin/rastreio`}
+                className="w-full inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-brand-50 hover:bg-brand-100 text-brand-700 font-bold text-xs transition"
+              >
+                <Search className="w-3.5 h-3.5" />
+                Central de Rastreio & Intervenção
+              </Link>
+            </div>
           </Card>
 
           {address[0] && (
@@ -180,6 +208,15 @@ export default async function AdminOrderDetail({
                 <Dl label="Estado" value={payment[0].status} />
                 {payment[0].reference && <Dl label="Ref. pagamento" value={payment[0].reference} />}
               </dl>
+              <AdminPaymentApproval
+                orderId={order.id}
+                orderReference={order.reference}
+                proofUrl={order.paymentProofUrl || payment[0].proofUrl}
+                paymentStatus={payment[0].status}
+                paymentMethod={payment[0].method}
+                paymentReference={payment[0].reference}
+                amountCents={payment[0].amountCents}
+              />
             </Card>
           )}
 

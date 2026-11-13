@@ -8,7 +8,7 @@
  * 4. Regex fallback - extração heurística
  */
 
-interface AliExpressProduct {
+export interface AliExpressProduct {
   id: string;
   title: string;
   images: string[];

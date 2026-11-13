@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import {
   ChevronLeft,
   ChevronRight,
@@ -74,10 +75,7 @@ export function ProductDetail({ product }: { product: NormalizedProduct }) {
   const variantAvailable = selectedVariant?.available !== false;
 
   // Detecta moeda do produto (usa campo currency do produto ou campo originalCurrency se disponível)
-  const productCurrency = useMemo(() => {
-    const currency = (product as any).originalCurrency || product.currency || "USD";
-    return currency as SupportedCurrency;
-  }, [product.currency]);
+  const productCurrency = ((product as any).originalCurrency || product.currency || "USD") as SupportedCurrency;
 
   const pricing = useMemo(() => {
     if (!priceCfg || product.originalPriceUsd == null) return null;
@@ -127,10 +125,14 @@ export function ProductDetail({ product }: { product: NormalizedProduct }) {
       <div>
         <div className="relative aspect-square md:aspect-[4/5] rounded-[24px] overflow-hidden bg-ink-100">
           {product.images && product.images.length > 0 ? (
-            <img
+            <Image
               src={product.images[activeImage]}
               alt={product.name}
-              className="w-full h-full object-cover"
+              fill
+              sizes="(max-width: 1024px) 100vw, 55vw"
+              priority
+              unoptimized={!product.images[activeImage].startsWith("/")}
+              className="object-cover"
             />
           ) : (
             <div className="w-full h-full grid place-items-center text-ink-400">
@@ -182,11 +184,11 @@ export function ProductDetail({ product }: { product: NormalizedProduct }) {
                 key={i}
                 onClick={() => setActiveImage(i)}
                 className={cn(
-                  "aspect-square rounded-xl overflow-hidden bg-ink-100 ring-2 transition",
+                  "relative aspect-square rounded-xl overflow-hidden bg-ink-100 ring-2 transition",
                   activeImage === i ? "ring-ink-900" : "ring-transparent hover:ring-ink-300"
                 )}
               >
-                <img src={img} alt="" className="w-full h-full object-cover" />
+                <Image src={img} alt={`Imagem ${i + 1} de ${product.name}`} fill sizes="20vw" unoptimized={!img.startsWith("/")} className="object-cover" />
               </button>
             ))}
           </div>
@@ -353,8 +355,8 @@ export function ProductDetail({ product }: { product: NormalizedProduct }) {
             Fazer pedido
           </Button>
           <a
-            href={`https://wa.me/244929423278?text=${encodeURIComponent(
-              `Olá, tenho uma dúvida sobre o produto: ${product.name}`
+            href={`https://wa.me/244922058136?text=${encodeURIComponent(
+              `Olá ImportEasy! Tenho uma dúvida sobre o produto: ${product.name}`
             )}`}
             target="_blank"
             rel="noopener noreferrer"

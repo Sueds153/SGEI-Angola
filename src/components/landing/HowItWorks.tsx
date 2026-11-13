@@ -17,23 +17,23 @@ const steps = [
   {
     number: "02",
     title: "Pagamento em Kwanzas",
-    description: "Pague com comodidade via Multicaixa Express ou Referência Multicaixa. Sem necessidade de cartão internacional nem taxas cambiais bancárias ocultas.",
+    description: "Sem estresse de cartão Visa ou taxas bancárias escondidas. Bate no Multicaixa Express ou faz Pagamento por Referência.",
     icon: CreditCard,
     details: [
-      "Multicaixa Express direto para 929 423 278",
+      "Express direto para o número: 929 423 278",
       "Referência: Entidade 10116 · Ref 929 423 278",
-      "Validação imediata via WhatsApp (+244 929 423 278)"
+      "Anexa o talão no site e apoia-te no WhatsApp (+244 922 058 136)"
     ]
   },
   {
     number: "03",
     title: "Nós tratamos de tudo",
-    description: "Compramos, despachamos, passamos pela alfândega e entregamos na sua morada. Você só acompanha pelo rastreio.",
+    description: "Compramos na SHEIN, despachamos no voo da semana, desalfandegamos no Aeroporto 4 de Fevereiro e entregamos na tua mão.",
     icon: Truck,
     details: [
-      "Desalfandegamento incluído no preço",
-      "Rastreio em tempo real no painel",
-      "Entrega em Luanda e principais províncias"
+      "Desalfandegamento 100% incluído no preço",
+      "Acompanhas a tua carga passo a passo",
+      "Entrega em Luanda e envio para todas as províncias"
     ]
   },
   {

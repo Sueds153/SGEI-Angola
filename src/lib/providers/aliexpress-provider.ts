@@ -1,6 +1,7 @@
 import type { NormalizedProduct, NormalizedVariant, ProductSource } from "@/lib/types";
 import { scrapeWithFallback, scrapeWithFreeFallback, parseAliExpressHtml, extractProductId } from "@/lib/scraping";
 import { normalizePrice } from "@/lib/currency";
+import type { AliExpressProduct } from "@/lib/scraping/aliexpress-parser";
 
 const ALIEXPRESS_DOMAINS = [
   "aliexpress.com",
@@ -77,7 +78,7 @@ async function fetchAliExpressProduct(productId: string, sourceUrl?: string): Pr
     );
 
     // Extrai variantes dos SKUs
-    const variants: NormalizedVariant[] = aliProduct.skuList.map((sku) => {
+    const variants: NormalizedVariant[] = aliProduct.skuList.map((sku: AliExpressProduct["skuList"][number]) => {
       const skuProps = sku.skuVal.reduce((acc, prop) => {
         acc[prop.path] = prop.name;
         return acc;
@@ -120,7 +121,7 @@ async function fetchAliExpressProduct(productId: string, sourceUrl?: string): Pr
       defaultImage: aliProduct.images[0] || null,
       originalPriceUsd: normalizedPrice?.amount || aliProduct.price.min,
       currency: normalizedPrice?.currency || "USD",
-      availability: aliProduct.skuList.some(s => s.skuStock > 0) ? "IN_STOCK" : "OUT_OF_STOCK",
+      availability: aliProduct.skuList.some((s: AliExpressProduct["skuList"][number]) => s.skuStock > 0) ? "IN_STOCK" : "OUT_OF_STOCK",
       status: "ACTIVE",
       sku: `AE-${productId}`,
       rating: aliProduct.rating.average > 0 ? aliProduct.rating.average / 2 : null, // Normaliza para escala 5

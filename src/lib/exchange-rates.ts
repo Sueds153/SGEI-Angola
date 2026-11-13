@@ -15,6 +15,7 @@ interface ExchangeApiResponse {
     AOA?: number;
     EUR?: number;
     CNY?: number;
+    USD?: number;
   };
   base?: string;
   date?: string;

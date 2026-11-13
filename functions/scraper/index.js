@@ -1,8 +1,7 @@
 import { neon } from '@neondatabase/serverless';
 import { drizzle } from 'drizzle-orm/neon-http';
-import { products, productImages, productVariants, categories } from '../../src/db/schema.js';
+import { products, productImages, productVariants, categories } from '../../src/db/schema';
 import { eq, and, ilike } from 'drizzle-orm';
-import { fetch } from 'node-fetch';
 import sharp from 'sharp';
 import { createWriteStream } from 'fs';
 import { mkdir, writeFile } from 'fs/promises';
@@ -12,7 +11,7 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-const sql = neon(process.env.DATABASE_URL!);
+const sql = neon(process.env.DATABASE_URL);
 const db = drizzle(sql);
 
 // ============================================
@@ -33,7 +32,7 @@ const TARGET_CATEGORIES = [
 // ============================================
 // HELPERS
 // ============================================
-function slugify(text: string): string {
+function slugify(text) {
   return text
     .toLowerCase()
     .normalize('NFD')
@@ -43,13 +42,13 @@ function slugify(text: string): string {
     .substring(0, 180);
 }
 
-function generateSlug(name: string, externalId: string, platform: string): string {
+function generateSlug(name, externalId, platform) {
   const base = `${platform.toLowerCase()}-${slugify(name)}`;
   const suffix = externalId.slice(-6);
   return `${base}-${suffix}`.substring(0, 200);
 }
 
-async function downloadImage(imageUrl: string, localPath: string): Promise<boolean> {
+async function downloadImage(imageUrl, localPath) {
   try {
     const response = await fetch(imageUrl, {
       headers: {
@@ -76,7 +75,7 @@ async function downloadImage(imageUrl: string, localPath: string): Promise<boole
   }
 }
 
-async function ensureCategory(name: string, slug: string): Promise<number> {
+async function ensureCategory(name, slug) {
   let cat = await db.select().from(categories).where(eq(categories.slug, slug)).limit(1);
   if (cat.length > 0) return cat[0].id;
   
@@ -87,7 +86,7 @@ async function ensureCategory(name: string, slug: string): Promise<number> {
 // ============================================
 // VINTED SCRAPER (via Jina AI - grátis e confiável)
 // ============================================
-async function scrapeVintedSearch(searchTerm: string, maxResults = 20) {
+async function scrapeVintedSearch(searchTerm, maxResults = 20) {
   console.log(`[Vinted] Buscando: "${searchTerm}"`);
   
   // Usar Jina AI para extrair resultados de busca
@@ -113,11 +112,11 @@ async function scrapeVintedSearch(searchTerm: string, maxResults = 20) {
   }
 }
 
-function parseVintedSearchResults(text: string, searchTerm: string) {
+function parseVintedSearchResults(text, searchTerm) {
   const items = [];
   const lines = text.split('\n');
   
-  let currentItem: any = null;
+  let currentItem = null;
   
   for (const line of lines) {
     const trimmed = line.trim();
@@ -161,7 +160,7 @@ function parseVintedSearchResults(text: string, searchTerm: string) {
   return items.filter(item => item.title && item.price && item.url);
 }
 
-async function scrapeVintedProduct(itemUrl: string) {
+async function scrapeVintedProduct(itemUrl) {
   const jinaUrl = `https://r.jina.ai/http://${itemUrl.replace('https://', '')}`;
   
   try {
@@ -176,7 +175,7 @@ async function scrapeVintedProduct(itemUrl: string) {
   }
 }
 
-function parseVintedProductDetails(text: string, url: string) {
+function parseVintedProductDetails(text, url) {
   const lines = text.split('\n');
   
   const result = {
@@ -187,7 +186,7 @@ function parseVintedProductDetails(text: string, url: string) {
     brand: '',
     size: '',
     condition: '',
-    images: [] as string[],
+    images: [],
     externalId: '',
   };
   
@@ -239,7 +238,7 @@ function parseVintedProductDetails(text: string, url: string) {
 // ============================================
 // ALIEXPRESS SCRAPER (via RapidAPI gratuito + Jina AI fallback)
 // ============================================
-async function scrapeAliExpressSearch(searchTerm: string, maxResults = 15) {
+async function scrapeAliExpressSearch(searchTerm, maxResults = 15) {
   console.log(`[AliExpress] Buscando: "${searchTerm}"`);
   
   // Tentar RapidAPI primeiro (se configurado)
@@ -267,12 +266,12 @@ async function scrapeAliExpressSearch(searchTerm: string, maxResults = 15) {
   }
 }
 
-async function scrapeAliExpressRapidAPI(searchTerm: string, maxResults: number) {
+async function scrapeAliExpressRapidAPI(searchTerm, maxResults) {
   const url = `https://aliexpress-data-api.p.rapidapi.com/search?keywords=${encodeURIComponent(searchTerm)}&page=1&sort=orders&minPrice=1&maxPrice=500`;
   
   const response = await fetch(url, {
     headers: {
-      'X-RapidAPI-Key': process.env.RAPIDAPI_KEY!,
+      'X-RapidAPI-Key': process.env.RAPIDAPI_KEY,
       'X-RapidAPI-Host': 'aliexpress-data-api.p.rapidapi.com'
     },
     timeout: 15000
@@ -283,7 +282,7 @@ async function scrapeAliExpressRapidAPI(searchTerm: string, maxResults: number) 
   const data = await response.json();
   const items = data.data?.products || data.products || [];
   
-  return items.slice(0, maxResults).map((item: any) => ({
+  return items.slice(0, maxResults).map((item) => ({
     title: item.productTitle || item.title,
     price: parseFloat(item.salePrice || item.price || item.minPrice),
     originalPrice: parseFloat(item.originalPrice || item.maxPrice),
@@ -294,14 +293,14 @@ async function scrapeAliExpressRapidAPI(searchTerm: string, maxResults: number) 
     orders: item.orders || item.tradeCount || 0,
     rating: item.rating || 0,
     shipping: item.shipping || 'Free',
-  })).filter((item: any) => item.title && item.price > 0);
+  })).filter((item) => item.title && item.price > 0);
 }
 
-function parseAliExpressSearchResults(text: string, searchTerm: string) {
+function parseAliExpressSearchResults(text, searchTerm) {
   const items = [];
   const lines = text.split('\n');
   
-  let currentItem: any = null;
+  let currentItem = null;
   
   for (const line of lines) {
     const trimmed = line.trim();
@@ -354,7 +353,7 @@ function parseAliExpressSearchResults(text: string, searchTerm: string) {
 // ============================================
 // SALVAR PRODUTO NO BANCO
 // ============================================
-async function saveProductToDB(productData: any, platform: string, categorySlug: string) {
+async function saveProductToDB(productData, platform, categorySlug) {
   const categoryId = await ensureCategory(
     platform === 'VINTED' ? 'Vinted ' + categorySlug : 'AliExpress ' + categorySlug,
     `${platform.toLowerCase()}-${categorySlug.toLowerCase()}`
@@ -399,7 +398,7 @@ async function saveProductToDB(productData: any, platform: string, categorySlug:
   const inserted = await db.insert(products).values({
     externalProductId: productData.externalId || null,
     sourceUrl: productData.url,
-    source: platform as any,
+    source: platform,
     name: productData.title,
     slug,
     description: productData.description || `Produto importado da ${platform}: ${productData.title}`,
@@ -453,7 +452,7 @@ async function saveProductToDB(productData: any, platform: string, categorySlug:
   return productId;
 }
 
-function estimateWeight(platform: string, category: string): number {
+function estimateWeight(platform, category) {
   if (category.includes('Tech') || category.includes('Tech')) return 300;
   if (category.includes('Calcados') || category.includes('Sapatos')) return 800;
   if (category.includes('Bolsa') || category.includes('Mochila')) return 500;
@@ -464,7 +463,7 @@ function estimateWeight(platform: string, category: string): number {
 // ============================================
 // MAIN SCRAPER FUNCTION
 // ============================================
-export async function runDailyScraper(options: { test?: boolean; maxPerCategory?: number } = {}) {
+export async function runDailyScraper(options = {}) {
   const { test = false, maxPerCategory = test ? 3 : 20 } = options;
   const startTime = Date.now();
   
@@ -480,7 +479,7 @@ export async function runDailyScraper(options: { test?: boolean; maxPerCategory?
     
     for (const searchTerm of target.searchTerms) {
       try {
-        let items: any[] = [];
+        let items = [];
         
         if (target.platform === 'VINTED') {
           items = await scrapeVintedSearch(searchTerm, maxPerCategory);
@@ -536,7 +535,7 @@ export async function runDailyScraper(options: { test?: boolean; maxPerCategory?
 // ============================================
 // HTTP HANDLER (para Neon Function)
 // ============================================
-export default async function handler(req: Request) {
+export default async function handler(req) {
   const url = new URL(req.url);
   const testMode = url.searchParams.get('test') === 'true';
   
@@ -557,7 +556,7 @@ export default async function handler(req: Request) {
       status: 200,
       headers: { 'Content-Type': 'application/json' }
     });
-  } catch (error: any) {
+  } catch (error) {
     console.error('[Scraper] Erro fatal:', error);
     return new Response(JSON.stringify({ 
       success: false, 

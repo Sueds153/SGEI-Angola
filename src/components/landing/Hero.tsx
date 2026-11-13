@@ -20,16 +20,16 @@ export default function Hero() {
   };
 
   return (
-    <section className="relative overflow-hidden bg-white pt-12 pb-20 lg:pt-20 lg:pb-32">
+    <section className="relative overflow-hidden bg-white pt-8 pb-14 sm:pt-12 sm:pb-20 lg:pt-20 lg:pb-32">
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center max-w-4xl mx-auto">
           {/* Badge */}
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-brand-50 text-brand-700 text-sm font-semibold mb-8 ring-1 ring-brand-100 shadow-sm animate-fade-in">
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-brand-50 text-brand-700 text-sm font-semibold mb-6 ring-1 ring-brand-100 shadow-sm animate-fade-in">
             <span className="relative flex h-2 w-2">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand-400 opacity-75" />
               <span className="relative inline-flex rounded-full h-2 w-2 bg-brand-500" />
             </span>
-            Pagamento em Kwanzas via Multicaixa Express (929 423 278) ou Referência (10116)
+            ✈️ Mala Coletiva Luanda: Junta as tuas peças e aproveita Frete Internacional Grátis!
           </div>
 
           {/* Main Headline */}
@@ -46,25 +46,28 @@ export default function Hero() {
 
           {/* CTA Form - O Foco da Conversão */}
           <div className="relative max-w-2xl mx-auto mb-16 animate-slide-up" style={{ animationDelay: '200ms' }}>
-            <form onSubmit={handleSimulate} className="bg-white p-2 rounded-2xl shadow-2xl shadow-brand-500/15 border border-ink-200 flex flex-col sm:flex-row gap-2">
+            <form onSubmit={handleSimulate} className="bg-white p-2 rounded-2xl shadow-xl shadow-brand-500/10 border border-ink-200 flex flex-col sm:flex-row gap-2">
+              <label htmlFor="product-url" className="sr-only">Link do produto</label>
               <input 
+                id="product-url"
                 type="url"
                 value={productUrl}
                 onChange={(e) => setProductUrl(e.target.value)}
                 placeholder="Cole o link do produto da Shein, AliExpress ou Vinted..." 
-                className="flex-1 p-4 bg-transparent outline-none text-ink-900 text-base sm:text-lg placeholder:text-ink-400"
+                className="min-h-12 flex-1 p-4 bg-transparent outline-none text-ink-900 text-base sm:text-lg placeholder:text-ink-400"
               />
               <button 
                 type="submit"
-                className="bg-brand-600 text-white px-8 py-4 rounded-xl font-bold hover:bg-brand-700 transition-all active:scale-95 flex items-center justify-center gap-2 text-lg shadow-lg shadow-brand-500/30 cursor-pointer"
+                className="min-h-12 bg-brand-600 text-white px-8 py-4 rounded-xl font-bold hover:bg-brand-700 transition-all active:scale-[.99] flex items-center justify-center gap-2 text-base sm:text-lg shadow-lg shadow-brand-500/20 cursor-pointer"
               >
                 Simular Preço <ArrowRight className="w-5 h-5" />
               </button>
             </form>
             
             {/* Small disclaimer */}
-            <p className="mt-4 text-sm text-ink-500 flex items-center justify-center gap-2">
-              <Shield className="w-4 h-4 text-emerald-600" /> Preço final garantido, sem surpresas nem cobranças extras na entrega.
+            <p className="mt-4 text-sm text-ink-600 flex items-center justify-center gap-2">
+              <Shield className="w-4 h-4 text-emerald-600 shrink-0" />
+              <strong>Garantia Alfândega Livre:</strong> Desalfandegamento 100% tratado por nós. Sem taxas surpresa no Aeroporto de Luanda.
             </p>
           </div>
 

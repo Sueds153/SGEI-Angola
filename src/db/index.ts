@@ -13,7 +13,11 @@ const useSqlite = isDevelopment && (!databaseUrl || databaseUrl.startsWith("file
 // During build time, we need a mock database to avoid connection issues
 const isBuildTime = process.env.NEXT_PHASE === "phase-production-build" || process.env.NEXT_PHASE === "phase-development-build";
 
-let db: ReturnType<typeof drizzle> | ReturnType<typeof import("drizzle-orm/node-postgres").drizzle>;
+// The application schema is declared with PostgreSQL column types. Keep the
+// public query API typed to that schema; SQLite is only used by the local/build
+// fallback and is cast at that adapter boundary.
+type AppDatabase = ReturnType<typeof import("drizzle-orm/node-postgres").drizzle>;
+let db: AppDatabase;
 
 if (isBuildTime) {
   // Create a mock database for build time
@@ -26,7 +30,7 @@ if (isBuildTime) {
     CREATE TABLE categories (id INTEGER PRIMARY KEY, name TEXT, slug TEXT, description TEXT, icon TEXT, created_at TEXT);
     CREATE TABLE orders (id INTEGER PRIMARY KEY, reference TEXT, customer_id INTEGER, customer_name TEXT, customer_email TEXT, customer_phone TEXT, customer_whatsapp TEXT, status TEXT, payment_status TEXT, payment_method TEXT, subtotal_cents INTEGER, service_fee_cents INTEGER, logistics_fee_cents INTEGER, delivery_fee_cents INTEGER, total_cents INTEGER, currency TEXT, exchange_rate_used REAL, margin_status TEXT, estimated_cost_cents INTEGER, actual_cost_cents INTEGER, notes TEXT, internal_notes TEXT, payment_proof_url TEXT, payment_expires_at TEXT, paid_at TEXT, created_at TEXT, updated_at TEXT);
   `);
-  db = drizzle(mockDb, { schema });
+  db = drizzle(mockDb, { schema }) as unknown as AppDatabase;
   console.log("[DB] Using mock in-memory database for build");
 } else if (useSqlite) {
   // SQLite for local development - use absolute path to project root
@@ -36,7 +40,7 @@ if (isBuildTime) {
   const dbPath = join(projectRoot, "local.db");
 
   const sqlite = new Database(dbPath);
-  db = drizzle(sqlite, { schema });
+  db = drizzle(sqlite, { schema }) as unknown as AppDatabase;
   console.log("[DB] Using SQLite for development at:", dbPath);
 } else if (databaseUrl) {
   // PostgreSQL for production (Neon)
@@ -64,7 +68,10 @@ if (isBuildTime) {
 }
 
 // Helper for scripts that import this module outside Next.js (e.g. tsx)
-export async function getDb() {
+// The seed utilities run against either dialect. Drizzle's SQLite and
+// PostgreSQL query-builder types are not assignable to each other even though
+// both expose the same operations used by those scripts.
+export async function getDb(): Promise<AppDatabase> {
   return db;
 }
 

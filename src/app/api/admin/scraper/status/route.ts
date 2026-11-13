@@ -1,13 +1,16 @@
 import { NextResponse } from "next/server";
-import { neon } from "@neondatabase/serverless";
-import { drizzle } from "drizzle-orm/neon-http";
-import { products, productImages } from "@/db/schema";
-import { eq, desc, count, sql, gte } from "drizzle-orm";
-
-const sql_client = neon(process.env.DATABASE_URL!);
-const db = drizzle(sql_client);
+import { db } from "@/db";
+import { products } from "@/db/schema";
+import { desc, count, sql, gte } from "drizzle-orm";
+import { requireAdmin } from "@/lib/auth";
 
 export async function GET() {
+  try {
+    await requireAdmin();
+  } catch {
+    return NextResponse.json({ error: "Não autorizado" }, { status: 401 });
+  }
+
   try {
     // Estatísticas gerais
     const totalProducts = await db.select({ count: count() }).from(products);

@@ -6,12 +6,19 @@ import {
   communityInteractions,
   communityReports,
   users,
+  customerProfiles,
   products,
   orders,
   orderItems
 } from "@/db/schema";
-import { eq, and, desc, asc, like, ilike, or, sql, count, gte, lte } from "drizzle-orm";
-import type { CommunityPost, NewCommunityPost } from "@/lib/types";
+import { eq, and, desc, asc, like, ilike, or, sql, count, gte, lte, isNotNull } from "drizzle-orm";
+
+interface NewCommunityPost {
+  userId?: number | null;
+  orderReference: string;
+  platform: string;
+  content: string;
+}
 
 // ============================================
 // SERVIÇOS DE COMUNIDADE
@@ -47,7 +54,7 @@ export async function getCommunityPosts(filters: {
   }
 
   if (status) {
-    conditions.push(eq(communityPosts.status, status));
+    conditions.push(eq(communityPosts.status, status as "PENDING_REVIEW" | "APPROVED" | "REJECTED" | "HIDDEN"));
   }
 
   if (verified !== undefined) {
@@ -121,7 +128,8 @@ export async function createCommunityPost(post: NewCommunityPost) {
 
   const result = await db
     .insert(communityPosts)
-    .values({\n      userId: post.userId || null,
+    .values({
+      userId: post.userId || null,
       orderReference: post.orderReference,
       platform: post.platform,
       category,
@@ -130,7 +138,8 @@ export async function createCommunityPost(post: NewCommunityPost) {
       location,
       status: "PENDING_REVIEW",
       verified: false,
-    })\n    .returning();
+    })
+    .returning();
 
   return result[0];
 }
@@ -202,8 +211,8 @@ export async function getCommunityStats() {
       count: count(),
     })
     .from(communityPosts)
-    .groupBy(communityPosts.category)
-    .where(communityPosts.category.isNotNull());
+      .where(isNotNull(communityPosts.category))
+      .groupBy(communityPosts.category);
 
   // Engagement por dia (últimos 30 dias)
   const thirtyDaysAgo = new Date();
@@ -240,7 +249,8 @@ export async function refreshRealCommunityData() {
   // Salvar no banco de dados
   const savedPosts = await db
     .insert(communityPosts)
-    .values(realPosts.map(post => ({ ...post, status: 'APPROVED' as const })))\n    .returning();
+    .values(realPosts.map(post => ({ ...post, status: 'APPROVED' as const })))
+    .returning();
   
   return { saved: savedPosts.length, total: realPosts.length };
 }
@@ -293,7 +303,7 @@ async function generateRealCommunityPosts(): Promise<any[]> {
     .select({
       id: orders.id,
       reference: orders.reference,
-      customerName: users.name,
+      customerName: customerProfiles.name,
       customerPhone: users.phone,
       status: orders.status,
       productName: orderItems.productName,
@@ -308,9 +318,11 @@ async function generateRealCommunityPosts(): Promise<any[]> {
       `,
       createdAt: orders.createdAt,
     })
-   ikerJoin(orderItems, eq(orders.id, orderItems.orderId))
-    InnerJoin(users, eq(orders.customerId, users.id))
-    Where(orders.status = 'DELIVERED' && orders.createdAt >= sql`CURRENT_DATE - INTERVAL '90 days'`);
+    .from(orders)
+    .innerJoin(orderItems, eq(orders.id, orderItems.orderId))
+    .innerJoin(users, eq(orders.customerId, users.id))
+    .leftJoin(customerProfiles, eq(orders.customerId, customerProfiles.userId))
+    .where(and(eq(orders.status, "DELIVERED"), gte(orders.createdAt, sql`CURRENT_DATE - INTERVAL '90 days'`)));
 
   for (const order of realOrders) {
     const content = generateRealPostContent(order);
@@ -365,10 +377,3 @@ function generateRealPostContent(order: any): string {
 // TIPOS
 // ============================================
 
-interface NewCommunityPost {
-  userId?: number | null;
-  orderReference: string;
-  platform: string;
-  category?: string;
-  content: string;
-}

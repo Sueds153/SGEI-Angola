@@ -108,7 +108,7 @@ export function SystemConfig() {
       </div>
 
       {message && (
-        <Alert variant={message.type === "success" ? "success" : "error"}>
+        <Alert variant={message.type === "success" ? "success" : "danger"}>
           <div className="flex items-center gap-2">
             {message.type === "success" ? (
               <CheckCircle2 className="h-4 w-4" />

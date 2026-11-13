@@ -34,6 +34,17 @@ const SOURCE_LABELS: Record<string, { label: string; color: string; icon: any }>
   ADMIN: { label: "Catálogo", color: "bg-green-100 text-green-700", icon: Tag },
 };
 
+function SourceBadge({ source }: { source: string }) {
+  const info = SOURCE_LABELS[source] || { label: source, color: "bg-gray-100 text-gray-700", icon: Globe };
+  const Icon = info.icon;
+  return (
+    <span className={`${info.color} text-[9px] font-medium tracking-wide px-2 py-0.5 rounded-full flex items-center gap-1`}>
+      <Icon className="h-3 w-3" />
+      {info.label}
+    </span>
+  );
+}
+
 const SUPPORTED_DOMAINS = [
   { domain: "shein.com", label: "Shein" },
   { domain: "aliexpress.com", label: "AliExpress" },
@@ -119,18 +130,6 @@ export function UrlResolverForm({ variant = "light" }: { variant?: Variant }) {
 
   function createOrderFromUrl() {
     router.push(`/checkout?externalUrl=${encodeURIComponent(url)}&externalId=${state.externalId || ""}`);
-  }
-
-  // Badge de origem
-  function SourceBadge({ source }: { source: string }) {
-    const info = SOURCE_LABELS[source] || { label: source, color: "bg-gray-100 text-gray-700", icon: Globe };
-    const Icon = info.icon;
-    return (
-      <span className={`${info.color} text-[9px] font-medium tracking-wide px-2 py-0.5 rounded-full flex items-center gap-1`}>
-        <Icon className="h-3 w-3" />
-        {info.label}
-      </span>
-    );
   }
 
   // Formata moeda original

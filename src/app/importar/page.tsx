@@ -2,9 +2,14 @@
 
 import { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Loader2, AlertCircle, CheckCircle, Link as LinkIcon, Shield, Clock, Calculator, CheckCircle2, ArrowRight } from "lucide-react";
+import { Loader2, AlertCircle, CheckCircle, Link as LinkIcon, Shield, Clock, Calculator, CheckCircle2, ArrowRight, ShoppingBag, Sparkles, Share2, MapPin, Truck, Building2 } from "lucide-react";
 import Link from "next/link";
 import { Logo } from "@/components/brand/Logo";
+import { useCart } from "@/context/CartContext";
+import { SheinTutorialModal } from "@/components/importar/SheinTutorialModal";
+import { FlightStatusBanner } from "@/components/home/FlightStatusBanner";
+import { SmartDollarConverter } from "@/components/home/SmartDollarConverter";
+import { ResponsiveImage } from "@/components/ui/ResponsiveImage";
 
 interface SimulationResult {
   success: boolean;
@@ -52,10 +57,13 @@ function ImportarContent() {
   useEffect(() => {
     const initialUrl = searchParams.get("url");
     if (initialUrl && !url) {
-      setUrl(initialUrl);
-      resolveUrl(initialUrl);
+      const initialResolve = window.setTimeout(() => {
+        setUrl(initialUrl);
+        void resolveUrl(initialUrl);
+      }, 0);
+      return () => window.clearTimeout(initialResolve);
     }
-  }, [searchParams]);
+  }, [searchParams, url]);
 
   const detectPlatform = (inputUrl: string) => {
     try {
@@ -66,7 +74,7 @@ function ImportarContent() {
     }
   };
 
-  const resolveUrl = async (targetUrl: string) => {
+  async function resolveUrl(targetUrl: string) {
     setError(null);
     setResult(null);
     setLoading(true);
@@ -116,7 +124,7 @@ function ImportarContent() {
     } finally {
       setLoading(false);
     }
-  };
+  }
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -134,6 +142,9 @@ function ImportarContent() {
 
   return (
     <div className="min-h-screen bg-ink-50">
+      {/* Banner Dinâmico da Carga Aérea Semanal */}
+      <FlightStatusBanner />
+
       {/* Header */}
       <header className="bg-white border-b border-ink-200 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -146,12 +157,12 @@ function ImportarContent() {
               <Link href="/comunidade" className="text-ink-600 hover:text-brand-600 transition">Comunidade</Link>
               <Link href="/rastrear" className="text-ink-600 hover:text-brand-600 transition">Rastrear</Link>
               <a 
-                href="https://wa.me/244929423278?text=Ol%C3%A1%20ImportEasy!" 
+                href="https://wa.me/244922058136?text=Ol%C3%A1%20ImportEasy!" 
                 target="_blank" 
                 rel="noopener noreferrer" 
                 className="px-4 py-2 bg-brand-600 text-white rounded-xl hover:bg-brand-700 text-sm font-semibold transition"
               >
-                WhatsApp (+244 929 423 278)
+                WhatsApp (+244 922 058 136)
               </a>
             </nav>
           </div>
@@ -211,9 +222,12 @@ function ImportarContent() {
                   disabled={loading}
                 />
               </div>
-              <p className="mt-2.5 text-xs text-ink-500 text-center">
-                Exemplo: <code className="bg-ink-100 px-2 py-0.5 rounded text-ink-700">https://www.vinted.pt/items/123456789</code> ou qualquer link da Shein/AliExpress
-              </p>
+              <div className="mt-3.5 flex flex-col sm:flex-row items-center justify-between gap-2">
+                <SheinTutorialModal />
+                <p className="text-xs text-ink-500">
+                  Ex: <code className="bg-ink-100 px-1.5 py-0.5 rounded text-ink-700">shein.com/...</code>
+                </p>
+              </div>
             </div>
 
             <button
@@ -254,8 +268,13 @@ function ImportarContent() {
             </div>
           )}
 
+          {/* Conversor Dinâmico Dólar -> Kwanza (Câmbio Informal em Tempo Real) */}
+          <div className="mt-14 max-w-4xl mx-auto">
+            <SmartDollarConverter />
+          </div>
+
           {/* Features */}
-          <div className="mt-16 grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
+          <div className="mt-14 grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
             <FeatureCard 
               icon={Shield} 
               title="Preço Final Garantido" 
@@ -272,6 +291,76 @@ function ImportarContent() {
               desc="Pague via Multicaixa Express (929 423 278) ou Pagamento por Referência (Entidade: 10116 / Ref: 929 423 278)." 
             />
           </div>
+
+          {/* Cobertura de Entregas em Luanda & Províncias de Angola */}
+          <div className="mt-14 max-w-5xl mx-auto bg-white rounded-3xl border border-ink-200 p-6 sm:p-8 shadow-sm">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-ink-100 pb-5 mb-6">
+              <div>
+                <span className="text-xs font-bold uppercase tracking-wider text-brand-600 flex items-center gap-1.5 mb-1">
+                  <MapPin className="w-4 h-4 text-brand-600" /> Cobertura Territorial
+                </span>
+                <h3 className="text-xl sm:text-2xl font-bold text-ink-950">
+                  Onde entregamos a tua encomenda em Angola?
+                </h3>
+              </div>
+              <span className="px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800 w-fit">
+                Desalfandegamento 100% Incluído
+              </span>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {/* Luanda Domicílio */}
+              <div className="p-4 rounded-2xl bg-brand-50/50 border border-brand-100">
+                <div className="flex items-center gap-2 mb-2 font-bold text-ink-900 text-sm">
+                  <Truck className="w-4 h-4 text-brand-600" />
+                  Luanda (Porta a Porta)
+                </div>
+                <p className="text-xs text-ink-600 leading-relaxed mb-3">
+                  Entregas diretas ao domicílio ou no seu local de trabalho através dos nossos estafetas.
+                </p>
+                <div className="flex flex-wrap gap-1.5">
+                  {["Talatona", "Kilamba", "Maianga", "Alvalade", "Viana", "Mutamba", "Miramar", "Camama", "Benfica", "Cacuaco", "Zango"].map((b) => (
+                    <span key={b} className="text-[11px] bg-white border border-brand-200/60 text-ink-700 px-2 py-0.5 rounded-md font-medium">
+                      {b}
+                    </span>
+                  ))}
+                </div>
+              </div>
+
+              {/* Ponto Físico de Recolha */}
+              <div className="p-4 rounded-2xl bg-ink-50 border border-ink-200">
+                <div className="flex items-center gap-2 mb-2 font-bold text-ink-900 text-sm">
+                  <Building2 className="w-4 h-4 text-brand-600" />
+                  Ponto de Recolha (Luanda)
+                </div>
+                <p className="text-xs text-ink-600 leading-relaxed mb-3">
+                  Prefere levantar você mesmo sem esperar pelo estafeta? Levante em segurança com documento e referência.
+                </p>
+                <div className="p-2.5 bg-white rounded-xl border border-ink-200 text-xs text-ink-700">
+                  <strong>Ponto Central:</strong> Luanda Centro / Talatona
+                  <span className="block text-[11px] text-ink-500 mt-0.5">Segunda a Sábado, das 09h às 18h</span>
+                </div>
+              </div>
+
+              {/* Províncias */}
+              <div className="p-4 rounded-2xl bg-emerald-50/50 border border-emerald-100">
+                <div className="flex items-center gap-2 mb-2 font-bold text-ink-900 text-sm">
+                  <MapPin className="w-4 h-4 text-emerald-600" />
+                  Todas as Províncias
+                </div>
+                <p className="text-xs text-ink-600 leading-relaxed mb-3">
+                  Despachamos após a desalfandegagem em Luanda com rastreio e acompanhamento no WhatsApp:
+                </p>
+                <div className="flex flex-wrap gap-1.5">
+                  {["Benguela", "Lobito", "Huambo", "Lubango", "Cabinda", "Soyo", "Malanje", "Namibe"].map((p) => (
+                    <span key={p} className="text-[11px] bg-white border border-emerald-200 text-emerald-900 px-2 py-0.5 rounded-md font-medium">
+                      {p}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </main>
 
@@ -280,7 +369,7 @@ function ImportarContent() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-2">
           <p className="font-bold text-white text-lg">ImportEasy</p>
           <p className="text-sm">A sua ponte para o mundo. Shein, AliExpress e Vinted entregues em Angola.</p>
-          <p className="text-xs text-ink-400">Suporte WhatsApp: +244 929 423 278 | Luanda, Angola</p>
+          <p className="text-xs text-ink-400">Suporte WhatsApp: +244 922 058 136 | Luanda, Angola</p>
         </div>
       </footer>
     </div>
@@ -296,6 +385,7 @@ function SimulationResultCard({
   url: string;
   onNewSimulation: () => void 
 }) {
+  const { addItem } = useCart();
   const formatCurrency = (value: number, currency: string) => {
     return new Intl.NumberFormat("pt-AO", { style: "currency", currency }).format(value);
   };
@@ -309,6 +399,18 @@ function SimulationResultCard({
   const totalAOA = result.estimatedTotalAOA || 0;
 
   const checkoutUrl = `/checkout?externalUrl=${encodeURIComponent(url || result.sourceUrl || "")}&productName=${encodeURIComponent(result.title || "Produto Importado")}&externalId=${encodeURIComponent(result.productId || "")}`;
+
+  const handleAddToCart = () => {
+    addItem({
+      title: result.title || "Artigo Importado",
+      priceUsd: originalPrice,
+      priceKz: totalAOA,
+      image: result.images?.[0],
+      platform: result.platform || "Shein",
+      sourceUrl: url || result.sourceUrl,
+      quantity: 1,
+    });
+  };
 
   return (
     <div className="bg-white rounded-2xl border-2 border-brand-200 shadow-xl overflow-hidden">
@@ -331,7 +433,13 @@ function SimulationResultCard({
         <div className="flex gap-4 items-center">
           <div className="w-20 h-20 rounded-xl bg-ink-100 flex items-center justify-center flex-shrink-0 overflow-hidden border border-ink-200">
             {result.images?.[0] ? (
-              <img src={result.images[0]} alt={result.title} className="w-full h-full object-cover" />
+              <ResponsiveImage
+                src={result.images[0]}
+                alt={result.title || "Produto"}
+                fill
+                className="object-cover"
+                fallbackText={result.platform || "—" }
+              />
             ) : (
               <LinkIcon className="w-8 h-8 text-ink-400" />
             )}
@@ -385,25 +493,56 @@ function SimulationResultCard({
           </div>
         </div>
 
-        {/* Call to Actions (Conversão Dupla: Checkout no Site ou WhatsApp Direto) */}
+        {/* Call to Actions (Conversão Tripla: Mala Coletiva Frete Grátis, Checkout Direto ou WhatsApp) */}
         <div className="border-t border-ink-100 pt-5 space-y-3">
+          {/* Opção Recomendada: Mala Coletiva com Frete Grátis */}
+          <button
+            type="button"
+            onClick={handleAddToCart}
+            className="w-full flex items-center justify-center gap-2.5 px-6 py-4 bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-base rounded-xl transition shadow-lg shadow-emerald-600/25 active:scale-[0.99] cursor-pointer"
+          >
+            <Sparkles className="w-5 h-5 text-emerald-200" />
+            Adicionar à Mala Coletiva (Frete Grátis)
+          </button>
+
+          {/* Opção Encomenda Imediata Individual */}
           <Link
             href={checkoutUrl}
-            className="w-full flex items-center justify-center gap-2 px-6 py-4 bg-brand-600 text-white font-bold text-base rounded-xl hover:bg-brand-700 transition shadow-lg shadow-brand-500/25 active:scale-[0.99]"
+            className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-brand-600 text-white font-bold text-sm rounded-xl hover:bg-brand-700 transition"
           >
-            Avançar para Encomenda <ArrowRight className="w-5 h-5" />
+            Comprar Já Sozinho (Envio Expresso) <ArrowRight className="w-4 h-4" />
           </Link>
 
+          {/* Botão Viral: Partilhar com Amiga no WhatsApp */}
           <a
-            href={`https://wa.me/244929423278?text=${encodeURIComponent(
+            href={`https://wa.me/?text=${encodeURIComponent(
+              `Mana, olha este artigo lindo na SHEIN: "${result.title}"!\n\nNa ImportEasy fica só a *${formatAOA(totalAOA)}* já com frete e alfândega incluídos em Luanda.\n\nVamos juntar na Mala Coletiva com Frete Grátis? Vê aqui: ${url || result.sourceUrl || ''}`
+            )}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="w-full flex items-center justify-center gap-2 px-6 py-2.5 bg-brand-50 hover:bg-brand-100 text-brand-800 font-extrabold rounded-xl border border-brand-200 transition text-xs shadow-sm"
+          >
+            <Share2 className="w-3.5 h-3.5 text-brand-600" />
+            Mandar para uma Amiga no WhatsApp
+          </a>
+
+          {/* Suporte WhatsApp */}
+          <a
+            href={`https://wa.me/244922058136?text=${encodeURIComponent(
               `Olá ImportEasy! Simulei este produto e pretendo encomendar: ${result.title} (${result.platform}). Total: ${formatAOA(totalAOA)}. Link: ${url || result.sourceUrl || ''}`
             )}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="w-full flex items-center justify-center gap-2 px-6 py-3.5 border-2 border-emerald-600 text-emerald-700 font-bold rounded-xl hover:bg-emerald-50 transition text-sm"
+            className="w-full flex items-center justify-center gap-2 px-6 py-2.5 border border-ink-300 text-ink-700 font-semibold rounded-xl hover:bg-ink-50 transition text-xs"
           >
-            Falar com Atendente no WhatsApp (+244 929 423 278)
+            Tirar Dúvida no WhatsApp (+244 922 058 136)
           </a>
+
+          {/* Selo Papa Feita: Garantia Alfândega 100% */}
+          <div className="p-3 rounded-xl bg-ink-50 border border-ink-100 text-[11px] text-ink-600 text-center flex items-center justify-center gap-1.5">
+            <Shield className="w-4 h-4 text-emerald-600 shrink-0" />
+            <span><strong>Garantia Alfândega Livre:</strong> Sem taxas surpresa no Aeroporto 4 de Fevereiro. O preço que vês em Kwanzas é o preço final entregue na tua mão.</span>
+          </div>
         </div>
       </div>
     </div>

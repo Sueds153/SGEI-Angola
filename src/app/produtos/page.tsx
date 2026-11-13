@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Search, Filter, ChevronDown, Zap, Shirt, Smartphone, Loader2 } from "lucide-react";
 import { ProductCard, ProductCardSkeleton } from "@/components/product/ProductCard";
 
@@ -33,10 +33,10 @@ export default function ProdutosPage() {
   const [showFilters, setShowFilters] = useState(false);
 
   // fetchProducts recebe os parâmetros explicitamente para evitar stale closures
-  const fetchProducts = async (
-    pPlatform: string,
-    pCategory: string,
-    pSort: string
+  const fetchProducts = useCallback(async (
+    pPlatform = "",
+    pCategory = "",
+    pSort = "relevance"
   ) => {
     setLoading(true);
     try {
@@ -58,12 +58,15 @@ export default function ProdutosPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   // Initial load on mount
   useEffect(() => {
-    fetchProducts("", "", "relevance");
-  }, []);
+    const initialLoad = window.setTimeout(() => {
+      void fetchProducts("", "", "relevance");
+    }, 0);
+    return () => window.clearTimeout(initialLoad);
+  }, [fetchProducts]);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -183,13 +186,13 @@ export default function ProdutosPage() {
 
           {/* Products Grid */}
           {loading ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-5">
               {Array.from({ length: 8 }).map((_, i) => (
                 <div key={i}><ProductCardSkeleton /></div>
               ))}
             </div>
           ) : products.length > 0 ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-5">
               {products.map((product) => (
                 <div key={product.id}><ProductCard product={product} /></div>
               ))}

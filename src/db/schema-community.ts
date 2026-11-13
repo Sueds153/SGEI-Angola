@@ -10,7 +10,7 @@ import {
   pgEnum,
 } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
-import { users } from "./schema.js";
+import { users } from "./schema";
 
 export const communityPostStatusEnum = pgEnum("community_post_status", [
   "PENDING_REVIEW",

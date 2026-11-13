@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { scrapeWithFreeFallback, scrapeWithFallback, extractProductId } from "@/lib/scraping";
+import { requireAdmin } from "@/lib/auth";
 
 const schema = z.object({
   url: z.string().url("URL inválida"),
@@ -8,6 +9,12 @@ const schema = z.object({
 });
 
 export async function POST(req: Request) {
+  try {
+    await requireAdmin();
+  } catch {
+    return NextResponse.json({ error: "Acesso restrito a administradores." }, { status: 401 });
+  }
+
   const body = await req.json().catch(() => null);
   const parsed = schema.safeParse(body);
   
@@ -68,12 +75,17 @@ export async function POST(req: Request) {
       }
     }
     
+    const method = "method" in result ? result.method : result.provider;
+    const latencyMs = "latencyMs" in result ? result.latencyMs : 0;
+    const parsedPrice = parsedProduct?.price;
+    const parsedImages = parsedProduct?.images;
+
     return NextResponse.json({
       success: result.success,
       platform,
       productId,
-      method: result.method,
-      latencyMs: result.latencyMs,
+      method,
+      latencyMs,
       error: result.error,
       hasHtml: !!result.html,
       hasJson: !!result.json,
@@ -83,15 +95,15 @@ export async function POST(req: Request) {
       // Resultado do parser
       parsedProduct: parsedProduct ? {
         title: parsedProduct.title,
-        price: parsedProduct.price?.amount,
-        currency: parsedProduct.price?.currency_code,
+        price: parsedPrice && "amount" in parsedPrice ? parsedPrice.amount : parsedPrice?.min,
+        currency: parsedPrice && "currency_code" in parsedPrice ? parsedPrice.currency_code : "EUR",
         brand: (parsedProduct as any).brand_title,
         size: (parsedProduct as any).size_title,
         condition: (parsedProduct as any).status,
-        imagesCount: parsedProduct.images?.thumbnails?.length || 0,
-        rating: parsedProduct.rating,
-        orders: parsedProduct.orders,
-        skuCount: parsedProduct.skuList?.length || 0,
+        imagesCount: Array.isArray(parsedImages) ? parsedImages.length : parsedImages?.thumbnails?.length || 0,
+        rating: "rating" in parsedProduct ? parsedProduct.rating : null,
+        orders: "orders" in parsedProduct ? parsedProduct.orders : null,
+        skuCount: "skuList" in parsedProduct ? parsedProduct.skuList?.length || 0 : 0,
       } : null,
     });
   } catch (error: any) {
@@ -104,6 +116,12 @@ export async function POST(req: Request) {
 }
 
 export async function GET() {
+  try {
+    await requireAdmin();
+  } catch {
+    return NextResponse.json({ error: "Acesso restrito a administradores." }, { status: 401 });
+  }
+
   const freeMethods = [
     "Jina AI (texto limpo, ilimitado)",
     "Google Translate (proxy)",

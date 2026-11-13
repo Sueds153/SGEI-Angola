@@ -53,8 +53,8 @@ export function Reveal({
       window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
     if (reduced) {
-      setVisible(true);
-      return;
+      const reveal = window.setTimeout(() => setVisible(true), 0);
+      return () => window.clearTimeout(reveal);
     }
 
     const observer = new IntersectionObserver(
@@ -134,8 +134,8 @@ export function WordReveal({
       typeof window !== "undefined" &&
       window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     if (reduced) {
-      setVisible(true);
-      return;
+      const reveal = window.setTimeout(() => setVisible(true), 0);
+      return () => window.clearTimeout(reveal);
     }
     const observer = new IntersectionObserver(
       (entries) => {

@@ -4,6 +4,9 @@ import * as Sentry from "@sentry/nextjs";
 import "./globals.css";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
+import { CartProvider } from "@/context/CartContext";
+import { CartDrawer } from "@/components/cart/CartDrawer";
+import { FloatingWhatsApp } from "@/components/common/FloatingWhatsApp";
 
 export const metadata: Metadata = {
   title: {
@@ -36,11 +39,15 @@ export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="pt-AO">
       <body className="min-h-screen flex flex-col bg-white text-ink-900 antialiased">
-        <Sentry.ErrorBoundary fallback={<p>Algo deu errado. Tente recarregar a página.</p>}>
-          <Header />
-          <main className="flex-1">{children}</main>
-          <Footer />
-        </Sentry.ErrorBoundary>
+        <CartProvider>
+          <Sentry.ErrorBoundary fallback={<p>Algo deu errado. Tente recarregar a página.</p>}>
+            <Header />
+            <main className="flex-1">{children}</main>
+            <Footer />
+            <CartDrawer />
+            <FloatingWhatsApp />
+          </Sentry.ErrorBoundary>
+        </CartProvider>
       </body>
     </html>
   );

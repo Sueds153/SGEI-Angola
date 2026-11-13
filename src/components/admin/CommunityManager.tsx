@@ -26,6 +26,7 @@ import {
   Clock
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { ResponsiveImage } from "@/components/ui/ResponsiveImage";
 
 interface CommunityMessage {
   id: number;
@@ -49,9 +50,9 @@ interface CommunityMessage {
 
 const STATUS_CONFIG: Record<string, { label: string; color: string }> = {
   ENTREGUE: { label: "Entregue", color: "bg-emerald-100 text-emerald-700" },
-  EM_TRANSITO: { label: "Em trÃ¢nsito", color: "bg-blue-100 text-blue-700" },
+  EM_TRANSITO: { label: "Em trânsito", color: "bg-blue-100 text-blue-700" },
   PENDENTE: { label: "Pendente", color: "bg-amber-100 text-amber-700" },
-  EM_ANALISE: { label: "Em anÃ¡lise", color: "bg-purple-100 text-purple-700" },
+  EM_ANALISE: { label: "Em análise", color: "bg-purple-100 text-purple-700" },
   PERGUNTA: { label: "Pergunta", color: "bg-ink-100 text-ink-700" },
 };
 
@@ -77,7 +78,7 @@ export function CommunityManager() {
 
   // Load from localStorage on client only
   useEffect(() => {
-    if (typeof window !== 'undefined') {
+    const restoreMessages = window.setTimeout(() => {
       try {
         const stored = localStorage.getItem("community_messages");
         if (stored) {
@@ -88,7 +89,8 @@ export function CommunityManager() {
       } catch (error) {
         console.error("Erro ao carregar mensagens:", error);
       }
-    }
+    }, 0);
+    return () => window.clearTimeout(restoreMessages);
   }, []);
 
   function saveMessages(updated: CommunityMessage[]) {
@@ -101,7 +103,7 @@ export function CommunityManager() {
   function generateMockMessages(): CommunityMessage[] {
     const users = [
       { name: "Maria Fernanda", seed: "maria-fernanda-ao", location: "Luanda, Talatona", skin: "8d5524" },
-      { name: "JoÃ£o Pedro", seed: "joao-pedro-ao", location: "Benguela", skin: "5d4037" },
+      { name: "João Pedro", seed: "joao-pedro-ao", location: "Benguela", skin: "5d4037" },
       { name: "Ana Silva", seed: "ana-silva-ao", location: "Luanda, Kilamba", skin: "a1887f" },
       { name: "Pedro Miguel", seed: "pedro-miguel-ao", location: "Huambo", skin: "6d4c41" },
       { name: "Carla Nascimento", seed: "carla-nascimento-ao", location: "Luanda, Maianga", skin: "795548" },
@@ -231,7 +233,7 @@ export function CommunityManager() {
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <h2 className="text-xl font-semibold text-ink-900">GestÃ£o da Comunidade</h2>
+        <h2 className="text-xl font-semibold text-ink-900">Gestão da Comunidade</h2>
         <Button variant="secondary" size="sm" onClick={handleRefresh}>
           <RefreshCw className="h-4 w-4 mr-2" />
           Atualizar
@@ -289,7 +291,7 @@ export function CommunityManager() {
                 className="rounded border-ink-300 text-brand-600 focus:ring-brand-500"
               />
               <Flag className="w-4 h-4" />
-              SÃ³ reportadas
+              Só reportadas
             </label>
           </div>
         </div>
@@ -305,7 +307,7 @@ export function CommunityManager() {
                 <th className="px-4 py-3 text-left text-xs font-semibold text-ink-500 uppercase">Produto / Plataforma</th>
                 <th className="px-4 py-3 text-left text-xs font-semibold text-ink-500 uppercase">Mensagem</th>
                 <th className="px-4 py-3 text-left text-xs font-semibold text-ink-500 uppercase">Status</th>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-ink-500 uppercase">AÃ§Ãµes</th>
+                <th className="px-4 py-3 text-left text-xs font-semibold text-ink-500 uppercase">Ações</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-ink-100">
@@ -321,20 +323,23 @@ export function CommunityManager() {
                   <tr key={msg.id} className={cn("hover:bg-ink-50", msg.isHidden && "opacity-50 bg-amber-50", msg.reported && "bg-red-50")}>
                     <td className="px-4 py-4">
                       <div className="flex items-center gap-3">
-                        <img 
-                          src={msg.avatar} 
-                          alt={msg.user} 
-                          className="w-10 h-10 rounded-full ring-2 ring-ink-100 object-cover"
+                        <ResponsiveImage
+                          src={msg.avatar}
+                          alt={msg.user}
+                          width={40}
+                          height={40}
+                          className="rounded-full ring-2 ring-ink-100 object-cover"
+                          fallbackText={msg.user.charAt(0)}
                         />
                         <div>
                           <div className="flex items-center gap-2">
                             <span className="font-medium text-ink-900">{msg.user}</span>
-                            {msg.verified && <Shield className="w-4 h-4 text-brand-600" title="Verificado" />}
+                            {msg.verified && <span title="Verificado"><Shield className="w-4 h-4 text-brand-600" aria-label="Verificado" /></span>}
                             {msg.isOwn && <span className="text-xs px-2 py-0.5 bg-brand-100 text-brand-700 rounded-full">Cliente</span>}
                           </div>
                           <div className="flex items-center gap-2 text-xs text-ink-500">
                             <MapPin className="w-3 h-3" /> {msg.location}
-                            <span>â€¢</span>
+                            <span>•</span>
                             <Clock className="w-3 h-3" /> {msg.timeAgo}
                             {msg.ref && <span className="font-mono">Ref: {msg.ref}</span>}
                           </div>
