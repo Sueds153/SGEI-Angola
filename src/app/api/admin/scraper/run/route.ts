@@ -1,7 +1,4 @@
 import { NextResponse } from "next/server";
-// This Azure Function is JavaScript maintained outside the Next.js source tree.
-// @ts-expect-error The function's ESM entry point does not ship TypeScript declarations.
-import { runDailyScraper } from "../../../../../../functions/scraper/index.js";
 import { requireAdmin } from "@/lib/auth";
 
 export async function POST(req: Request) {
@@ -22,6 +19,8 @@ export async function POST(req: Request) {
   const testMode = body.test === true;
   
   try {
+    // @ts-ignore
+    const { runDailyScraper } = await import("../../../../../../functions/scraper/index.js");
     const result = await runDailyScraper({ test: testMode });
     return NextResponse.json(result);
   } catch (error: any) {

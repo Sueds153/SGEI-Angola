@@ -2,7 +2,6 @@ import { neon } from '@neondatabase/serverless';
 import { drizzle } from 'drizzle-orm/neon-http';
 import { products, productImages, productVariants, categories } from '../../src/db/schema';
 import { eq, and, ilike } from 'drizzle-orm';
-import sharp from 'sharp';
 import { createWriteStream } from 'fs';
 import { mkdir, writeFile } from 'fs/promises';
 import { join, dirname } from 'path';
@@ -101,6 +100,15 @@ function generateSlug(name, externalId, platform) {
   return `${base}-${suffix}`.substring(0, 200);
 }
 
+async function getSharp() {
+  try {
+    const mod = await import('sharp');
+    return mod.default || mod;
+  } catch {
+    return null;
+  }
+}
+
 async function downloadImage(imageUrl, localPath) {
   try {
     const response = await fetch(imageUrl, {
@@ -114,13 +122,17 @@ async function downloadImage(imageUrl, localPath) {
     
     const buffer = await response.buffer();
     
-    // Otimizar com Sharp (WebP, max 800px width)
-    const optimized = await sharp(buffer)
-      .resize({ width: 800, withoutEnlargement: true })
-      .webp({ quality: 80 })
-      .toBuffer();
-    
-    await writeFile(localPath, optimized);
+    // Otimizar com Sharp se disponível, senão salvar direto
+    const sharpFn = await getSharp();
+    if (sharpFn) {
+      const optimized = await sharpFn(buffer)
+        .resize({ width: 800, withoutEnlargement: true })
+        .webp({ quality: 80 })
+        .toBuffer();
+      await writeFile(localPath, optimized);
+    } else {
+      await writeFile(localPath, buffer);
+    }
     return true;
   } catch (error) {
     console.error(`[ImageDownload] Falha ${imageUrl}:`, error.message);
