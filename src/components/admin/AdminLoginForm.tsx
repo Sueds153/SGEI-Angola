@@ -47,7 +47,7 @@ export function AdminLoginForm() {
         value={email}
         onChange={(e) => setEmail(e.target.value)}
         required
-        placeholder="admin@importeasy.ao"
+        placeholder="josuemiguelsued@gmail.com"
       />
       <Input
         label="Palavra-passe"

@@ -7,6 +7,9 @@ import { Footer } from "@/components/layout/Footer";
 import { CartProvider } from "@/context/CartContext";
 import { CartDrawer } from "@/components/cart/CartDrawer";
 import { FloatingWhatsApp } from "@/components/common/FloatingWhatsApp";
+import { AdaptiveIntelligenceProvider } from "@/context/AdaptiveIntelligenceContext";
+import { AdaptiveSmartBanner } from "@/components/common/AdaptiveSmartBanner";
+import { SmartRecoveryModal } from "@/components/common/SmartRecoveryModal";
 
 export const metadata: Metadata = {
   title: {
@@ -39,15 +42,19 @@ export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="pt-AO">
       <body className="min-h-screen flex flex-col bg-white text-ink-900 antialiased">
-        <CartProvider>
-          <Sentry.ErrorBoundary fallback={<p>Algo deu errado. Tente recarregar a página.</p>}>
-            <Header />
-            <main className="flex-1">{children}</main>
-            <Footer />
-            <CartDrawer />
-            <FloatingWhatsApp />
-          </Sentry.ErrorBoundary>
-        </CartProvider>
+        <AdaptiveIntelligenceProvider>
+          <CartProvider>
+            <Sentry.ErrorBoundary fallback={<p>Algo deu errado. Tente recarregar a página.</p>}>
+              <AdaptiveSmartBanner />
+              <Header />
+              <main className="flex-1">{children}</main>
+              <Footer />
+              <CartDrawer />
+              <FloatingWhatsApp />
+              <SmartRecoveryModal />
+            </Sentry.ErrorBoundary>
+          </CartProvider>
+        </AdaptiveIntelligenceProvider>
       </body>
     </html>
   );

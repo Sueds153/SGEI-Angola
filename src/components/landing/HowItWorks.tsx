@@ -10,7 +10,7 @@ const steps = [
     icon: Search,
     details: [
       "Funciona com qualquer link de produto",
-      "Calculamos o preço final em Kz na hora",
+      "Mostramos uma estimativa em Kz para validação",
       "Mostramos o prazo estimado de entrega"
     ]
   },
@@ -28,10 +28,10 @@ const steps = [
   {
     number: "03",
     title: "Nós tratamos de tudo",
-    description: "Compramos na SHEIN, despachamos no voo da semana, desalfandegamos no Aeroporto 4 de Fevereiro e entregamos na tua mão.",
+    description: "Compramos na SHEIN, AliExpress ou Vinted Europa, despachamos no voo semanal, desalfandegamos no Aeroporto 4 de Fevereiro e entregamos na tua mão.",
     icon: Truck,
     details: [
-      "Desalfandegamento 100% incluído no preço",
+      "Confirmamos custos e condições antes do pagamento",
       "Acompanhas a tua carga passo a passo",
       "Entrega em Luanda e envio para todas as províncias"
     ]
@@ -42,7 +42,7 @@ const steps = [
     description: "Confirme a receção, deixe a sua avaliação e ajude a comunidade. Ganhe desconto no próximo pedido.",
     icon: CheckCircle,
     details: [
-      "Garantia de satisfação",
+      "Apoio para dúvidas e problemas com o pedido",
       "Programa de fidelidade",
       "Partilhe na comunidade ImportEasy"
     ]
@@ -117,7 +117,7 @@ function PasteLinkCTA() {
       <MessageSquare className="w-10 h-10 mx-auto mb-4 text-brand-100" />
       <h3 className="text-2xl font-bold mb-2">Tem um link de um produto específico?</h3>
       <p className="text-brand-100 mb-6">
-        Cole o link da Shein, AliExpress ou Vinted e nós calculamos o preço final com entrega em Angola.
+        Cole o link da Shein, AliExpress ou Vinted para iniciar uma simulação. A equipa confirma o valor total e as condições antes do pagamento.
       </p>
       <a
         href="/importar"

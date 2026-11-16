@@ -32,6 +32,7 @@ import Link from "next/link";
 import { useEffect } from "react";
 import { PaymentProofUpload } from "@/components/order/PaymentProofUpload";
 import { useCart } from "@/context/CartContext";
+import { useAdaptiveIntelligence } from "@/context/AdaptiveIntelligenceContext";
 
 type Step = 1 | 2 | 3 | 4;
 
@@ -52,6 +53,7 @@ type Prefill = ProductPrefill | ExternalPrefill;
 export function CheckoutFlow({ prefill }: { prefill: Prefill | null }) {
   const router = useRouter();
   const { items: cartItems, totalKz: cartTotalKz, clearCart } = useCart();
+  const { recordEvent } = useAdaptiveIntelligence();
   const [step, setStep] = useState<Step>(1);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -218,6 +220,7 @@ export function CheckoutFlow({ prefill }: { prefill: Prefill | null }) {
       if (isCartCheckout) {
         clearCart();
       }
+      recordEvent("ORDER_CREATED", { reference: data.order.reference });
       setCreatedRef(data.order.reference);
       setStep(4);
     } catch {
@@ -276,7 +279,11 @@ export function CheckoutFlow({ prefill }: { prefill: Prefill | null }) {
           )}
           {step === 2 && (
             <Step2
-              province={province} setProvince={setProvince}
+              province={province} 
+              setProvince={(p: string) => {
+                setProvince(p);
+                recordEvent("PROVINCE_SELECT", { province: p });
+              }}
               municipality={municipality} setMunicipality={setMunicipality}
               neighborhood={neighborhood} setNeighborhood={setNeighborhood}
               street={street} setStreet={setStreet}
@@ -805,7 +812,7 @@ function OrderSuccess({
         {/* Garantia */}
         <div className="flex items-start gap-2.5 pt-1 text-xs text-ink-600">
           <Shield className="w-4 h-4 text-emerald-600 flex-shrink-0 mt-0.5" />
-          <span><strong>Garantia 100% de Entrega:</strong> O seu pagamento é protegido. Nós tratamos do desalfandegamento e entregamos na sua porta.</span>
+          <span><strong>Confirmação antes da compra:</strong> a equipa valida o pagamento e os detalhes do pedido; acompanhe as atualizações pela referência do pedido.</span>
         </div>
       </div>
 

@@ -1,15 +1,18 @@
-﻿"use client";
+"use client";
 
-import { useState, useEffect, Suspense } from "react";
+import { useState, useEffect, useCallback, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Loader2, AlertCircle, CheckCircle, Link as LinkIcon, Shield, Clock, Calculator, CheckCircle2, ArrowRight, ShoppingBag, Sparkles, Share2, MapPin, Truck, Building2 } from "lucide-react";
 import Link from "next/link";
 import { Logo } from "@/components/brand/Logo";
 import { useCart } from "@/context/CartContext";
 import { SheinTutorialModal } from "@/components/importar/SheinTutorialModal";
+import { SheinStepsVisual } from "@/components/importar/SheinStepsVisual";
 import { FlightStatusBanner } from "@/components/home/FlightStatusBanner";
 import { SmartDollarConverter } from "@/components/home/SmartDollarConverter";
+import { CoverageBanner } from "@/components/home/CoverageBanner";
 import { ResponsiveImage } from "@/components/ui/ResponsiveImage";
+import { useAdaptiveIntelligence } from "@/context/AdaptiveIntelligenceContext";
 
 interface SimulationResult {
   success: boolean;
@@ -48,22 +51,11 @@ export default function ImportarPage() {
 function ImportarContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { recordEvent } = useAdaptiveIntelligence();
   const [url, setUrl] = useState("");
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<SimulationResult | null>(null);
   const [error, setError] = useState<string | null>(null);
-
-  // Lê parâmetro url da rota se vier do Hero
-  useEffect(() => {
-    const initialUrl = searchParams.get("url");
-    if (initialUrl && !url) {
-      const initialResolve = window.setTimeout(() => {
-        setUrl(initialUrl);
-        void resolveUrl(initialUrl);
-      }, 0);
-      return () => window.clearTimeout(initialResolve);
-    }
-  }, [searchParams, url]);
 
   const detectPlatform = (inputUrl: string) => {
     try {
@@ -74,7 +66,7 @@ function ImportarContent() {
     }
   };
 
-  async function resolveUrl(targetUrl: string) {
+  const resolveUrl = useCallback(async (targetUrl: string) => {
     setError(null);
     setResult(null);
     setLoading(true);
@@ -119,12 +111,29 @@ function ImportarContent() {
       } else {
         throw new Error("Não foi possível obter os dados do produto");
       }
+
+      // Regista evento no motor de inteligência adaptativa (Aprendizagem da Máquina Multi-Plataforma)
+      const simulatedPrice = data.price || data.product?.originalPriceUsd || 15;
+      const detectedPlat = data.platform || (targetUrl.includes("vinted") ? "Vinted" : targetUrl.includes("aliexpress") ? "AliExpress" : "Shein");
+      recordEvent("SIMULATE", { priceUsd: simulatedPrice, platform: detectedPlat });
     } catch (err) {
       setError(err instanceof Error ? err.message : "Erro desconhecido ao processar");
     } finally {
       setLoading(false);
     }
-  }
+  }, [recordEvent]);
+
+  // Lê parâmetro url da rota se vier do Hero
+  useEffect(() => {
+    const initialUrl = searchParams.get("url");
+    if (initialUrl && !url) {
+      const initialResolve = window.setTimeout(() => {
+        setUrl(initialUrl);
+        void resolveUrl(initialUrl);
+      }, 0);
+      return () => window.clearTimeout(initialResolve);
+    }
+  }, [searchParams, url, resolveUrl]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -181,7 +190,7 @@ function ImportarContent() {
               Simule a sua <span className="text-brand-600">Importação</span>
             </h1>
             <p className="text-base sm:text-lg text-ink-600">
-              Cole o link de qualquer produto da Shein, AliExpress ou Vinted e veja imediatamente o preço final em Kwanzas com taxas e entrega na sua porta.
+              Cole um link da Shein, AliExpress ou Vinted para obter uma estimativa em Kwanzas. A equipa confirma o produto e o valor total antes do pagamento.
             </p>
           </div>
 
@@ -202,6 +211,9 @@ function ImportarContent() {
               </div>
             )}
           </div>
+
+          {/* Mini-guia visual de 3 passos (Papa Feita) */}
+          <SheinStepsVisual className="mb-8" />
 
           {/* Form */}
           <form onSubmit={handleSubmit} className="max-w-2xl mx-auto space-y-6">
@@ -293,73 +305,8 @@ function ImportarContent() {
           </div>
 
           {/* Cobertura de Entregas em Luanda & Províncias de Angola */}
-          <div className="mt-14 max-w-5xl mx-auto bg-white rounded-3xl border border-ink-200 p-6 sm:p-8 shadow-sm">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-ink-100 pb-5 mb-6">
-              <div>
-                <span className="text-xs font-bold uppercase tracking-wider text-brand-600 flex items-center gap-1.5 mb-1">
-                  <MapPin className="w-4 h-4 text-brand-600" /> Cobertura Territorial
-                </span>
-                <h3 className="text-xl sm:text-2xl font-bold text-ink-950">
-                  Onde entregamos a tua encomenda em Angola?
-                </h3>
-              </div>
-              <span className="px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800 w-fit">
-                Desalfandegamento 100% Incluído
-              </span>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {/* Luanda Domicílio */}
-              <div className="p-4 rounded-2xl bg-brand-50/50 border border-brand-100">
-                <div className="flex items-center gap-2 mb-2 font-bold text-ink-900 text-sm">
-                  <Truck className="w-4 h-4 text-brand-600" />
-                  Luanda (Porta a Porta)
-                </div>
-                <p className="text-xs text-ink-600 leading-relaxed mb-3">
-                  Entregas diretas ao domicílio ou no seu local de trabalho através dos nossos estafetas.
-                </p>
-                <div className="flex flex-wrap gap-1.5">
-                  {["Talatona", "Kilamba", "Maianga", "Alvalade", "Viana", "Mutamba", "Miramar", "Camama", "Benfica", "Cacuaco", "Zango"].map((b) => (
-                    <span key={b} className="text-[11px] bg-white border border-brand-200/60 text-ink-700 px-2 py-0.5 rounded-md font-medium">
-                      {b}
-                    </span>
-                  ))}
-                </div>
-              </div>
-
-              {/* Ponto Físico de Recolha */}
-              <div className="p-4 rounded-2xl bg-ink-50 border border-ink-200">
-                <div className="flex items-center gap-2 mb-2 font-bold text-ink-900 text-sm">
-                  <Building2 className="w-4 h-4 text-brand-600" />
-                  Ponto de Recolha (Luanda)
-                </div>
-                <p className="text-xs text-ink-600 leading-relaxed mb-3">
-                  Prefere levantar você mesmo sem esperar pelo estafeta? Levante em segurança com documento e referência.
-                </p>
-                <div className="p-2.5 bg-white rounded-xl border border-ink-200 text-xs text-ink-700">
-                  <strong>Ponto Central:</strong> Luanda Centro / Talatona
-                  <span className="block text-[11px] text-ink-500 mt-0.5">Segunda a Sábado, das 09h às 18h</span>
-                </div>
-              </div>
-
-              {/* Províncias */}
-              <div className="p-4 rounded-2xl bg-emerald-50/50 border border-emerald-100">
-                <div className="flex items-center gap-2 mb-2 font-bold text-ink-900 text-sm">
-                  <MapPin className="w-4 h-4 text-emerald-600" />
-                  Todas as Províncias
-                </div>
-                <p className="text-xs text-ink-600 leading-relaxed mb-3">
-                  Despachamos após a desalfandegagem em Luanda com rastreio e acompanhamento no WhatsApp:
-                </p>
-                <div className="flex flex-wrap gap-1.5">
-                  {["Benguela", "Lobito", "Huambo", "Lubango", "Cabinda", "Soyo", "Malanje", "Namibe"].map((p) => (
-                    <span key={p} className="text-[11px] bg-white border border-emerald-200 text-emerald-900 px-2 py-0.5 rounded-md font-medium">
-                      {p}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            </div>
+          <div className="mt-14">
+            <CoverageBanner />
           </div>
         </div>
       </main>
@@ -513,17 +460,17 @@ function SimulationResultCard({
             Comprar Já Sozinho (Envio Expresso) <ArrowRight className="w-4 h-4" />
           </Link>
 
-          {/* Botão Viral: Partilhar com Amiga no WhatsApp */}
+          {/* Botão Viral: Partilhar com Amiga no WhatsApp (Crescimento Orgânico Luanda) */}
           <a
             href={`https://wa.me/?text=${encodeURIComponent(
-              `Mana, olha este artigo lindo na SHEIN: "${result.title}"!\n\nNa ImportEasy fica só a *${formatAOA(totalAOA)}* já com frete e alfândega incluídos em Luanda.\n\nVamos juntar na Mala Coletiva com Frete Grátis? Vê aqui: ${url || result.sourceUrl || ''}`
+              `Olha este artigo: "${result.title}"!\n\nA estimativa da ImportEasy é *${formatAOA(totalAOA)}*, sujeita à confirmação do produto, custos e disponibilidade antes do pagamento.\n\nVê aqui: ${url || result.sourceUrl || ''}`
             )}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="w-full flex items-center justify-center gap-2 px-6 py-2.5 bg-brand-50 hover:bg-brand-100 text-brand-800 font-extrabold rounded-xl border border-brand-200 transition text-xs shadow-sm"
+            className="w-full flex items-center justify-center gap-2 px-6 py-3.5 bg-[#25D366]/10 hover:bg-[#25D366]/20 text-[#128C7E] font-black rounded-xl border-2 border-[#25D366]/40 transition text-sm shadow-sm active:scale-[0.99]"
           >
-            <Share2 className="w-3.5 h-3.5 text-brand-600" />
-            Mandar para uma Amiga no WhatsApp
+            <Share2 className="w-4 h-4 text-[#25D366]" />
+            📲 Partilhar com Amiga no WhatsApp (“Vamos pedir juntas?”)
           </a>
 
           {/* Suporte WhatsApp */}
@@ -538,10 +485,10 @@ function SimulationResultCard({
             Tirar Dúvida no WhatsApp (+244 922 058 136)
           </a>
 
-          {/* Selo Papa Feita: Garantia Alfândega 100% */}
+          {/* Informação sobre validação do pedido */}
           <div className="p-3 rounded-xl bg-ink-50 border border-ink-100 text-[11px] text-ink-600 text-center flex items-center justify-center gap-1.5">
             <Shield className="w-4 h-4 text-emerald-600 shrink-0" />
-            <span><strong>Garantia Alfândega Livre:</strong> Sem taxas surpresa no Aeroporto 4 de Fevereiro. O preço que vês em Kwanzas é o preço final entregue na tua mão.</span>
+            <span><strong>Antes de pagar:</strong> a equipa confirma disponibilidade, custos aplicáveis, modalidade e valor total do pedido.</span>
           </div>
         </div>
       </div>

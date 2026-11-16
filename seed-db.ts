@@ -21,24 +21,24 @@ async function seedDatabase() {
   const db = await getDb();
   
   // Evita duplicar
-  const existingAdmin = await db.select().from(users).where(eq(users.email, "admin@sgei.ao"));
+  const existingAdmin = await db.select().from(users).where(eq(users.email, "josuemiguelsued@gmail.com"));
   if (existingAdmin.length > 0) {
     console.log("[seed] Database already seeded.");
     return;
   }
 
   // Admin user
-  const adminPassword = await hashPassword("admin123");
+  const adminPassword = await hashPassword("Sued#2026@ImportEasy!Kz9842");
   const [adminUser] = await db
     .insert(users)
     .values({
-      email: "admin@sgei.ao",
+      email: "josuemiguelsued@gmail.com",
       passwordHash: adminPassword,
       role: "admin",
-      phone: "923456789",
+      phone: "929423278",
     })
     .returning();
-  await db.insert(adminProfiles).values({ userId: adminUser.id, name: "Administrador" });
+  await db.insert(adminProfiles).values({ userId: adminUser.id, name: "Josué Miguel Sued" });
 
   // Cliente demo
   const [customerUser] = await db
@@ -316,14 +316,14 @@ async function seedDatabase() {
   // Audit log inicial
   await db.insert(auditLogs).values({
     actorId: adminUser.id,
-    actorEmail: "admin@sgei.ao",
+    actorEmail: "josuemiguelsued@gmail.com",
     action: "SYSTEM_SEED",
     entityType: "system",
     entityId: "init",
   });
 
   console.log("[seed] Seed complete.");
-  console.log("[seed] Admin login: admin@sgei.ao / admin123");
+  console.log("[seed] Admin login: josuemiguelsued@gmail.com / Sued#2026@ImportEasy!Kz9842");
   console.log("[seed] Customer login: cliente@exemplo.ao / cliente123");
 }
 

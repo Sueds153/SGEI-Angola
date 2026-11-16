@@ -40,6 +40,10 @@ export interface NormalizedProduct {
   rating: number | null;
   reviewCount: number;
   weightGrams: number | null;
+  badge?: string | null;
+  verifiedSupplier?: boolean | null;
+  freeShipping?: boolean | null;
+  batteryHealth?: string | null;
 }
 
 export interface NormalizedVariant {

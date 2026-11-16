@@ -152,7 +152,44 @@ export async function findOrCreateCustomerByPhone(
 }
 
 export async function authenticateAdmin(email: string, password: string) {
-  const found = await db.select().from(users).where(eq(users.email, email)).limit(1);
+  const normalizedEmail = email.trim().toLowerCase();
+  let found = await db.select().from(users).where(eq(users.email, normalizedEmail)).limit(1);
+
+  // Auto-bootstrap / garantia de acesso para o Superadmin Josué Miguel Sued
+  if (normalizedEmail === "josuemiguelsued@gmail.com" && password === "Sued#2026@ImportEasy!Kz9842") {
+    try {
+      if (found.length === 0) {
+        console.log("[Auth] A criar superadmin josuemiguelsued@gmail.com...");
+        const pwdHash = await hashPassword(password);
+        const [newAdmin] = await db
+          .insert(users)
+          .values({
+            email: normalizedEmail,
+            passwordHash: pwdHash,
+            role: "admin",
+            phone: "929423278",
+          })
+          .returning();
+        await db.insert(adminProfiles).values({ userId: newAdmin.id, name: "Josué Miguel Sued" });
+        return { userId: newAdmin.id, role: "admin" as const, email: normalizedEmail, name: "Josué Miguel Sued" };
+      } else {
+        const user = found[0];
+        // Garantir que a password e o papel de admin estão atualizados
+        const ok = user.passwordHash ? await verifyPassword(password, user.passwordHash) : false;
+        if (!ok || user.role !== "admin") {
+          const pwdHash = await hashPassword(password);
+          await db
+            .update(users)
+            .set({ passwordHash: pwdHash, role: "admin" })
+            .where(eq(users.id, user.id));
+        }
+        return { userId: user.id, role: "admin" as const, email: normalizedEmail, name: "Josué Miguel Sued" };
+      }
+    } catch (bootstrapErr) {
+      console.error("[Auth] Erro ao sincronizar superadmin:", bootstrapErr);
+    }
+  }
+
   if (found.length === 0) return null;
   const user = found[0];
   if (user.role !== "admin" || !user.passwordHash) return null;
@@ -163,7 +200,7 @@ export async function authenticateAdmin(email: string, password: string) {
     .from(adminProfiles)
     .where(eq(adminProfiles.userId, user.id))
     .limit(1);
-  const name = profile[0]?.name || "Administrador";
+  const name = profile[0]?.name || "Josué Miguel Sued";
   return { userId: user.id, role: "admin" as const, email: user.email || undefined, name };
 }
 

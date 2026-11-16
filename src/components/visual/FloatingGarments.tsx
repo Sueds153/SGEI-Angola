@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import Image from "next/image";
 import { cn } from "@/lib/utils";
 
 /**
@@ -186,7 +187,7 @@ export function FloatingGarments({
     return () => {
       if (raf) cancelAnimationFrame(raf);
     };
-  }, [isMobile]);
+  }, [isMobile, pieces]);
 
   const visiblePieces = pieces.filter((p) => !(isMobile && p.mobileHide));
 
@@ -199,9 +200,11 @@ export function FloatingGarments({
       {visiblePieces.map((p, i) => {
         const offset = offsets[i] || 0;
         return (
-          <img
+          <Image
             key={i}
             src={p.src}
+            width={p.width}
+            height={p.width}
             alt=""
             className={cn(
               "absolute select-none object-cover will-change-transform",

@@ -8,7 +8,7 @@ import { Plus, X } from "lucide-react";
 const FAQS = [
   {
     q: "O que é a ImportEasy e como funciona?",
-    a: "A ImportEasy é uma plataforma angolana especializada em intermediação de compras internacionais da Shein, AliExpress e Vinted para clientes em Angola. Você escolhe o produto que deseja, nós compramos ao fornecedor internacional, tratamos de toda a logística e alfândega, e entregamos na sua porta.",
+    a: "A ImportEasy ajuda clientes em Angola a solicitar produtos da Shein, AliExpress e Vinted. Envie o link, aguarde a validação do produto e do valor total pela equipa e, se concordar, conclua o pedido e o pagamento. A entrega depende da confirmação do pedido e da cobertura disponível.",
   },
   {
     q: "Como faço o pagamento em Kwanzas?",
@@ -16,27 +16,39 @@ const FAQS = [
   },
   {
     q: "Tenho de pagar alguma taxa extra na alfândega quando a encomenda chegar?",
-    a: "Não. O preço calculado e apresentado no simulador e no checkout é final e garantido. O desalfandegamento, impostos alfandegários (AGT) e frete internacional já estão 100% incluídos. Não existem taxas surpresa na entrega.",
+    a: "A simulação é uma estimativa. Antes do pagamento, a equipa confirma o produto, a disponibilidade e o valor total, incluindo os custos aplicáveis ao pedido. Avance apenas depois de rever e aceitar essa confirmação.",
   },
   {
     q: "E se a encomenda for extraviada ou tiver problemas na alfândega?",
-    a: "Com a nossa Garantia 100% de Entrega, você está totalmente protegido. Se houver qualquer extravio internacional ou problema irreversível na alfândega, nós realizamos novo envio sem qualquer custo adicional ou reembolsamos a totalidade do valor pago em Kwanzas.",
+    a: "Contacte o apoio com a referência do pedido assim que notar um problema. A equipa verificará o estado e explicará as opções aplicáveis ao caso, de acordo com a fase da encomenda e os direitos legais do consumidor.",
   },
   {
     q: "Quanto tempo demora a entrega em Angola?",
-    a: "O prazo médio de entrega por frete aéreo expresso é de 15 a 25 dias úteis após a confirmação do pagamento. Em Luanda a entrega é feita ao domicílio por estafeta; nas províncias (Benguela, Huambo, Lubango, Cabinda, etc.) a entrega é feita via transportadora ou ponto de recolha.",
+    a: "O prazo apresentado para cada pedido é estimado e depende da loja, disponibilidade, transporte internacional, alfândega e destino em Angola. A equipa confirma a previsão e a modalidade de entrega disponíveis antes do pagamento.",
   },
   {
     q: "Posso colar qualquer link da Shein, AliExpress ou Vinted?",
-    a: "Sim! Na nossa página de simulação (/importar) pode colar o link de qualquer produto destas plataformas. O nosso sistema calcula automaticamente o valor em Kwanzas na hora.",
+    a: "Pode colar um link suportado na página de simulação. Alguns produtos ou anúncios precisam de validação manual; nesses casos, a equipa confirma se pode tratar do pedido e informa o valor antes do pagamento.",
   },
   {
     q: "O preço pode mudar depois de eu fazer o pedido?",
-    a: "Não. O preço fica congelado e garantido a partir do momento em que o pedido é submetido. O valor que você vê é o valor exato que paga.",
+    a: "O valor da simulação pode mudar após a verificação do preço, variante, disponibilidade, câmbio e custos de envio. O valor vinculativo é o confirmado pela equipa antes do pagamento.",
   },
   {
     q: "Como acompanho o estado do meu pedido?",
-    a: "Pode acompanhar em tempo real na página /rastrear usando a referência do pedido (ex: SG-14023) ou o seu número de telefone. Além disso, a nossa equipa envia notificações e confirmações pelo WhatsApp de apoio (+244 922 058 136).",
+    a: "Consulte a página /rastrear com a referência do pedido. O estado é atualizado quando a equipa regista uma nova etapa. Para ajuda, contacte o WhatsApp de apoio (+244 922 058 136).",
+  },
+  {
+    q: "Consigo encomendar gadgets e eletrónica do AliExpress?",
+    a: "Pode enviar o link do artigo para análise. A equipa confirma se o produto pode ser transportado, a disponibilidade e o valor total do pedido antes de solicitar o pagamento.",
+  },
+  {
+    q: "Dá para importar iPhones e ténis de marca da Vinted Europa?",
+    a: "Envie o anúncio para a equipa verificar a disponibilidade, o estado descrito pelo vendedor e a possibilidade de compra e envio. Artigos usados dependem das informações e condições do próprio anúncio; confirme os detalhes antes de avançar.",
+  },
+  {
+    q: "Posso juntar peças da SHEIN, AliExpress e Vinted na mesma encomenda?",
+    a: "Pode adicionar vários artigos ao carrinho. A possibilidade de consolidação, custos e forma de pagamento serão confirmados pela equipa para o seu pedido antes do pagamento.",
   },
 ];
 

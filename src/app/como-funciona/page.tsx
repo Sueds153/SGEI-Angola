@@ -28,7 +28,7 @@ const steps = [
     n: "03",
     kicker: "Preço & Pagamento",
     title: "Pague em Kwanzas.",
-    body: "Calculamos o preço final transparente em Kz (produto, câmbio, transporte e alfândega). Pague via Multicaixa Express (929 423 278) ou Referência (Entidade: 10116).",
+    body: "Apresentamos uma estimativa em Kz. A equipa confirma produto, disponibilidade, custos e valor total; depois pode aceitar e pagar pelos métodos indicados no pedido.",
   },
   {
     n: "04",

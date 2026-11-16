@@ -17,16 +17,69 @@ const db = drizzle(sql);
 // ============================================
 // CATEGORIAS DE INTERESSE PARA ANGOLA
 // ============================================
+// Regras estritas:
+// - Vinted: apenas iPhones bons (iPhone 15 Pro Max, 14 Pro, 13, 12 Pro) com bateria boa e desbloqueados
+// - AliExpress: qualquer coisa útil, mas de fornecedores verificados (Choice) e entrega gratuita
+// - SHEIN: exclusivamente roupas femininas (vestidos midi, vestidos de festa, conjuntos blazer, evasê)
 const TARGET_CATEGORIES = [
-  // Vinted - Tech (iPhones, MacBooks, etc.)
-  { platform: 'VINTED', category: 'Tech', searchTerms: ['iphone 13', 'iphone 14', 'iphone 15', 'macbook air m1', 'macbook air m2', 'ipad', 'airpods', 'apple watch'] },
-  { platform: 'VINTED', category: 'Moda', searchTerms: ['vestido midi', 'blazer', 'tenis nike', 'tenis adidas', 'bolsa couro', 'jaqueta jeans'] },
-  { platform: 'VINTED', category: 'Calcados', searchTerms: ['nike air force', 'nike air max', 'adidas ultraboost', 'yeezy', 'jordan'] },
-  
-  // AliExpress - Gadgets & Tech
-  { platform: 'ALIEXPRESS', category: 'Tech', searchTerms: ['smartwatch', 'fone bluetooth', 'carregador gan', 'power bank', 'ssd nvme', 'teclado mecanico'] },
-  { platform: 'ALIEXPRESS', category: 'Casa', searchTerms: ['aspirador robô', 'purificador ar', 'lampada inteligente', 'camara wifi'] },
-  { platform: 'ALIEXPRESS', category: 'Beleza', searchTerms: ['secador cabelo', 'chapinha', 'depilador', 'massageador'] },
+  // Vinted: Exclusivamente iPhones de Alta Qualidade ("Apenas iPhones Bons")
+  {
+    platform: 'VINTED',
+    category: 'iPhones Seminovos Europa',
+    searchTerms: [
+      'iphone 15 pro max',
+      'iphone 14 pro',
+      'iphone 13',
+      'iphone 12 pro'
+    ],
+    filter: (item) => {
+      const text = `${item.title} ${item.description || ''}`.toLowerCase();
+      const isIphone = text.includes('iphone');
+      // Rejeitar peças danificadas, telas partidas ou bloqueios iCloud
+      const isNotBroken = !text.includes('para pecas') && 
+                          !text.includes('para peças') && 
+                          !text.includes('bloqueado icloud') && 
+                          !text.includes('ecra partido') &&
+                          !text.includes('tela quebrada');
+      return isIphone && isNotBroken;
+    }
+  },
+
+  // AliExpress: Produtos Choice de Fornecedores Verificados e Entrega Gratuita
+  {
+    platform: 'ALIEXPRESS',
+    category: 'Gadgets Choice Verificados',
+    searchTerms: [
+      'smartwatch amoled gps',
+      'fone bluetooth anc',
+      'power bank 20000mah 65w',
+      'mini projetor 4k'
+    ],
+    filter: (item) => {
+      // Priorizar fornecedor com nota alta ou menção de frete grátis / Choice
+      return !item.rating || item.rating >= 4.4 || item.shipping === 'Free' || (item.orders && item.orders > 50);
+    }
+  },
+
+  // SHEIN: Exclusivamente Roupas Femininas ("Roupas Femininas")
+  {
+    platform: 'SHEIN',
+    category: 'Vestuário Feminino',
+    searchTerms: [
+      'vestido midi floral',
+      'vestido longo festa cetim',
+      'conjunto feminino elegante blazer',
+      'vestido evase estampado'
+    ],
+    filter: (item) => {
+      const text = `${item.title} ${item.description || ''}`.toLowerCase();
+      return text.includes('vestido') || 
+             text.includes('conjunto') || 
+             text.includes('feminino') || 
+             text.includes('saia') || 
+             text.includes('blazer');
+    }
+  }
 ];
 
 // ============================================
@@ -461,74 +514,157 @@ function estimateWeight(platform, category) {
 }
 
 // ============================================
+// SHEIN SCRAPER (via Jina AI)
+// ============================================
+async function scrapeSheinSearch(searchTerm, maxResults = 15) {
+  console.log(`[SHEIN] Buscando: "${searchTerm}"`);
+
+  // Jina AI para extrair resultados da SHEIN (pesquisa pública)
+  const searchUrl = `https://www.shein.com/pdsearch/${encodeURIComponent(searchTerm)}/`;
+  const jinaUrl = `https://r.jina.ai/http://${searchUrl.replace('https://', '')}`;
+
+  try {
+    const response = await fetch(jinaUrl, {
+      headers: { 'User-Agent': 'Mozilla/5.0 (compatible; ImportEasy/1.0)' },
+      signal: AbortSignal.timeout(25000)
+    });
+    if (!response.ok) throw new Error(`Jina AI SHEIN: ${response.status}`);
+
+    const text = await response.text();
+    return parseSheinSearchResults(text, searchTerm).slice(0, maxResults);
+  } catch (error) {
+    console.error(`[SHEIN] Erro busca "${searchTerm}":`, error.message);
+    return [];
+  }
+}
+
+function parseSheinSearchResults(text, searchTerm) {
+  const items = [];
+  const lines = text.split('\n');
+  let currentItem = null;
+
+  for (const line of lines) {
+    const trimmed = line.trim();
+
+    // Novo produto detectado por padrão de preço SHEIN
+    if (trimmed.match(/^\$\s*\d+/) || trimmed.match(/^USD\s*\d+/)) {
+      if (currentItem && currentItem.title && currentItem.price) {
+        items.push(currentItem);
+      }
+      currentItem = { title: '', price: 0, currency: 'USD', image: '', url: '', externalId: '' };
+      const priceMatch = trimmed.match(/[\$]?\s*(\d+[,.]?\d*)/);
+      if (priceMatch) currentItem.price = parseFloat(priceMatch[1].replace(',', '.'));
+    }
+
+    if (!currentItem) continue;
+
+    // Título (linha de texto com 10-120 chars sem prefixo especial)
+    if (!currentItem.title && trimmed.length > 10 && trimmed.length < 120
+        && !trimmed.startsWith('![') && !trimmed.startsWith('[')
+        && !trimmed.match(/^\d/) && !trimmed.match(/^\$/)) {
+      currentItem.title = trimmed;
+    }
+
+    // Imagem
+    if (trimmed.match(/!\[.*\]\(https?:\/\/[^)]+\.(?:jpg|jpeg|png|webp)[^)]*\)/i)) {
+      const imgMatch = trimmed.match(/\((https?:\/\/[^)]+)\)/);
+      if (imgMatch && !currentItem.image) currentItem.image = imgMatch[1];
+    }
+
+    // URL produto SHEIN
+    if (trimmed.includes('shein.com') && trimmed.includes('-p-')) {
+      const urlMatch = trimmed.match(/https?:\/\/[^\s)]+/);
+      if (urlMatch) {
+        currentItem.url = urlMatch[0].split(')')[0];
+        const idMatch = currentItem.url.match(/-p-(\d+)/);
+        if (idMatch) currentItem.externalId = idMatch[1];
+      }
+    }
+  }
+
+  if (currentItem && currentItem.title && currentItem.price) items.push(currentItem);
+  return items.filter(i => i.title && i.price > 0);
+}
+
+// ============================================
 // MAIN SCRAPER FUNCTION
 // ============================================
 export async function runDailyScraper(options = {}) {
-  const { test = false, maxPerCategory = test ? 3 : 20 } = options;
+  const { test = false, maxPerCategory = test ? 3 : 15 } = options;
   const startTime = Date.now();
-  
+
   console.log(`[Scraper] Iniciando scraper diário ${test ? '(MODO TESTE)' : ''}`);
   console.log(`[Scraper] Categorias alvo: ${TARGET_CATEGORIES.length}`);
-  
+  console.log(`[Scraper] Plataformas: Vinted (iPhones) | AliExpress (Choice) | SHEIN (Moda Feminina)`);
+
   let totalNew = 0;
-  let totalUpdated = 0;
   let totalErrors = 0;
-  
+
   for (const target of TARGET_CATEGORIES) {
     console.log(`\n[Scraper] === ${target.platform} - ${target.category} ===`);
-    
+
     for (const searchTerm of target.searchTerms) {
       try {
         let items = [];
-        
+
         if (target.platform === 'VINTED') {
           items = await scrapeVintedSearch(searchTerm, maxPerCategory);
-          
-          // Para cada item, buscar detalhes completos
+
+          // Buscar detalhes completos para cada item Vinted
           for (const item of items) {
             if (!item.url) continue;
-            
             const details = await scrapeVintedProduct(item.url);
-            if (details) {
-              Object.assign(item, details);
-            }
-            
-            // Pequeno delay para não sobrecarregar
-            await new Promise(r => setTimeout(r, 500));
+            if (details) Object.assign(item, details);
+            await new Promise(r => setTimeout(r, 600));
           }
+
         } else if (target.platform === 'ALIEXPRESS') {
           items = await scrapeAliExpressSearch(searchTerm, maxPerCategory);
+
+        } else if (target.platform === 'SHEIN') {
+          items = await scrapeSheinSearch(searchTerm, maxPerCategory);
         }
-        
+
+        // Aplicar filtro específico da categoria (qualidade, iPhones OK, roupa feminina, etc.)
+        if (target.filter) {
+          const beforeCount = items.length;
+          items = items.filter(item => {
+            try { return target.filter(item); } catch { return true; }
+          });
+          if (items.length < beforeCount) {
+            console.log(`[Scraper] Filtro removeu ${beforeCount - items.length} itens de "${searchTerm}"`);
+          }
+        }
+
         // Salvar no banco
         for (const item of items) {
           if (!item.title || !item.price || item.price <= 0) continue;
-          
+
           try {
             const result = await saveProductToDB(item, target.platform, target.category);
             if (result) totalNew++;
           } catch (dbError) {
-            console.error(`[DB] Erro salvando ${item.title}:`, dbError.message);
+            console.error(`[DB] Erro salvando "${item.title}":`, dbError.message);
             totalErrors++;
           }
         }
-        
-        console.log(`[Scraper] "${searchTerm}": ${items.length} itens processados`);
-        
-        // Delay entre buscas
-        await new Promise(r => setTimeout(r, 1000));
-        
+
+        console.log(`[Scraper] "${searchTerm}": ${items.length} itens aceites`);
+
+        // Delay educado entre buscas para não ser banido
+        await new Promise(r => setTimeout(r, 1200));
+
       } catch (error) {
         console.error(`[Scraper] Erro em "${searchTerm}":`, error.message);
         totalErrors++;
       }
     }
   }
-  
+
   const duration = ((Date.now() - startTime) / 1000).toFixed(1);
   console.log(`\n[Scraper] Concluído em ${duration}s`);
-  console.log(`[Scraper] Novos: ${totalNew} | Erros: ${totalErrors}`);
-  
+  console.log(`[Scraper] Novos/atualizados: ${totalNew} | Erros: ${totalErrors}`);
+
   return { success: true, newProducts: totalNew, errors: totalErrors, duration: `${duration}s` };
 }
 

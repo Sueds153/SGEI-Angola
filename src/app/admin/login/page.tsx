@@ -31,8 +31,9 @@ export default function AdminLoginPage({
           <div className="mt-7">
             <AdminLoginForm />
           </div>
-          <div className="mt-6 p-3 rounded-xl bg-ink-50 text-xs text-ink-500">
-            Demo: <code className="text-ink-900">admin@importeasy.ao</code> / <code className="text-ink-900">admin123</code>
+          <div className="mt-6 flex items-center gap-2 p-3 rounded-xl bg-ink-50 text-xs text-ink-500">
+            <span className="h-2 w-2 rounded-full bg-emerald-500 shrink-0 animate-pulse" />
+            <span>Área segura e restrita. Acessos registados com trilha de auditoria bancária.</span>
           </div>
         </Card>
       </div>

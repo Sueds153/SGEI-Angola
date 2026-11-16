@@ -1,32 +1,23 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { useCart } from "@/context/CartContext";
 import {
   X,
   ShoppingBag,
   Trash2,
   ArrowRight,
-  Sparkles,
-  Clock,
   ShieldCheck,
   Plus,
   Minus,
   CheckCircle2,
   ExternalLink,
-  Flame,
 } from "lucide-react";
 import Link from "next/link";
 import { formatKz } from "@/lib/types";
 import { ResponsiveImage } from "@/components/ui/ResponsiveImage";
 import { useRouter } from "next/navigation";
-
-const SOCIAL_NOTIFICATIONS = [
-  "🔥 Jéssica M. de Talatona juntou 2 vestidos à Mala Coletiva há 3 min",
-  "🔥 Cláudia P. do Kilamba garantiu vaga com Frete Grátis há 6 min",
-  "🔥 Tatiana S. da Maianga adicionou 1 calçado à remessa aérea",
-  "🔥 Mauro B. de Benguela juntou 3 artigos há 11 min",
-];
+import { useAdaptiveIntelligence } from "@/context/AdaptiveIntelligenceContext";
 
 export function CartDrawer() {
   const router = useRouter();
@@ -40,31 +31,15 @@ export function CartDrawer() {
     itemCount,
     freightSavedKz,
   } = useCart();
+  const { recordEvent } = useAdaptiveIntelligence();
+
+  useEffect(() => {
+    if (items.length > 0) {
+      recordEvent("CART_UPDATE", { count: items.length, totalKz });
+    }
+  }, [items, totalKz, recordEvent]);
 
   // Relógio de urgência decrescente (ex: 04h 28m 15s)
-  const [timeLeft, setTimeLeft] = useState({ hours: 4, minutes: 28, seconds: 45 });
-  const [notifIndex, setNotifIndex] = useState(0);
-
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setTimeLeft((prev) => {
-        if (prev.seconds > 0) return { ...prev, seconds: prev.seconds - 1 };
-        if (prev.minutes > 0) return { ...prev, minutes: prev.minutes - 1, seconds: 59 };
-        if (prev.hours > 0) return { hours: prev.hours - 1, minutes: 59, seconds: 59 };
-        return { hours: 5, minutes: 59, seconds: 59 };
-      });
-    }, 1000);
-    return () => clearInterval(timer);
-  }, []);
-
-  // Rotação da prova social a cada 6 segundos
-  useEffect(() => {
-    const notifTimer = setInterval(() => {
-      setNotifIndex((prev) => (prev + 1) % SOCIAL_NOTIFICATIONS.length);
-    }, 6000);
-    return () => clearInterval(notifTimer);
-  }, []);
-
   if (!isOpen) return null;
 
   const handleCheckout = () => {
@@ -109,38 +84,8 @@ export function CartDrawer() {
             </button>
           </div>
 
-          {/* Gatilho 1: Barra de Vagas da Mala Coletiva (Urgência & Prova Social) */}
-          <div className="p-3.5 bg-brand-50 border-b border-brand-100 space-y-2">
-            <div className="flex items-center justify-between text-xs font-semibold text-brand-900">
-              <span className="flex items-center gap-1">
-                <Sparkles className="w-3.5 h-3.5 text-brand-600" /> Vagas da Carga Aérea Luanda
-              </span>
-              <span className="font-extrabold text-brand-700">88% preenchido</span>
-            </div>
-
-            {/* Barra de Progresso */}
-            <div className="w-full h-2 rounded-full bg-brand-200 overflow-hidden">
-              <div
-                className="h-full bg-gradient-to-r from-emerald-500 to-brand-600 rounded-full transition-all duration-500"
-                style={{ width: "88%" }}
-              />
-            </div>
-
-            <div className="flex items-center justify-between text-[11px] text-brand-800">
-              <span>Restam apenas <strong>3 vagas</strong> com Frete Grátis</span>
-              <span className="flex items-center gap-1 font-mono font-bold text-amber-900 bg-amber-100 px-2 py-0.5 rounded-md">
-                <Clock className="w-3 h-3 text-amber-700" />
-                {String(timeLeft.hours).padStart(2, "0")}h:
-                {String(timeLeft.minutes).padStart(2, "0")}m:
-                {String(timeLeft.seconds).padStart(2, "0")}s
-              </span>
-            </div>
-          </div>
-
-          {/* Prova Social Rotativa Viva */}
-          <div className="px-4 py-2 bg-amber-500/10 border-b border-amber-500/20 text-xs font-medium text-amber-950 flex items-center gap-2">
-            <Flame className="w-4 h-4 text-amber-600 shrink-0 animate-pulse" />
-            <span className="truncate">{SOCIAL_NOTIFICATIONS[notifIndex]}</span>
+          <div className="p-3.5 bg-brand-50 border-b border-brand-100 text-xs text-brand-900">
+            Confirma o conteúdo e o valor do pedido com a equipa antes de pagar.
           </div>
 
           {/* Lista de Itens no Carrinho */}

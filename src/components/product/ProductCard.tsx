@@ -103,12 +103,21 @@ export function ProductCard({ product, compact }: ProductCardProps) {
         )}
         
         {/* Badge de origem */}
-        <div className="absolute top-2.5 left-2.5 flex gap-1.5">
+        <div className="absolute top-2.5 left-2.5 flex gap-1.5 z-10">
           <span className={`${sourceInfo.color} text-[9px] sm:text-[10px] font-semibold tracking-wide px-2.5 py-0.5 rounded-full backdrop-blur-sm flex items-center gap-1 shadow-sm`}>
             <SourceIcon className="h-3 w-3" />
             {sourceInfo.label}
           </span>
         </div>
+
+        {/* Badge adicional (Bateria iPhone, Fornecedor Verificado, Entrega Grátis) */}
+        {(safeProduct.badge || safeProduct.batteryHealth || safeProduct.freeShipping) && (
+          <div className="absolute top-2.5 right-2.5 flex gap-1 z-10 max-w-[65%]">
+            <span className="bg-ink-950/85 text-white text-[9px] sm:text-[9.5px] font-medium tracking-tight px-2 py-0.5 rounded-full backdrop-blur-sm truncate shadow-sm border border-white/10">
+              {safeProduct.badge || (safeProduct.batteryHealth ? `🔋 Bateria ${safeProduct.batteryHealth}` : "Entrega Grátis")}
+            </span>
+          </div>
+        )}
         
         {safeProduct.availability !== "IN_STOCK" && (
           <div className="absolute inset-0 bg-white/75 backdrop-blur-[2px] grid place-items-center">

@@ -5,17 +5,31 @@ import FeaturedProducts from "@/components/landing/FeaturedProducts";
 import { getFeaturedProducts } from "@/lib/actions/products";
 import Link from "next/link";
 import { ArrowRight, MessageCircle, Shield, Truck, CreditCard, CheckCircle2 } from "lucide-react";
+import { FlightStatusBanner } from "@/components/home/FlightStatusBanner";
+import { SmartDollarConverter } from "@/components/home/SmartDollarConverter";
+import { CoverageBanner } from "@/components/home/CoverageBanner";
 
 export default async function HomePage() {
   const featured = await getFeaturedProducts(24);
 
   return (
     <>
-      {/* HERO - Novo componente com ImportEasy branding */}
+      {/* GATILHO VOO DA SEMANA - Calendário do Lote Luanda */}
+      <FlightStatusBanner />
+
+      {/* HERO - Com mini-guia visual de 3 passos */}
       <Hero />
+
+      {/* CONVERSOR RÁPIDO DÓLAR -> KWANZA (Modo Rápido Papa Feita) */}
+      <section className="py-6 bg-brand-50/40 border-y border-brand-100/60 px-4">
+        <SmartDollarConverter />
+      </section>
 
       {/* COMO FUNCIONA - 4 passos + CTA "Cole o link" */}
       <HowItWorks />
+
+      {/* QUEBRA DE OBJEÇÃO: LOCAIS DE ENTREGA EM LUANDA & PROVÍNCIAS */}
+      <CoverageBanner />
 
       {/* DESTAQUES: iPhones Vinted + Moda Shein + Gadgets AliExpress */}
       <FeaturedProducts featuredProducts={featured} />
@@ -75,13 +89,13 @@ function TrustSection() {
         <div className="bg-gradient-to-br from-ink-900 to-ink-950 text-white p-8 sm:p-12 rounded-3xl shadow-xl">
           <div className="max-w-3xl mx-auto text-center space-y-4">
             <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-400 text-xs font-semibold uppercase tracking-wider">
-              <Shield className="w-4 h-4" /> Garantia 100% Livre de Risco
+              <Shield className="w-4 h-4" /> Apoio durante a encomenda
             </span>
             <h3 className="text-2xl sm:text-3xl font-bold">
-              Se não chegar ou tiver problemas, o seu dinheiro é devolvido.
+              Saiba o valor confirmado antes de pagar.
             </h3>
             <p className="text-ink-300 text-sm sm:text-base leading-relaxed">
-              Tratamos de todo o processo de desalfandegamento em Angola. O preço simulado é final e garantido. Pague em Kwanzas através do ecossistema bancário angolano mais seguro.
+              A simulação é uma estimativa. A equipa valida o produto, a disponibilidade e o valor total; só depois decide se quer avançar. O pagamento é feito em Kwanzas pelos métodos indicados no pedido.
             </p>
             <div className="pt-4 grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-lg mx-auto text-left">
               <div className="bg-white/10 p-4 rounded-2xl border border-white/10">
@@ -108,7 +122,7 @@ function FinalCTA() {
           Pronto para fazer a tua encomenda da SHEIN?
         </h2>
         <p className="text-brand-100 text-lg mb-8 max-w-2xl mx-auto">
-          Cola o link da peça que viste na SHEIN ou AliExpress. Vê o valor em Kwanzas na hora e junta à carga aérea da semana com Frete Grátis!
+          Cola o link da peça que viste na SHEIN, AliExpress ou Vinted. Recebe uma estimativa em Kwanzas e pede confirmação do valor e das opções de entrega.
         </p>
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
           <Link

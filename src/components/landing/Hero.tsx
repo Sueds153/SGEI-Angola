@@ -4,6 +4,8 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Globe, Smartphone, Shirt, Shield, Truck, CreditCard, ArrowRight, CheckCircle2 } from "lucide-react";
+import { SheinStepsVisual } from "@/components/importar/SheinStepsVisual";
+import { SheinTutorialModal } from "@/components/importar/SheinTutorialModal";
 
 export default function Hero() {
   const router = useRouter();
@@ -34,14 +36,13 @@ export default function Hero() {
 
           {/* Main Headline */}
           <h1 className="text-4xl sm:text-6xl lg:text-7xl font-bold text-ink-950 tracking-tighter mb-6 leading-[1.1] animate-slide-up">
-            Importe da Shein e AliExpress <br className="hidden md:block" />
-            <span className="text-brand-600">sem cartão internacional</span>
+            SHEIN, AliExpress e Vinted <br className="hidden md:block" />
+            <span className="text-brand-600">entregues em Angola</span>
           </h1>
 
           {/* Subheadline */}
           <p className="text-lg sm:text-xl text-ink-600 mb-12 max-w-2xl mx-auto leading-relaxed animate-slide-up" style={{ animationDelay: '100ms' }}>
-            Nós compramos por si e entregamos na sua porta em Angola. 
-            Simule o preço final com taxas alfandegárias e transporte incluídos.
+            Ajudamos a comprar na SHEIN, AliExpress e Vinted e a receber em Angola. Simule em Kwanzas; a equipa confirma o total e a disponibilidade antes do pagamento.
           </p>
 
           {/* CTA Form - O Foco da Conversão */}
@@ -64,11 +65,19 @@ export default function Hero() {
               </button>
             </form>
             
-            {/* Small disclaimer */}
-            <p className="mt-4 text-sm text-ink-600 flex items-center justify-center gap-2">
-              <Shield className="w-4 h-4 text-emerald-600 shrink-0" />
-              <strong>Garantia Alfândega Livre:</strong> Desalfandegamento 100% tratado por nós. Sem taxas surpresa no Aeroporto de Luanda.
-            </p>
+            {/* Small disclaimer + Tutorial Trigger */}
+            <div className="mt-4 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs sm:text-sm text-ink-600">
+              <p className="flex items-center gap-1.5">
+                <Shield className="w-4 h-4 text-emerald-600 shrink-0" />
+                <span><strong>Mais clareza antes de pagar:</strong> confirme o total e os detalhes do pedido com a equipa.</span>
+              </p>
+              <SheinTutorialModal />
+            </div>
+          </div>
+
+          {/* Mini-guia visual de 3 passos diretamente no Hero (Papa Feita) */}
+          <div className="mb-14 animate-fade-in" style={{ animationDelay: '250ms' }}>
+            <SheinStepsVisual />
           </div>
 
           {/* Trust Indicators */}

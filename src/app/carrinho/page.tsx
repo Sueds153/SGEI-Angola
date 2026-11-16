@@ -10,15 +10,13 @@ import {
   ArrowRight,
   ShieldCheck,
   Sparkles,
-  Clock,
   CheckCircle2,
   ExternalLink,
-  Flame,
 } from "lucide-react";
 import { formatKz } from "@/lib/types";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
 import { ResponsiveImage } from "@/components/ui/ResponsiveImage";
+import { FlightStatusBanner } from "@/components/home/FlightStatusBanner";
 
 export default function CarrinhoPage() {
   const router = useRouter();
@@ -30,28 +28,18 @@ export default function CarrinhoPage() {
     itemCount,
   } = useCart();
 
-  const [timeLeft, setTimeLeft] = useState({ hours: 4, minutes: 28, seconds: 45 });
-
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setTimeLeft((prev) => {
-        if (prev.seconds > 0) return { ...prev, seconds: prev.seconds - 1 };
-        if (prev.minutes > 0) return { ...prev, minutes: prev.minutes - 1, seconds: 59 };
-        if (prev.hours > 0) return { hours: prev.hours - 1, minutes: 59, seconds: 59 };
-        return { hours: 5, minutes: 59, seconds: 59 };
-      });
-    }, 1000);
-    return () => clearInterval(timer);
-  }, []);
-
   const handleAdvanceToCheckout = () => {
     if (items.length === 0) return;
     router.push("/checkout");
   };
 
   return (
-    <div className="min-h-screen bg-ink-50 py-10 md:py-16">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6">
+    <div className="min-h-screen bg-ink-50">
+      {/* Calendário do Voo da Semana */}
+      <FlightStatusBanner />
+
+      <div className="py-10 md:py-16">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6">
         {/* Cabeçalho */}
         <div className="mb-8">
           <div className="flex items-center gap-2">
@@ -67,30 +55,10 @@ export default function CarrinhoPage() {
           </p>
         </div>
 
-        {/* Banner de Urgência & Prova Social */}
+        {/* Informação de pagamento e confirmação */}
         <div className="p-4 sm:p-5 rounded-2xl bg-brand-50 border border-brand-200 shadow-sm mb-6 space-y-2.5">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-            <span className="text-xs font-bold uppercase tracking-wider text-brand-900 flex items-center gap-1.5">
-              <Flame className="w-4 h-4 text-amber-600 animate-pulse" />
-              Remessa Coletiva Luanda #48 — 88% das vagas preenchidas!
-            </span>
-            <span className="text-xs font-mono font-bold text-amber-900 bg-amber-100 px-2.5 py-1 rounded-lg inline-flex items-center gap-1.5 w-fit">
-              <Clock className="w-3.5 h-3.5 text-amber-700" />
-              O lote com frete grátis fecha em: {String(timeLeft.hours).padStart(2, "0")}h:
-              {String(timeLeft.minutes).padStart(2, "0")}m:
-              {String(timeLeft.seconds).padStart(2, "0")}s
-            </span>
-          </div>
-
-          <div className="w-full h-2.5 rounded-full bg-brand-200 overflow-hidden">
-            <div
-              className="h-full bg-gradient-to-r from-emerald-500 to-brand-600 rounded-full"
-              style={{ width: "88%" }}
-            />
-          </div>
-          <p className="text-xs text-brand-800">
-            Restam apenas <strong>3 vagas</strong> para o fecho deste envio internacional. As tuas peças chegam juntas sem custo extra de frete!
-          </p>
+          <p className="text-sm font-semibold text-brand-900">Revê os artigos antes de continuar.</p>
+          <p className="text-xs text-brand-800">A equipa confirma disponibilidade, custos e condições do pedido antes do pagamento. Só avances depois de receberes e aceitares o valor confirmado.</p>
         </div>
 
         {items.length === 0 ? (
@@ -224,7 +192,7 @@ export default function CarrinhoPage() {
                   onClick={handleAdvanceToCheckout}
                   className="w-full py-4 px-4 rounded-xl bg-brand-600 hover:bg-brand-700 text-white font-bold text-sm flex items-center justify-center gap-2 shadow-lg shadow-brand-500/25 active:scale-[0.99] transition cursor-pointer"
                 >
-                  Garantir Vaga e Concluir Pedido <ArrowRight className="w-4 h-4" />
+                  Continuar para confirmação <ArrowRight className="w-4 h-4" />
                 </button>
 
                 <div className="p-3 rounded-xl bg-ink-50 text-[11px] text-ink-500 text-center space-y-1">
@@ -235,6 +203,7 @@ export default function CarrinhoPage() {
             </div>
           </div>
         )}
+        </div>
       </div>
     </div>
   );
