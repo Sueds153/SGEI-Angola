@@ -1,6 +1,5 @@
 @import "tailwindcss";
-@source "../**/*.{ts,tsx,js,jsx}";
-@source "../../src/**/*.{ts,tsx,js,jsx}";
+@source "..";
 
 @theme {
   /* ============ DESIGN SYSTEM — Estilo Apple / Preto premium ============ */

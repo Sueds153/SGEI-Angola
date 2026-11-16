@@ -34,7 +34,7 @@ export function Logo({
           "relative inline-flex shrink-0 items-center justify-center overflow-hidden rounded-xl bg-white p-0.5 transition-transform group-hover:scale-105",
           isLight ? "ring-1 ring-white/20" : "ring-1 ring-black/10"
         )}
-        style={{ width: s.box, height: s.box }}
+        style={{ width: s.box, height: s.box, position: "relative", display: "inline-flex" }}
       >
         <Image
           src="/logo.png"
