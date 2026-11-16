@@ -1,6 +1,7 @@
 @import "tailwindcss";
-@source "../components";
-@source "../context";
+/* Scan the full src tree explicitly so production builds always emit the
+   utilities used by app routes, components, and client contexts. */
+@source "../";
 
 @theme {
   /* ============ DESIGN SYSTEM — Estilo Apple / Preto premium ============ */
