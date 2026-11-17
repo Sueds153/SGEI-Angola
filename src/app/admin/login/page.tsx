@@ -7,11 +7,12 @@ export const metadata: Metadata = {
   title: "Login admin",
 };
 
-export default function AdminLoginPage({
+export default async function AdminLoginPage({
   searchParams,
 }: {
   searchParams: Promise<{ error?: string }>;
 }) {
+  const params = await searchParams;
   return (
     <div className="min-h-screen bg-black flex items-center justify-center p-5">
       <div className="w-full max-w-md">

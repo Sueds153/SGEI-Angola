@@ -1,9 +1,15 @@
+"use client";
+
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { MessageCircle, Mail, MapPin, Phone, Send, Shield, Truck, CreditCard } from "lucide-react";
 import { Logo } from "@/components/brand/Logo";
 import { Marquee } from "@/components/motion";
 
 export function Footer() {
+  const pathname = usePathname();
+  if (pathname.startsWith("/admin")) return null;
+
   return (
     <footer className="mt-24 bg-ink-950 text-ink-300">
       {/* Marquee */}
