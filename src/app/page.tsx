@@ -1,112 +1,111 @@
-import { Suspense } from "react";
-import Hero from "@/components/landing/Hero";
-import HowItWorks from "@/components/landing/HowItWorks";
-import FeaturedProducts from "@/components/landing/FeaturedProducts";
 import { getFeaturedProducts } from "@/lib/actions/products";
-import Link from "next/link";
-import { ArrowRight, MessageCircle, Shield, Truck, CreditCard, CheckCircle2 } from "lucide-react";
-import { FlightStatusBanner } from "@/components/home/FlightStatusBanner";
+import Hero from "@/components/landing/Hero";
+import FeaturedProducts from "@/components/landing/FeaturedProducts";
+import HowItWorks from "@/components/landing/HowItWorks";
 import { SmartDollarConverter } from "@/components/home/SmartDollarConverter";
-import { CoverageBanner } from "@/components/home/CoverageBanner";
+import Link from "next/link";
+import { ArrowRight, MessageCircle, ShieldCheck, CreditCard, Truck, CheckCircle2 } from "lucide-react";
 
 export default async function HomePage() {
-  const featured = await getFeaturedProducts(24);
+  const featured = await getFeaturedProducts(16);
 
   return (
     <>
-      {/* GATILHO VOO DA SEMANA - Calendário do Lote Luanda */}
-      <FlightStatusBanner />
-
-      {/* HERO - Com mini-guia visual de 3 passos */}
+      {/* 1. HERO COM SIMULADOR MOBILE-FIRST */}
       <Hero />
 
-      {/* CONVERSOR RÁPIDO DÓLAR -> KWANZA (Modo Rápido Papa Feita) */}
-      <section className="py-6 bg-brand-50/40 border-y border-brand-100/60 px-4">
+      {/* 2. CATÁLOGO DE DESTAQUES IMEDIATO (2 colunas mobile) */}
+      <FeaturedProducts featuredProducts={featured} />
+
+      {/* 3. COMO FUNCIONA (3 passos simples) */}
+      <HowItWorks />
+
+      {/* 4. CONVERSOR RÁPIDO DÓLAR/EURO -> KWANZA */}
+      <section className="py-8 sm:py-14 bg-brand-50/30 border-y border-brand-100/60 px-4">
         <SmartDollarConverter />
       </section>
 
-      {/* COMO FUNCIONA - 4 passos + CTA "Cole o link" */}
-      <HowItWorks />
-
-      {/* QUEBRA DE OBJEÇÃO: LOCAIS DE ENTREGA EM LUANDA & PROVÍNCIAS */}
-      <CoverageBanner />
-
-      {/* DESTAQUES: iPhones Vinted + Moda Shein + Gadgets AliExpress */}
-      <FeaturedProducts featuredProducts={featured} />
-
-      {/* DEPOIMENTOS / CONFIANÇA */}
+      {/* 5. SEGURANÇA E PAGAMENTO EM ANGOLA (Human Senior Trust) */}
       <TrustSection />
 
-      {/* CTA FINAL */}
+      {/* 6. CTA FINAL RÁPIDO */}
       <FinalCTA />
     </>
   );
 }
 
 function TrustSection() {
-  const stats = [
-    { value: "2.500+", label: "Clientes em Angola" },
-    { value: "8.300+", label: "Pedidos entregues" },
-    { value: "18 dias", label: "Média de entrega" },
-    { value: "4.8/5", label: "Avaliação média" },
-  ];
-
   return (
-    <section className="py-20 bg-white" aria-labelledby="trust-title">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center max-w-3xl mx-auto mb-16">
-          <h2 id="trust-title" className="text-3xl sm:text-4xl font-bold text-ink-900 mb-4">
-            Quem encomenda connosco <span className="text-brand-600">não se arrepende</span>
+    <section className="py-10 sm:py-16 bg-white" aria-labelledby="trust-title">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6">
+        <div className="text-center mb-8">
+          <span className="text-xs font-bold text-emerald-600 uppercase tracking-wider">
+            100% Seguro em Angola
+          </span>
+          <h2 id="trust-title" className="text-2xl sm:text-3xl font-extrabold text-ink-950 tracking-tight mt-1">
+            Paga com tranquilidade em Kwanzas
           </h2>
-          <p className="text-lg text-ink-600">
-            Mais de 8.300 encomendas já desalfandegadas e entregues diretamente na mão dos nossos clientes em Luanda e nas províncias.
+          <p className="text-xs sm:text-sm text-ink-600 max-w-md mx-auto mt-1.5">
+            Sem necessidade de cartões Visa ou Mastercard internacionais. Usamos os canais oficiais do sistema bancário angolano.
           </p>
         </div>
 
-        {/* Stats */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-16">
-          {stats.map((stat, i) => (
-            <div key={i} className="text-center p-6 bg-ink-50 rounded-2xl border border-ink-100">
-              <div className="text-3xl sm:text-4xl font-bold text-brand-600 mb-1">{stat.value}</div>
-              <div className="text-sm text-ink-600">{stat.label}</div>
+        {/* Cartões de Pagamento e Entrega */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 sm:gap-4 mb-8">
+          <div className="p-4 sm:p-5 rounded-2xl bg-ink-50 border border-ink-200">
+            <div className="flex items-center gap-2 mb-2">
+              <div className="w-8 h-8 rounded-lg bg-brand-100 text-brand-600 grid place-items-center">
+                <CreditCard className="w-4 h-4" />
+              </div>
+              <h3 className="font-bold text-ink-900 text-sm">App Multicaixa Express</h3>
             </div>
-          ))}
-        </div>
-
-        {/* Link para Comunidade */}
-        <div className="text-center mb-16">
-          <Link
-            href="/comunidade"
-            className="inline-flex items-center gap-2 px-6 py-3 border-2 border-brand-600 text-brand-600 font-semibold rounded-xl hover:bg-brand-50 transition"
-          >
-            <MessageCircle className="w-5 h-5" />
-            Ver Comunidade & Testemunhos
-            <ArrowRight className="w-5 h-5" />
-          </Link>
-        </div>
-
-        {/* Banner de Garantia & Pagamento Seguro em Angola */}
-        <div className="bg-gradient-to-br from-ink-900 to-ink-950 text-white p-8 sm:p-12 rounded-3xl shadow-xl">
-          <div className="max-w-3xl mx-auto text-center space-y-4">
-            <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-400 text-xs font-semibold uppercase tracking-wider">
-              <Shield className="w-4 h-4" /> Apoio durante a encomenda
-            </span>
-            <h3 className="text-2xl sm:text-3xl font-bold">
-              Saiba o valor confirmado antes de pagar.
-            </h3>
-            <p className="text-ink-300 text-sm sm:text-base leading-relaxed">
-              A simulação é uma estimativa. A equipa valida o produto, a disponibilidade e o valor total; só depois decide se quer avançar. O pagamento é feito em Kwanzas pelos métodos indicados no pedido.
+            <p className="text-xs text-ink-600 mb-2.5">
+              Transfere diretamente para o número oficial da ImportEasy:
             </p>
-            <div className="pt-4 grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-lg mx-auto text-left">
-              <div className="bg-white/10 p-4 rounded-2xl border border-white/10">
-                <span className="text-xs text-ink-300 block">App Multicaixa Express</span>
-                <span className="text-lg font-mono font-bold text-white">929 423 278</span>
+            <div className="p-2.5 bg-white rounded-xl border border-ink-200 font-mono text-base font-extrabold text-ink-950 flex items-center justify-between">
+              <span>929 423 278</span>
+              <span className="text-[11px] font-sans font-semibold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-md">Ativo</span>
+            </div>
+          </div>
+
+          <div className="p-4 sm:p-5 rounded-2xl bg-ink-50 border border-ink-200">
+            <div className="flex items-center gap-2 mb-2">
+              <div className="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-600 grid place-items-center">
+                <ShieldCheck className="w-4 h-4" />
               </div>
-              <div className="bg-white/10 p-4 rounded-2xl border border-white/10">
-                <span className="text-xs text-ink-300 block">Pagamento por Referência</span>
-                <span className="text-sm font-mono text-white">Entidade: <strong className="text-base text-emerald-400">10116</strong> · Ref: <strong className="text-base text-emerald-400">929 423 278</strong></span>
+              <h3 className="font-bold text-ink-900 text-sm">Pagamento por Referência</h3>
+            </div>
+            <p className="text-xs text-ink-600 mb-2.5">
+              Paga em qualquer ATM ou pelo teu banco com os dados:
+            </p>
+            <div className="p-2.5 bg-white rounded-xl border border-ink-200 text-xs font-mono text-ink-950 flex items-center justify-between">
+              <div>
+                <span>Entidade: <strong className="text-sm font-extrabold text-brand-600">10116</strong></span>
+              </div>
+              <div>
+                <span>Ref: <strong className="text-sm font-extrabold text-brand-600">929 423 278</strong></span>
               </div>
             </div>
+          </div>
+        </div>
+
+        {/* Garantias em Linha */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 text-center text-xs text-ink-700">
+          <div className="p-3 bg-brand-50/50 rounded-xl border border-brand-100">
+            <span className="font-extrabold block text-brand-700 text-sm sm:text-base">100%</span>
+            <span>Sem Taxas Ocultas</span>
+          </div>
+          <div className="p-3 bg-brand-50/50 rounded-xl border border-brand-100">
+            <span className="font-extrabold block text-brand-700 text-sm sm:text-base">Luanda</span>
+            <span>Entrega ao Domicílio</span>
+          </div>
+          <div className="p-3 bg-brand-50/50 rounded-xl border border-brand-100">
+            <span className="font-extrabold block text-brand-700 text-sm sm:text-base">18 Províncias</span>
+            <span>Envio Rápido</span>
+          </div>
+          <div className="p-3 bg-brand-50/50 rounded-xl border border-brand-100">
+            <span className="font-extrabold block text-brand-700 text-sm sm:text-base">WhatsApp</span>
+            <span>Suporte em Português</span>
           </div>
         </div>
       </div>
@@ -116,30 +115,30 @@ function TrustSection() {
 
 function FinalCTA() {
   return (
-    <section className="py-20 bg-brand-600 text-white" aria-labelledby="cta-title">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-        <h2 id="cta-title" className="text-3xl sm:text-4xl font-bold mb-4">
-          Pronto para fazer a tua encomenda da SHEIN?
+    <section className="py-10 sm:py-14 bg-gradient-to-br from-brand-700 via-brand-600 to-brand-800 text-white" aria-labelledby="cta-title">
+      <div className="max-w-3xl mx-auto px-4 sm:px-6 text-center">
+        <h2 id="cta-title" className="text-2xl sm:text-3xl font-extrabold mb-2.5 tracking-tight">
+          Pronto para encomendar da SHEIN?
         </h2>
-        <p className="text-brand-100 text-lg mb-8 max-w-2xl mx-auto">
-          Cola o link da peça que viste na SHEIN, AliExpress ou Vinted. Recebe uma estimativa em Kwanzas e pede confirmação do valor e das opções de entrega.
+        <p className="text-brand-100 text-xs sm:text-sm mb-6 max-w-lg mx-auto leading-relaxed">
+          Cola o link da peça que viste na SHEIN ou AliExpress. Vê o valor em Kwanzas na hora e fala com a nossa equipa.
         </p>
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-2.5">
           <Link
             href="/importar"
-            className="w-full sm:w-auto px-8 py-4 bg-white text-brand-600 font-bold rounded-xl hover:bg-brand-50 transition flex items-center justify-center gap-2 shadow-lg"
+            className="w-full sm:w-auto px-6 py-3.5 bg-white text-brand-700 font-bold rounded-xl hover:bg-brand-50 active:scale-95 transition flex items-center justify-center gap-2 text-sm shadow-md"
           >
-            Simular Preço Agora
-            <ArrowRight className="w-5 h-5" />
+            <span>Simular Preço Agora</span>
+            <ArrowRight className="w-4 h-4" />
           </Link>
           <a
-            href="https://wa.me/244922058136?text=Ol%C3%A1%20ImportEasy!%20Gostaria%20de%20fazer%20uma%20encomenda."
+            href="https://wa.me/244922058136?text=Ol%C3%A1%20ImportEasy!%20Gostaria%20de%20ajuda%20para%20fazer%20uma%20encomenda."
             target="_blank"
             rel="noopener noreferrer"
-            className="w-full sm:w-auto px-8 py-4 border-2 border-white text-white font-bold rounded-xl hover:bg-white/10 transition flex items-center justify-center gap-2"
+            className="w-full sm:w-auto px-6 py-3.5 bg-brand-800/80 hover:bg-brand-900 border border-brand-400/40 text-white font-bold rounded-xl active:scale-95 transition flex items-center justify-center gap-2 text-sm"
           >
-            <MessageCircle className="w-5 h-5" />
-            Falar no WhatsApp (+244 922 058 136)
+            <MessageCircle className="w-4 h-4 text-emerald-400" />
+            <span>Falar no WhatsApp</span>
           </a>
         </div>
       </div>

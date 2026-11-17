@@ -1,133 +1,122 @@
 "use client";
 
+import { useState } from "react";
 import { ProductCard, ProductCardSkeleton } from "@/components/product/ProductCard";
-import { Smartphone, Shirt, Zap } from "lucide-react";
+import { ArrowRight, Flame, Shirt, Smartphone, Zap } from "lucide-react";
 import Link from "next/link";
+import { cn } from "@/lib/utils";
 
 interface FeaturedProductsProps {
   featuredProducts: any[];
 }
 
 export default function FeaturedProducts({ featuredProducts }: FeaturedProductsProps) {
-  // Garantir que featuredProducts é um array válido
-  const products = Array.isArray(featuredProducts) ? featuredProducts : [];
-  
-  // Filtrar produtos por plataforma para destaques específicos
-  // Produtos MOCK são tratados como SHEIN para fins de filtro (consistente com API)
-  const vintedProducts = products.filter(p => p && p.source === "VINTED").slice(0, 4);
-  const sheinProducts = products.filter(p => p && (p.source === "SHEIN" || p.source === "MOCK")).slice(0, 4);
-  const aliexpressProducts = products.filter(p => p && p.source === "ALIEXPRESS").slice(0, 4);
+  const [activeTab, setActiveTab] = useState<"ALL" | "SHEIN" | "ALIEXPRESS" | "VINTED">("ALL");
 
-  const sections = [
-    {
-      id: "vinted-iphones",
-      title: "iPhones Seminovos da Europa — Vinted",
-      subtitle: "iPhones originais testados com saúde de bateria 85%+ e rede desbloqueada para Angola",
-      icon: Smartphone,
-      iconColor: "text-brand-600",
-      bgColor: "bg-brand-50",
-      borderColor: "border-brand-200",
-      products: vintedProducts.length > 0 ? vintedProducts : getMockProducts("VINTED"),
-      cta: "Ver iPhones Vinted",
-      href: "/produtos?platform=VINTED",
-    },
-    {
-      id: "shein-fashion",
-      title: "Moda Feminina em Destaque — SHEIN",
-      subtitle: "Vestidos, conjuntos e tendências mais pedidas em Luanda com preços em Kwanzas",
-      icon: Shirt,
-      iconColor: "text-pink-600",
-      bgColor: "bg-pink-50",
-      borderColor: "border-pink-200",
-      products: sheinProducts.length > 0 ? sheinProducts : getMockProducts("SHEIN"),
-      cta: "Ver moda feminina SHEIN",
-      href: "/produtos?platform=SHEIN",
-    },
-    {
-      id: "aliexpress-gadgets",
-      title: "Gadgets & Tecnologia Choice — AliExpress",
-      subtitle: "Fornecedores verificados e entrega gratuita direta até ao Aeroporto 4 de Fevereiro",
-      icon: Zap,
-      iconColor: "text-orange-600",
-      bgColor: "bg-orange-50",
-      borderColor: "border-orange-200",
-      products: aliexpressProducts.length > 0 ? aliexpressProducts : getMockProducts("ALIEXPRESS"),
-      cta: "Ver gadgets com frete grátis",
-      href: "/produtos?platform=ALIEXPRESS",
-    },
-  ];
+  const rawProducts = Array.isArray(featuredProducts) ? featuredProducts : [];
+
+  const sheinMocks = getMockProducts("SHEIN");
+  const aliMocks = getMockProducts("ALIEXPRESS");
+  const vintedMocks = getMockProducts("VINTED");
+
+  const allProducts = rawProducts.length > 0 
+    ? rawProducts 
+    : [...sheinMocks, ...aliMocks, ...vintedMocks];
+
+  const filteredProducts = activeTab === "ALL"
+    ? allProducts
+    : activeTab === "SHEIN"
+    ? allProducts.filter((p) => p && (p.source === "SHEIN" || p.source === "MOCK"))
+    : activeTab === "ALIEXPRESS"
+    ? allProducts.filter((p) => p && p.source === "ALIEXPRESS")
+    : allProducts.filter((p) => p && p.source === "VINTED");
+
+  const displayList = filteredProducts.length > 0
+    ? filteredProducts.slice(0, 8)
+    : activeTab === "SHEIN"
+    ? sheinMocks
+    : activeTab === "ALIEXPRESS"
+    ? aliMocks
+    : activeTab === "VINTED"
+    ? vintedMocks
+    : allProducts.slice(0, 8);
+
+  const tabs = [
+    { id: "ALL", label: "🔥 Todos os Destaques", icon: Flame },
+    { id: "SHEIN", label: "👗 SHEIN Moda", icon: Shirt },
+    { id: "ALIEXPRESS", label: "⚡ AliExpress Tech", icon: Zap },
+    { id: "VINTED", label: "📱 iPhones Vinted", icon: Smartphone },
+  ] as const;
 
   return (
-    <section className="py-20 lg:py-28 bg-ink-50" aria-labelledby="featured-title">
+    <section className="py-8 sm:py-14 bg-white" aria-labelledby="featured-title">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center max-w-3xl mx-auto mb-12">
-          <h2 id="featured-title" className="text-3xl sm:text-4xl font-bold text-ink-900 mb-4">
-            Produtos em <span className="text-brand-600">Destaque</span>
-          </h2>
-          <p className="text-lg text-ink-600">
-            Selecionamos os melhores achados de cada plataforma para você começar já.
-          </p>
+        {/* Cabeçalho da Seção */}
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3 mb-5">
+          <div>
+            <span className="text-xs font-bold text-brand-600 uppercase tracking-wider">
+              Catálogo Pronto
+            </span>
+            <h2 id="featured-title" className="text-2xl sm:text-3xl font-extrabold text-ink-950 tracking-tight">
+              Os mais pedidos em Angola
+            </h2>
+          </div>
+          <Link
+            href="/produtos"
+            className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-bold text-brand-600 hover:text-brand-700"
+          >
+            <span>Ver todo o catálogo</span>
+            <ArrowRight className="w-4 h-4" />
+          </Link>
         </div>
 
-        <div className="space-y-16">
-          {sections.map((section) => (
-            <FeaturedSection key={section.id} section={section} />
+        {/* Abas Horizontais com Scroll no Mobile */}
+        <div className="flex items-center gap-2 overflow-x-auto pb-2 mb-5 no-scrollbar -mx-4 px-4 sm:mx-0 sm:px-0">
+          {tabs.map((tab) => {
+            const isActive = activeTab === tab.id;
+            return (
+              <button
+                key={tab.id}
+                type="button"
+                onClick={() => setActiveTab(tab.id)}
+                className={cn(
+                  "px-3.5 py-2 rounded-full text-xs font-semibold whitespace-nowrap transition-all flex items-center gap-1.5 shrink-0 active:scale-95 cursor-pointer",
+                  isActive
+                    ? "bg-ink-950 text-white shadow-sm"
+                    : "bg-ink-100 text-ink-700 hover:bg-ink-200"
+                )}
+              >
+                <span>{tab.label}</span>
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Grelha de Produtos: 2 colunas no Mobile, 4 no Desktop */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4 lg:gap-6">
+          {displayList.map((product: any, idx: number) => (
+            <div key={product?.id || `prod-${idx}`} className="h-full">
+              <ProductCard product={product} />
+            </div>
           ))}
+        </div>
+
+        {/* CTA Ver Mais */}
+        <div className="mt-8 text-center sm:hidden">
+          <Link
+            href="/produtos"
+            className="w-full py-3 px-5 rounded-xl bg-ink-100 text-ink-900 font-bold text-xs inline-flex items-center justify-center gap-1.5 active:bg-ink-200 transition"
+          >
+            <span>Explorar mais produtos</span>
+            <ArrowRight className="w-3.5 h-3.5" />
+          </Link>
         </div>
       </div>
     </section>
   );
 }
 
-function FeaturedSection({ section }: { section: any }) {
-  const Icon = section.icon;
-
-  return (
-    <div id={section.id} className="relative">
-      {/* Section Header */}
-      <div className="flex items-end justify-between mb-8 flex-wrap gap-4">
-        <div className="flex items-center gap-3">
-          <div className={`w-12 h-12 rounded-xl ${section.bgColor} ${section.borderColor} flex items-center justify-center`}>
-            <Icon className={`w-6 h-6 ${section.iconColor}`} />
-          </div>
-          <div>
-            <h3 className="text-2xl sm:text-3xl font-bold text-ink-900">{section.title}</h3>
-            <p className="text-ink-600">{section.subtitle}</p>
-          </div>
-        </div>
-        <Link
-          href={section.href}
-          className="text-brand-600 font-medium hover:text-brand-700 flex items-center gap-1 text-sm"
-        >
-          {section.cta}
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" /></svg>
-        </Link>
-      </div>
-
-      {/* Products Grid - simple flex instead of HorizontalScroller */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        {Array.isArray(section.products) && section.products.length > 0 ? (
-          section.products.map((product: any, idx: number) => (
-            <div key={product?.id || `mock-${idx}`}>
-              <ProductCard product={product} />
-            </div>
-          ))
-        ) : (
-          // Fallback: skeletons
-          Array.from({ length: 4 }).map((_, i) => (
-            <div key={i}>
-              <ProductCardSkeleton />
-            </div>
-          ))
-        )}
-      </div>
-    </div>
-  );
-}
-
-// Mock products para quando não há dados reais
-// IMPORTANTE: os slugs devem corresponder aos slugs reais em src/lib/providers/mock-provider.ts
-// (ou ao catálogo admin na DB) para que /produto/[slug] não devolva 404
+// Mock products
 function getMockProducts(platform: string) {
   const mockData: Record<string, any[]> = {
     VINTED: [
@@ -143,7 +132,7 @@ function getMockProducts(platform: string) {
         currency: "EUR",
         weightGrams: 221,
         batteryHealth: "94%",
-        badge: "🔋 Bateria 94% • Desbloqueado",
+        badge: "🔋 Bateria 94%",
       },
       {
         id: "vinted-iphone-14-pro-128gb",
@@ -157,7 +146,7 @@ function getMockProducts(platform: string) {
         currency: "EUR",
         weightGrams: 206,
         batteryHealth: "89%",
-        badge: "🔋 Bateria 89% • Desbloqueado",
+        badge: "🔋 Bateria 89%",
       },
       {
         id: "vinted-iphone-13-128gb-midnight",
@@ -171,7 +160,7 @@ function getMockProducts(platform: string) {
         currency: "EUR",
         weightGrams: 174,
         batteryHealth: "88%",
-        badge: "🔋 Bateria 88% • Desbloqueado",
+        badge: "🔋 Bateria 88%",
       },
       {
         id: "vinted-iphone-12-pro-128gb",
@@ -185,7 +174,7 @@ function getMockProducts(platform: string) {
         currency: "EUR",
         weightGrams: 189,
         batteryHealth: "86%",
-        badge: "🔋 Bateria 86% • Desbloqueado",
+        badge: "🔋 Bateria 86%",
       },
     ],
     SHEIN: [
@@ -200,7 +189,7 @@ function getMockProducts(platform: string) {
         originalCurrency: "USD",
         currency: "USD",
         weightGrams: 320,
-        badge: "✨ Tendência Luanda • Viscose",
+        badge: "✨ Mais Vendido",
       },
       {
         id: "demo-vestido-longo-festa-cetim",
@@ -213,7 +202,7 @@ function getMockProducts(platform: string) {
         originalCurrency: "USD",
         currency: "USD",
         weightGrams: 380,
-        badge: "✨ Gala & Casamentos • Cetim",
+        badge: "✨ Festa & Gala",
       },
       {
         id: "demo-conjunto-feminino-blazer",
@@ -226,7 +215,7 @@ function getMockProducts(platform: string) {
         originalCurrency: "USD",
         currency: "USD",
         weightGrams: 620,
-        badge: "✨ Alfaiataria Chic • 2 Peças",
+        badge: "✨ Alfaiataria 2 Peças",
       },
       {
         id: "demo-vestido-evase-estampado",
@@ -239,7 +228,7 @@ function getMockProducts(platform: string) {
         originalCurrency: "USD",
         currency: "USD",
         weightGrams: 290,
-        badge: "✨ Dia a Dia Fresco",
+        badge: "✨ Casual",
       },
     ],
     ALIEXPRESS: [
@@ -254,7 +243,7 @@ function getMockProducts(platform: string) {
         originalCurrency: "USD",
         currency: "USD",
         weightGrams: 55,
-        badge: "⭐ Choice • Entrega Grátis",
+        badge: "⭐ Choice",
         verifiedSupplier: true,
         freeShipping: true,
       },
@@ -269,7 +258,7 @@ function getMockProducts(platform: string) {
         originalCurrency: "USD",
         currency: "USD",
         weightGrams: 65,
-        badge: "⭐ Choice • Entrega Grátis",
+        badge: "⭐ Choice",
         verifiedSupplier: true,
         freeShipping: true,
       },
@@ -284,7 +273,7 @@ function getMockProducts(platform: string) {
         originalCurrency: "USD",
         currency: "USD",
         weightGrams: 420,
-        badge: "⭐ Choice • Entrega Grátis",
+        badge: "⭐ Choice",
         verifiedSupplier: true,
         freeShipping: true,
       },
@@ -299,7 +288,7 @@ function getMockProducts(platform: string) {
         originalCurrency: "USD",
         currency: "USD",
         weightGrams: 850,
-        badge: "⭐ Choice • Entrega Grátis",
+        badge: "⭐ Choice",
         verifiedSupplier: true,
         freeShipping: true,
       },

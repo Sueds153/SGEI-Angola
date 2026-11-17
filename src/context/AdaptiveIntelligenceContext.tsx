@@ -189,7 +189,15 @@ export function AdaptiveIntelligenceProvider({ children }: { children: React.Rea
 export function useAdaptiveIntelligence() {
   const context = useContext(AdaptiveIntelligenceContext);
   if (!context) {
-    throw new Error("useAdaptiveIntelligence must be used within an AdaptiveIntelligenceProvider");
+    return {
+      profile: INITIAL_PROFILE,
+      persona: INITIAL_PROFILE.detectedPersona,
+      platform: INITIAL_PROFILE.detectedPlatform,
+      strategy: getPersonaStrategy(INITIAL_PROFILE.detectedPersona, INITIAL_PROFILE.detectedPlatform, INITIAL_PROFILE),
+      recordEvent: () => {},
+      showRecoveryModal: false,
+      closeRecoveryModal: () => {},
+    };
   }
   return context;
 }

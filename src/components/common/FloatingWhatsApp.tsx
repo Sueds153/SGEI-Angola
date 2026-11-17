@@ -14,11 +14,7 @@ export function FloatingWhatsApp() {
   const isAdmin = pathname.startsWith("/admin");
 
   useEffect(() => {
-    // Mostra um balãozinho amigável após 4 segundos de navegação
-    const timer = setTimeout(() => {
-      setShowTooltip(true);
-    }, 4000);
-    return () => clearTimeout(timer);
+    // Tooltip mantido desativado para garantir UX limpa
   }, []);
 
   if (isAdmin) return null;
@@ -48,7 +44,7 @@ export function FloatingWhatsApp() {
   };
 
   return (
-    <div className="fixed bottom-5 right-5 z-40 flex flex-col items-end gap-2 animate-fade-in">
+    <div className="hidden md:flex fixed bottom-6 right-6 z-40 flex-col items-end gap-2 animate-fade-in">
       {/* Balão de Notificação Inteligente (Adaptado pelo Motor Comportamental) */}
       {showTooltip && (
         <div className="relative max-w-xs bg-white rounded-2xl p-3.5 shadow-2xl border-2 border-emerald-300 text-xs text-ink-800 animate-slide-up flex items-start gap-2.5">

@@ -4,12 +4,11 @@ import * as Sentry from "@sentry/nextjs";
 import "./compiled.css";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
+import { BottomNav } from "@/components/layout/BottomNav";
 import { CartProvider } from "@/context/CartContext";
 import { CartDrawer } from "@/components/cart/CartDrawer";
 import { FloatingWhatsApp } from "@/components/common/FloatingWhatsApp";
 import { AdaptiveIntelligenceProvider } from "@/context/AdaptiveIntelligenceContext";
-import { AdaptiveSmartBanner } from "@/components/common/AdaptiveSmartBanner";
-import { SmartRecoveryModal } from "@/components/common/SmartRecoveryModal";
 
 export const metadata: Metadata = {
   title: {
@@ -45,13 +44,12 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         <AdaptiveIntelligenceProvider>
           <CartProvider>
             <Sentry.ErrorBoundary fallback={<p>Algo deu errado. Tente recarregar a página.</p>}>
-              <AdaptiveSmartBanner />
               <Header />
-              <main className="flex-1">{children}</main>
+              <main className="flex-1 pb-16 md:pb-0">{children}</main>
               <Footer />
               <CartDrawer />
+              <BottomNav />
               <FloatingWhatsApp />
-              <SmartRecoveryModal />
             </Sentry.ErrorBoundary>
           </CartProvider>
         </AdaptiveIntelligenceProvider>

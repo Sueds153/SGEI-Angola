@@ -2,14 +2,12 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import Link from "next/link";
-import { Globe, Smartphone, Shirt, Shield, Truck, CreditCard, ArrowRight, CheckCircle2 } from "lucide-react";
-import { SheinStepsVisual } from "@/components/importar/SheinStepsVisual";
-import { SheinTutorialModal } from "@/components/importar/SheinTutorialModal";
+import { ArrowRight, Clipboard, ShieldCheck, CreditCard, Truck, Check } from "lucide-react";
 
 export default function Hero() {
   const router = useRouter();
   const [productUrl, setProductUrl] = useState("");
+  const [copied, setCopied] = useState(false);
 
   const handleSimulate = (e: React.FormEvent) => {
     e.preventDefault();
@@ -21,103 +19,114 @@ export default function Hero() {
     }
   };
 
+  const handlePaste = async () => {
+    try {
+      if (navigator?.clipboard?.readText) {
+        const text = await navigator.clipboard.readText();
+        if (text) {
+          setProductUrl(text);
+          setCopied(true);
+          setTimeout(() => setCopied(false), 2000);
+        }
+      }
+    } catch {
+      // Ignorar caso o navegador bloqueie permissão
+    }
+  };
+
+  const storePills = [
+    { name: "SHEIN", color: "hover:border-pink-300 hover:bg-pink-50 text-pink-700 bg-pink-50/50 border-pink-200" },
+    { name: "AliExpress", color: "hover:border-orange-300 hover:bg-orange-50 text-orange-700 bg-orange-50/50 border-orange-200" },
+    { name: "Zara & Vinted", color: "hover:border-blue-300 hover:bg-blue-50 text-blue-700 bg-blue-50/50 border-blue-200" },
+    { name: "Amazon", color: "hover:border-amber-300 hover:bg-amber-50 text-amber-700 bg-amber-50/50 border-amber-200" },
+  ];
+
   return (
-    <section className="relative overflow-hidden bg-white pt-8 pb-14 sm:pt-12 sm:pb-20 lg:pt-20 lg:pb-32">
-      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center max-w-4xl mx-auto">
-          {/* Badge */}
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-brand-50 text-brand-700 text-sm font-semibold mb-6 ring-1 ring-brand-100 shadow-sm animate-fade-in">
-            <span className="relative flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand-400 opacity-75" />
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-brand-500" />
-            </span>
-            ✈️ Mala Coletiva Luanda: Junta as tuas peças e aproveita Frete Internacional Grátis!
+    <section className="relative bg-gradient-to-b from-brand-50/40 via-white to-white pt-4 pb-10 sm:pt-10 sm:pb-16 border-b border-ink-100/60">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6">
+        {/* Aviso de Lote / Status */}
+        <div className="flex justify-center mb-4">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-50 border border-brand-200/80 text-brand-900 text-xs font-semibold shadow-xs">
+            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+            <span>Encomendas abertas para o próximo lote Luanda</span>
           </div>
+        </div>
 
-          {/* Main Headline */}
-          <h1 className="text-4xl sm:text-6xl lg:text-7xl font-bold text-ink-950 tracking-tighter mb-6 leading-[1.1] animate-slide-up">
-            SHEIN, AliExpress e Vinted <br className="hidden md:block" />
-            <span className="text-brand-600">entregues em Angola</span>
+        {/* Título Principal — Direto e Humano */}
+        <div className="text-center mb-6 sm:mb-8">
+          <h1 className="text-3xl sm:text-5xl font-extrabold text-ink-950 tracking-tight leading-[1.15] mb-3">
+            SHEIN e AliExpress <br className="hidden sm:inline" />
+            <span className="text-brand-600">entregues na tua porta em Angola</span>
           </h1>
-
-          {/* Subheadline */}
-          <p className="text-lg sm:text-xl text-ink-600 mb-12 max-w-2xl mx-auto leading-relaxed animate-slide-up" style={{ animationDelay: '100ms' }}>
-            Ajudamos a comprar na SHEIN, AliExpress e Vinted e a receber em Angola. Simule em Kwanzas; a equipa confirma o total e a disponibilidade antes do pagamento.
+          <p className="text-sm sm:text-base text-ink-600 max-w-xl mx-auto leading-relaxed">
+            Sem cartão Visa internacional. Paga em Kwanzas por Multicaixa Express e nós tratamos de comprar, desalfandegar e entregar.
           </p>
+        </div>
 
-          {/* CTA Form - O Foco da Conversão */}
-          <div className="relative max-w-2xl mx-auto mb-16 animate-slide-up" style={{ animationDelay: '200ms' }}>
-            <form onSubmit={handleSimulate} className="bg-white p-2 rounded-2xl shadow-xl shadow-brand-500/10 border border-ink-200 flex flex-col sm:flex-row gap-2">
-              <label htmlFor="product-url" className="sr-only">Link do produto</label>
-              <input 
-                id="product-url"
-                type="url"
+        {/* Card do Simulador Mobile First */}
+        <div className="bg-white rounded-2xl sm:rounded-3xl p-3 sm:p-5 shadow-xl shadow-brand-950/5 border border-brand-100 max-w-2xl mx-auto">
+          <form onSubmit={handleSimulate} className="flex flex-col gap-2.5">
+            <div className="relative flex items-center bg-ink-50/80 rounded-xl sm:rounded-2xl border border-ink-200 focus-within:border-brand-500 focus-within:ring-2 focus-within:ring-brand-500/10 focus-within:bg-white transition-all">
+              <input
+                id="hero-product-url"
+                type="text"
                 value={productUrl}
                 onChange={(e) => setProductUrl(e.target.value)}
-                placeholder="Cole o link do produto da Shein, AliExpress ou Vinted..." 
-                className="min-h-12 flex-1 p-4 bg-transparent outline-none text-ink-900 text-base sm:text-lg placeholder:text-ink-400"
+                placeholder="Cola aqui o link da SHEIN ou AliExpress..."
+                className="w-full py-3.5 pl-3.5 pr-20 bg-transparent text-sm sm:text-base text-ink-900 placeholder:text-ink-400 outline-none"
               />
-              <button 
-                type="submit"
-                className="min-h-12 bg-brand-600 text-white px-8 py-4 rounded-xl font-bold hover:bg-brand-700 transition-all active:scale-[.99] flex items-center justify-center gap-2 text-base sm:text-lg shadow-lg shadow-brand-500/20 cursor-pointer"
+              <button
+                type="button"
+                onClick={handlePaste}
+                className="absolute right-2 px-2.5 py-1.5 rounded-lg bg-white border border-ink-200 text-ink-700 text-xs font-semibold hover:bg-ink-100 flex items-center gap-1 active:scale-95 transition"
+                title="Colar da área de transferência"
               >
-                Simular Preço <ArrowRight className="w-5 h-5" />
+                {copied ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Clipboard className="w-3.5 h-3.5 text-ink-500" />}
+                <span>{copied ? "Colado!" : "Colar"}</span>
               </button>
-            </form>
-            
-            {/* Small disclaimer + Tutorial Trigger */}
-            <div className="mt-4 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs sm:text-sm text-ink-600">
-              <p className="flex items-center gap-1.5">
-                <Shield className="w-4 h-4 text-emerald-600 shrink-0" />
-                <span><strong>Mais clareza antes de pagar:</strong> confirme o total e os detalhes do pedido com a equipa.</span>
-              </p>
-              <SheinTutorialModal />
             </div>
-          </div>
 
-          {/* Mini-guia visual de 3 passos diretamente no Hero (Papa Feita) */}
-          <div className="mb-14 animate-fade-in" style={{ animationDelay: '250ms' }}>
-            <SheinStepsVisual />
-          </div>
+            <button
+              type="submit"
+              className="w-full py-3.5 px-6 rounded-xl sm:rounded-2xl bg-brand-600 hover:bg-brand-700 active:bg-brand-800 text-white font-bold text-sm sm:text-base flex items-center justify-center gap-2 shadow-md shadow-brand-600/20 active:scale-[0.99] transition cursor-pointer"
+            >
+              <span>Simular Preço em Kwanzas</span>
+              <ArrowRight className="w-4 h-4" />
+            </button>
+          </form>
 
-          {/* Trust Indicators */}
-          <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-8 text-sm font-medium text-ink-600 animate-fade-in" style={{ animationDelay: '300ms' }}>
-            <div className="flex items-center gap-2 bg-ink-50 px-4 py-2 rounded-full ring-1 ring-ink-100">
-              <div className="w-5 h-5 bg-brand-100 rounded-full flex items-center justify-center">
-                <Truck className="w-3 h-3 text-brand-600" />
-              </div>
-              Entrega em Luanda e Províncias
-            </div>
-            <div className="flex items-center gap-2 bg-ink-50 px-4 py-2 rounded-full ring-1 ring-ink-100">
-              <div className="w-5 h-5 bg-emerald-100 rounded-full flex items-center justify-center">
-                <CreditCard className="w-3 h-3 text-emerald-600" />
-              </div>
-              Multicaixa Express: 929 423 278
-            </div>
-            <div className="flex items-center gap-2 bg-ink-50 px-4 py-2 rounded-full ring-1 ring-ink-100">
-              <div className="w-5 h-5 bg-blue-100 rounded-full flex items-center justify-center">
-                <CheckCircle2 className="w-3 h-3 text-blue-600" />
-              </div>
-              Entidade: 10116
+          {/* Lojas Compatíveis */}
+          <div className="mt-3.5 pt-3 border-t border-ink-100 flex flex-wrap items-center justify-between gap-2">
+            <span className="text-[11px] font-medium text-ink-500">Lojas que trazemos:</span>
+            <div className="flex flex-wrap items-center gap-1.5">
+              {storePills.map((store) => (
+                <span
+                  key={store.name}
+                  className={`text-[11px] font-semibold px-2 py-0.5 rounded-full border transition ${store.color}`}
+                >
+                  {store.name}
+                </span>
+              ))}
             </div>
           </div>
         </div>
 
-        {/* Platform Marquee - Reforço de autoridade */}
-        <div className="mt-24 border-y border-ink-100 py-10 opacity-70 grayscale hover:grayscale-0 transition-all duration-500">
-          <div className="flex flex-wrap justify-center items-center gap-12 md:gap-24 opacity-60">
-             <div className="flex items-center gap-3">
-               <Shirt className="w-8 h-8 text-pink-500" />
-               <span className="text-2xl font-bold text-ink-900 tracking-tighter">SHEIN</span>
-             </div>
-             <div className="flex items-center gap-3">
-               <Smartphone className="w-8 h-8 text-orange-500" />
-               <span className="text-2xl font-bold text-ink-900 tracking-tighter">AliExpress</span>
-             </div>
-             <div className="flex items-center gap-3">
-               <Globe className="w-8 h-8 text-brand-600" />
-               <span className="text-2xl font-bold text-ink-900 tracking-tighter">VINTED</span>
-             </div>
+        {/* 3 Reassurances Rápidos para o Cliente Angolano */}
+        <div className="grid grid-cols-3 gap-2 mt-6 max-w-xl mx-auto text-center">
+          <div className="flex flex-col items-center p-2 rounded-xl bg-ink-50/60 border border-ink-100">
+            <CreditCard className="w-4 h-4 text-brand-600 mb-1" />
+            <span className="text-[11px] font-bold text-ink-900 leading-tight">Multicaixa Express</span>
+            <span className="text-[10px] text-ink-500">Sem cartão Visa</span>
+          </div>
+          <div className="flex flex-col items-center p-2 rounded-xl bg-ink-50/60 border border-ink-100">
+            <ShieldCheck className="w-4 h-4 text-emerald-600 mb-1" />
+            <span className="text-[11px] font-bold text-ink-900 leading-tight">Valor Confirmado</span>
+            <span className="text-[10px] text-ink-500">Antes de pagar</span>
+          </div>
+          <div className="flex flex-col items-center p-2 rounded-xl bg-ink-50/60 border border-ink-100">
+            <Truck className="w-4 h-4 text-blue-600 mb-1" />
+            <span className="text-[11px] font-bold text-ink-900 leading-tight">Entrega em Angola</span>
+            <span className="text-[10px] text-ink-500">Luanda e Províncias</span>
           </div>
         </div>
       </div>

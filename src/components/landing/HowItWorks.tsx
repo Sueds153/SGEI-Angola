@@ -1,131 +1,89 @@
 "use client";
 
-import { Search, CreditCard, Truck, CheckCircle, MessageSquare } from "lucide-react";
+import { Search, CreditCard, Truck, ArrowRight } from "lucide-react";
+import Link from "next/link";
 
 const steps = [
   {
-    number: "01",
-    title: "Encontrou o produto?",
-    description: "Copie o link do produto na Shein, AliExpress ou Vinted e cole no nosso simulador. Ou escolha um dos nossos produtos em destaque.",
+    number: "1",
+    title: "Escolhe o que gostas",
+    description: "Navega no app da SHEIN, AliExpress ou Zara. Encontrou o que quer? Clica em partilhar e copia o link.",
     icon: Search,
-    details: [
-      "Funciona com qualquer link de produto",
-      "Mostramos uma estimativa em Kz para validação",
-      "Mostramos o prazo estimado de entrega"
-    ]
+    color: "bg-pink-50 text-pink-600 border-pink-200",
   },
   {
-    number: "02",
-    title: "Pagamento em Kwanzas",
-    description: "Sem estresse de cartão Visa ou taxas bancárias escondidas. Bate no Multicaixa Express ou faz Pagamento por Referência.",
+    number: "2",
+    title: "Paga em Kwanzas pelo Express",
+    description: "Cola o link aqui e vê o valor final em Kz. Paga pelo Multicaixa Express ou Referência sem precisar de cartão Visa.",
     icon: CreditCard,
-    details: [
-      "Express direto para o número: 929 423 278",
-      "Referência: Entidade 10116 · Ref 929 423 278",
-      "Anexa o talão no site e apoia-te no WhatsApp (+244 922 058 136)"
-    ]
+    color: "bg-brand-50 text-brand-600 border-brand-200",
   },
   {
-    number: "03",
-    title: "Nós tratamos de tudo",
-    description: "Compramos na SHEIN, AliExpress ou Vinted Europa, despachamos no voo semanal, desalfandegamos no Aeroporto 4 de Fevereiro e entregamos na tua mão.",
+    number: "3",
+    title: "Recebe na tua porta em Angola",
+    description: "Compramos, tratamos do frete aéreo internacional e da alfândega. Entregamos direto a você em Luanda ou províncias.",
     icon: Truck,
-    details: [
-      "Confirmamos custos e condições antes do pagamento",
-      "Acompanhas a tua carga passo a passo",
-      "Entrega em Luanda e envio para todas as províncias"
-    ]
+    color: "bg-emerald-50 text-emerald-600 border-emerald-200",
   },
-  {
-    number: "04",
-    title: "Recebeu? Avalie!",
-    description: "Confirme a receção, deixe a sua avaliação e ajude a comunidade. Ganhe desconto no próximo pedido.",
-    icon: CheckCircle,
-    details: [
-      "Apoio para dúvidas e problemas com o pedido",
-      "Programa de fidelidade",
-      "Partilhe na comunidade ImportEasy"
-    ]
-  }
 ];
 
 export default function HowItWorks() {
   return (
-    <section className="py-20 lg:py-32 bg-white" aria-labelledby="how-it-works-title">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center max-w-3xl mx-auto mb-16">
-          <h2 id="how-it-works-title" className="text-3xl sm:text-4xl font-bold text-ink-900 mb-4">
-            Como funciona a <span className="text-brand-600">ImportEasy</span>
+    <section className="py-10 sm:py-16 bg-ink-50/70 border-t border-ink-100" aria-labelledby="how-it-works-title">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6">
+        <div className="text-center mb-8">
+          <span className="text-xs font-bold text-brand-600 uppercase tracking-wider">
+            Simples e Direto
+          </span>
+          <h2 id="how-it-works-title" className="text-2xl sm:text-3xl font-extrabold text-ink-950 tracking-tight mt-1">
+            Como funciona a ImportEasy
           </h2>
-          <p className="text-lg text-ink-600">
-            Em 4 passos simples, o produto que você viu no estrangeiro chega na sua porta em Angola.
+          <p className="text-xs sm:text-sm text-ink-600 max-w-md mx-auto mt-1.5">
+            Três passos para ter as tuas encomendas internacionais sem complicações cambiais.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-          {steps.map((step, index) => (
-            <article
-              key={step.number}
-              className="relative group p-6 rounded-2xl bg-ink-50 border border-ink-100 hover:border-brand-200 hover:bg-white transition-all duration-300"
-            >
-              {/* Connector line (except last) */}
-              {index < steps.length - 1 && (
-                <div className="hidden lg:block absolute top-10 right-[-50%] w-full h-0.5 bg-gradient-to-r from-brand-200 to-transparent" aria-hidden="true" />
-              )}
-
-              {/* Step Number */}
-              <div className="mb-6">
-                <span className="inline-flex items-center justify-center w-10 h-10 rounded-xl bg-brand-100 text-brand-600 font-bold text-lg">
-                  {step.number}
-                </span>
+        {/* 3 Passos em Cartões Limpos */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5 sm:gap-5">
+          {steps.map((step) => {
+            const Icon = step.icon;
+            return (
+              <div
+                key={step.number}
+                className="bg-white rounded-2xl p-4 sm:p-5 border border-ink-200/80 shadow-xs flex sm:flex-col items-start gap-3.5 sm:gap-4 relative overflow-hidden"
+              >
+                <div className={`w-10 h-10 rounded-xl ${step.color} border flex items-center justify-center shrink-0`}>
+                  <Icon className="w-5 h-5" />
+                </div>
+                <div>
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className="text-xs font-extrabold text-brand-600 uppercase tracking-wider">
+                      Passo {step.number}
+                    </span>
+                  </div>
+                  <h3 className="text-sm sm:text-base font-bold text-ink-950 mb-1 leading-snug">
+                    {step.title}
+                  </h3>
+                  <p className="text-xs text-ink-600 leading-relaxed">
+                    {step.description}
+                  </p>
+                </div>
               </div>
-
-              {/* Icon */}
-              <div className="mb-4">
-                <step.icon className="w-8 h-8 text-brand-600 group-hover:scale-110 transition-transform" aria-hidden="true" />
-              </div>
-
-              {/* Content */}
-              <h3 className="text-xl font-bold text-ink-900 mb-2">{step.title}</h3>
-              <p className="text-ink-600 mb-6">{step.description}</p>
-
-              {/* Details */}
-              <ul className="space-y-2" role="list">
-                {step.details.map((detail, i) => (
-                  <li key={i} className="flex items-start gap-2 text-sm text-ink-600">
-                    <CheckCircle className="w-4 h-4 text-brand-500 flex-shrink-0 mt-0.5" aria-hidden="true" />
-                    <span>{detail}</span>
-                  </li>
-                ))}
-              </ul>
-            </article>
-          ))}
+            );
+          })}
         </div>
 
-        {/* CTA for paste link */}
-        <div className="mt-16 text-center">
-          <PasteLinkCTA />
+        {/* Botão de Ação Rápida */}
+        <div className="mt-8 text-center">
+          <Link
+            href="/importar"
+            className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-brand-600 hover:bg-brand-700 text-white font-bold text-xs sm:text-sm shadow-sm active:scale-95 transition"
+          >
+            <span>Experimentar com um link agora</span>
+            <ArrowRight className="w-4 h-4" />
+          </Link>
         </div>
       </div>
     </section>
-  );
-}
-
-function PasteLinkCTA() {
-  return (
-    <div className="inline-block w-full max-w-2xl p-8 rounded-2xl bg-brand-600 text-white">
-      <MessageSquare className="w-10 h-10 mx-auto mb-4 text-brand-100" />
-      <h3 className="text-2xl font-bold mb-2">Tem um link de um produto específico?</h3>
-      <p className="text-brand-100 mb-6">
-        Cole o link da Shein, AliExpress ou Vinted para iniciar uma simulação. A equipa confirma o valor total e as condições antes do pagamento.
-      </p>
-      <a
-        href="/importar"
-        className="inline-flex items-center gap-2 px-6 py-3 bg-white text-brand-600 font-semibold rounded-xl hover:bg-brand-50 transition-colors"
-      >
-        Colar Link e Simular
-        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" /></svg>
-      </a>
-    </div>
   );
 }
