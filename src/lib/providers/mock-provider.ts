@@ -73,7 +73,7 @@ const DEMO_PRODUCTS: NormalizedProduct[] = [
     rating: 4.9,
     reviewCount: 428,
     weightGrams: 380,
-    badge: "✨ Gala & Casamentos • Cetim Premium",
+    badge: "Gala & Cerimónia • Cetim Premium",
     variants: [
       { id: "d2v1", externalId: null, color: "Bordeaux", size: "S", otherOptions: null, sku: "SH-VFC-BRD-S", priceModifierUsd: 0, stockQuantity: 15, available: true, imageUrl: null },
       { id: "d2v2", externalId: null, color: "Bordeaux", size: "M", otherOptions: null, sku: "SH-VFC-BRD-M", priceModifierUsd: 0, stockQuantity: 20, available: true, imageUrl: null },
@@ -99,7 +99,7 @@ const DEMO_PRODUCTS: NormalizedProduct[] = [
     rating: 4.8,
     reviewCount: 310,
     weightGrams: 620,
-    badge: "✨ Alfaiataria Chic • 2 Peças",
+    badge: "Alfaiataria • 2 Peças",
     variants: [
       { id: "d3v1", externalId: null, color: "Bege Creme", size: "S", otherOptions: null, sku: "SH-CBA-BG-S", priceModifierUsd: 0, stockQuantity: 10, available: true, imageUrl: null },
       { id: "d3v2", externalId: null, color: "Bege Creme", size: "M", otherOptions: null, sku: "SH-CBA-BG-M", priceModifierUsd: 0, stockQuantity: 14, available: true, imageUrl: null },
@@ -125,7 +125,7 @@ const DEMO_PRODUCTS: NormalizedProduct[] = [
     rating: 4.7,
     reviewCount: 295,
     weightGrams: 290,
-    badge: "✨ Dia a Dia Fresco • Acinturado",
+    badge: "Casual • Acinturado",
     variants: [
       { id: "d4v1", externalId: null, color: "Floral Azul", size: "S", otherOptions: null, sku: "SH-VEE-AZ-S", priceModifierUsd: 0, stockQuantity: 20, available: true, imageUrl: null },
       { id: "d4v2", externalId: null, color: "Floral Azul", size: "M", otherOptions: null, sku: "SH-VEE-AZ-M", priceModifierUsd: 0, stockQuantity: 25, available: true, imageUrl: null },
@@ -472,7 +472,7 @@ const DEMO_PRODUCTS: NormalizedProduct[] = [
     reviewCount: 312,
     weightGrams: 221,
     batteryHealth: "94%",
-    badge: "🔋 Bateria 94% • Desbloqueado",
+    badge: "Bateria 94% • Desbloqueado",
     variants: [
       { id: "vt1v1", externalId: "vinted-ip15pm-1", color: "Titânio Natural", size: "256GB", otherOptions: { condition: "Excelente / Como Novo", battery: "94%", unlock: "Unitel / Africell / Movicel" }, sku: "VT-IP15PM-NAT", priceModifierUsd: 0, stockQuantity: 1, available: true, imageUrl: null },
     ],
@@ -500,7 +500,7 @@ const DEMO_PRODUCTS: NormalizedProduct[] = [
     reviewCount: 245,
     weightGrams: 206,
     batteryHealth: "89%",
-    badge: "🔋 Bateria 89% • Desbloqueado",
+    badge: "Bateria 89% • Desbloqueado",
     variants: [
       { id: "vt2v1", externalId: "vinted-ip14p-1", color: "Roxo Profundo", size: "128GB", otherOptions: { condition: "Muito Bom", battery: "89%", unlock: "Unitel / Africell / Movicel" }, sku: "VT-IP14P-PUR", priceModifierUsd: 0, stockQuantity: 1, available: true, imageUrl: null },
     ],
@@ -528,7 +528,7 @@ const DEMO_PRODUCTS: NormalizedProduct[] = [
     reviewCount: 189,
     weightGrams: 174,
     batteryHealth: "88%",
-    badge: "🔋 Bateria 88% • Desbloqueado",
+    badge: "Bateria 88% • Desbloqueado",
     variants: [
       { id: "vt3v1", externalId: "vinted-ip13-1", color: "Meia-Noite", size: "128GB", otherOptions: { condition: "Excelente", battery: "88%", unlock: "Unitel / Africell / Movicel" }, sku: "VT-IP13-MID", priceModifierUsd: 0, stockQuantity: 1, available: true, imageUrl: null },
     ],
@@ -556,7 +556,7 @@ const DEMO_PRODUCTS: NormalizedProduct[] = [
     reviewCount: 176,
     weightGrams: 189,
     batteryHealth: "86%",
-    badge: "🔋 Bateria 86% • Desbloqueado",
+    badge: "Bateria 86% • Desbloqueado",
     variants: [
       { id: "vt4v1", externalId: "vinted-ip12p-1", color: "Azul Pacífico", size: "128GB", otherOptions: { condition: "Muito Bom", battery: "86%", unlock: "Unitel / Africell / Movicel" }, sku: "VT-IP12P-BLU", priceModifierUsd: 0, stockQuantity: 1, available: true, imageUrl: null },
     ],

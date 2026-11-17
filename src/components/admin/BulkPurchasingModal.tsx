@@ -156,7 +156,7 @@ export function BulkPurchasingModal({ items }: { items: BulkItem[] }) {
 
             {/* Rodapé */}
             <div className="p-4 border-t border-ink-100 bg-ink-50 rounded-b-3xl flex justify-between items-center text-xs text-ink-500">
-              <span>💡 Dica: Abra cada link, adicione ao seu carrinho na SHEIN e conclua com o seu cartão.</span>
+              <span>Dica: Abra cada link, adicione ao seu carrinho na SHEIN e conclua com o seu cartão corporativo.</span>
               <Button size="sm" variant="primary" onClick={() => setOpen(false)}>
                 Fechar
               </Button>

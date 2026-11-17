@@ -20,6 +20,7 @@ import {
   Sparkles,
   Tag,
   Globe,
+  Star,
 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Badge, Alert as AlertBox } from "@/components/ui";
@@ -207,7 +208,10 @@ export function ProductDetail({ product }: { product: NormalizedProduct }) {
         </h1>
         {product.rating && (
           <div className="mt-2 flex items-center gap-2 text-sm text-ink-500">
-            <span className="font-medium text-amber-500">★ {product.rating.toFixed(1)}</span>
+            <span className="font-semibold text-ink-900 flex items-center gap-1">
+              <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
+              {product.rating.toFixed(1)}
+            </span>
             <span className="text-ink-400">·</span>
             <span>{product.reviewCount} avaliações</span>
           </div>

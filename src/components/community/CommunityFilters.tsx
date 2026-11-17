@@ -47,7 +47,7 @@ export function CommunityFilters({ onFilter, onSearch }: CommunityFiltersProps) 
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-ink-400" />
           <input
             type="text"
-            placeholder="🔍 Buscar por usuário, produto, cidade..."
+            placeholder="Buscar por cliente, produto, cidade..."
             value={searchQuery}
             onChange={(e) => handleSearch(e.target.value)}
             className="w-full pl-10 pr-4 py-2 border border-ink-300 rounded-lg text-sm focus:border-brand-500 focus:outline-none"

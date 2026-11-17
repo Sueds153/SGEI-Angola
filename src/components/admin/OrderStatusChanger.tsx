@@ -122,7 +122,7 @@ export function OrderStatusChanger({
       {customerPhone && orderReference && (
         <a
           href={`https://wa.me/${customerPhone.replace(/\D/g, "").startsWith("244") ? customerPhone.replace(/\D/g, "") : `244${customerPhone.replace(/\D/g, "")}`}?text=${encodeURIComponent(
-            `Olá ${customerName || "estimado cliente"}! 👋\n\nA tua encomenda *#${orderReference}* na ImportEasy foi atualizada para: *${ORDER_STATUS_LABELS[status]?.label || status}*.\n\nEstamos a acompanhar tudo para que chegue com segurança em Angola!`
+            `Olá ${customerName || "estimado cliente"}!\n\nA tua encomenda *#${orderReference}* na ImportEasy foi atualizada para: *${ORDER_STATUS_LABELS[status]?.label || status}*.\n\nEstamos a acompanhar tudo para que chegue com segurança em Angola!`
           )}`}
           target="_blank"
           rel="noopener noreferrer"

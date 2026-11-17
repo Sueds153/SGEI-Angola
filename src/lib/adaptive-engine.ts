@@ -168,7 +168,7 @@ export function getPersonaStrategy(
   // Se houver foco evidente em Vinted (iPhones / Roupas da Europa)
   if (platform === "VINTED" && persona !== "PAYMENT_HESITATOR") {
     return {
-      badgeText: "🇪🇺 Especialista Vinted Europa (França & Portugal)",
+      badgeText: "Especialista Vinted Europa (França & Portugal)",
       bannerTitle: "Quer importar iPhones originais ou sapatilhas da Europa?",
       bannerDescription:
         "A equipa verifica os detalhes do anúncio e confirma a possibilidade de compra, envio e custos antes do pagamento.",
@@ -183,7 +183,7 @@ export function getPersonaStrategy(
   // Se houver foco evidente em AliExpress (Eletrónica / Gadgets / Revenda)
   if (platform === "ALIEXPRESS" && persona !== "PAYMENT_HESITATOR") {
     return {
-      badgeText: "📦 Especialista AliExpress (China → Luanda)",
+      badgeText: "Especialista AliExpress (China → Luanda)",
       bannerTitle: "Eletrónica, relógios, perucas e ferramentas do AliExpress!",
       bannerDescription:
         "Não arrisque perder encomendas nos correios. Tratamos da desalfandegagem no Aeroporto 4 de Fevereiro e entregamos na sua mão.",
@@ -213,7 +213,7 @@ export function getPersonaStrategy(
 
     case "RESELLER_PRO":
       return {
-        badgeText: "🛍️ Canal Especial para Revendedores & Lojistas",
+        badgeText: "Canal Especial para Revendedores & Lojistas",
         bannerTitle: "Compras em Quantidade (SHEIN ou AliExpress)? Ganha Desconto!",
         bannerDescription:
           "Se revendes roupas, bijuteria, perucas ou eletrónica em Luanda, consolidamos os teus pedidos com frete reduzido por Kg e despacho VIP.",
@@ -227,7 +227,7 @@ export function getPersonaStrategy(
     case "PROVINCE_BUYER":
       const prov = profile.selectedProvince || "Província";
       return {
-        badgeText: `📦 Envio Seguro para ${prov}`,
+        badgeText: `Envio Seguro para ${prov}`,
         bannerTitle: `Entregamos compras da SHEIN, AliExpress e Vinted em ${prov}!`,
         bannerDescription:
           "Desalfandegamos no Aeroporto 4 de Fevereiro e despachamos para a tua morada com guia e rastreio passo a passo.",

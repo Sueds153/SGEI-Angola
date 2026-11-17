@@ -228,7 +228,7 @@ export function SystemConfig() {
         </div>
 
         <p className="mt-4 text-sm text-ink-500">
-          💡 Dica: Configure as chaves de API no arquivo <code className="bg-ink-100 px-1 rounded">.env</code> para habilitar os providers.
+          Nota: Configure as chaves de API no painel de ambiente ou no arquivo <code className="bg-ink-100 px-1 rounded">.env</code> para habilitar os providers externos.
         </p>
       </Card>
 

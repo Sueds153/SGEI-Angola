@@ -404,7 +404,7 @@ export function CheckoutFlow({ prefill }: { prefill: Prefill | null }) {
                     <span className="tracking-tight text-brand-600 font-extrabold">{formatKz(cartTotalKz)}</span>
                   </div>
                   <div className="p-2.5 bg-emerald-50 rounded-xl border border-emerald-200 text-[11px] text-emerald-800">
-                    ✓ <strong>Benefício Ativo:</strong> As tuas peças viajam no Lote Luanda #48 sem custos alfandegários extras.
+                    <strong>Benefício Ativo:</strong> As tuas peças viajam no Lote Luanda #48 sem custos alfandegários extras.
                   </div>
                 </>
               ) : (
@@ -785,9 +785,9 @@ function OrderSuccess({
                   setCopiedEntity(true);
                   setTimeout(() => setCopiedEntity(false), 1500);
                 }}
-                className="text-xs font-semibold px-2 py-1 bg-white border border-ink-200 rounded hover:bg-ink-100 text-ink-700"
+                className="text-xs font-semibold px-2.5 py-1 bg-white border border-ink-200 rounded hover:bg-ink-100 text-ink-700"
               >
-                {copiedEntity ? "✓" : "Copiar"}
+                {copiedEntity ? "Copiado" : "Copiar"}
               </button>
             </div>
             <div className="flex items-center justify-between bg-ink-50 p-2.5 rounded-lg border border-ink-100">
@@ -801,9 +801,9 @@ function OrderSuccess({
                   setCopiedReference(true);
                   setTimeout(() => setCopiedReference(false), 1500);
                 }}
-                className="text-xs font-semibold px-2 py-1 bg-white border border-ink-200 rounded hover:bg-ink-100 text-ink-700"
+                className="text-xs font-semibold px-2.5 py-1 bg-white border border-ink-200 rounded hover:bg-ink-100 text-ink-700"
               >
-                {copiedReference ? "✓" : "Copiar"}
+                {copiedReference ? "Copiado" : "Copiar"}
               </button>
             </div>
           </div>

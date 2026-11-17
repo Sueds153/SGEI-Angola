@@ -192,9 +192,9 @@ export function OrderInterventionCenter({ initialOrders }: { initialOrders: Orde
     const statusLabel = ORDER_STATUS_LABELS[order.status as keyof typeof ORDER_STATUS_LABELS]?.label || order.status;
 
     const text = encodeURIComponent(
-      `Olá ${order.customerName}! 👋\n\nDaqui fala o suporte da ImportEasy Angola относительно à sua encomenda *#${order.reference}*.\n\n` +
-      `📦 *Estado atual:* ${statusLabel}\n` +
-      (order.shipment?.internationalTracking ? `✈️ *Tracking SHEIN:* ${order.shipment.internationalTracking}\n` : "") +
+      `Olá ${order.customerName}!\n\nDaqui fala o suporte da ImportEasy Angola relativamente à sua encomenda *#${order.reference}*.\n\n` +
+      `*Estado atual:* ${statusLabel}\n` +
+      (order.shipment?.internationalTracking ? `*Tracking SHEIN:* ${order.shipment.internationalTracking}\n` : "") +
       `Estamos a acompanhar o processo para garantir que a sua encomenda chegue com total segurança. Como posso ajudar com o seu pedido?`
     );
 
@@ -287,7 +287,7 @@ export function OrderInterventionCenter({ initialOrders }: { initialOrders: Orde
                     </p>
                     {o.shipment?.internationalTracking && (
                       <p className="font-mono text-brand-700 font-bold text-[11px]">
-                        ✈️ {o.shipment.internationalTracking}
+                        Rastreio: {o.shipment.internationalTracking}
                       </p>
                     )}
                   </div>
@@ -373,7 +373,7 @@ export function OrderInterventionCenter({ initialOrders }: { initialOrders: Orde
                       : "border-transparent text-ink-500 hover:text-ink-800"
                   }`}
                 >
-                  📍 Adicionar Evento de Rastreio
+                  Adicionar Evento de Rastreio
                 </button>
                 <button
                   type="button"
@@ -384,7 +384,7 @@ export function OrderInterventionCenter({ initialOrders }: { initialOrders: Orde
                       : "border-transparent text-ink-500 hover:text-ink-800"
                   }`}
                 >
-                  ✈️ Códigos de Envio
+                  Códigos de Envio
                 </button>
                 <button
                   type="button"
@@ -395,7 +395,7 @@ export function OrderInterventionCenter({ initialOrders }: { initialOrders: Orde
                       : "border-transparent text-ink-500 hover:text-ink-800"
                   }`}
                 >
-                  🏠 Corrigir Morada / Telefone
+                  Corrigir Morada / Telefone
                 </button>
                 <button
                   type="button"
@@ -406,7 +406,7 @@ export function OrderInterventionCenter({ initialOrders }: { initialOrders: Orde
                       : "border-transparent text-ink-500 hover:text-ink-800"
                   }`}
                 >
-                  📝 Notas Internas
+                  Notas Internas
                 </button>
               </div>
 

@@ -23,7 +23,7 @@ export function SheinTutorialModal() {
       badge: "Moda, Vestidos e Calçado",
       step1Title: "1. Abre a peça no aplicativo da SHEIN",
       step1Desc: "Escolhe o vestido, calçado ou conjunto no teu telemóvel.",
-      step2Title: "2. Clica no ícone de Partilha (↗️)",
+      step2Title: "2. Clica no ícone de Partilha",
       step2Desc: "No canto superior direito da tela do produto, toca na setinha ou nos 3 pontinhos.",
       step3Title: "3. Toca em 'Copiar Link' e cola aqui!",
       step3Desc: "Seleciona 'Copiar Link' e cola no simulador da ImportEasy para receber uma estimativa em Kwanzas, sujeita a confirmação.",
@@ -35,7 +35,7 @@ export function SheinTutorialModal() {
       badge: "Eletrónica, Gadgets, Perucas & Bijuteria",
       step1Title: "1. Escolhe o artigo no app do AliExpress",
       step1Desc: "Navega pelos relógios, gadgets, capas, perucas ou ferramentas que desejas.",
-      step2Title: "2. Toca no botão de Partilhar (↗️)",
+      step2Title: "2. Toca no botão de Partilhar",
       step2Desc: "No topo direito da página do produto, toca no ícone de partilha.",
       step3Title: "3. Clica em 'Copiar' e cola aqui!",
       step3Desc: "Copia o link direto e cola aqui na ImportEasy. A equipa verifica a possibilidade de compra e envio antes do pagamento.",
@@ -104,9 +104,9 @@ export function SheinTutorialModal() {
                       : "bg-ink-50 text-ink-700 border-ink-200 hover:bg-ink-100"
                   }`}
                 >
-                  {p === "SHEIN" && "👗 SHEIN"}
-                  {p === "ALIEXPRESS" && "📱 AliExpress"}
-                  {p === "VINTED" && "🇪🇺 Vinted"}
+                  {p === "SHEIN" && "SHEIN"}
+                  {p === "ALIEXPRESS" && "AliExpress"}
+                  {p === "VINTED" && "Vinted"}
                 </button>
               ))}
             </div>

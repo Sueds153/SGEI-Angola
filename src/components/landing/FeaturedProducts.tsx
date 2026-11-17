@@ -42,10 +42,10 @@ export default function FeaturedProducts({ featuredProducts }: FeaturedProductsP
     : allProducts.slice(0, 8);
 
   const tabs = [
-    { id: "ALL", label: "🔥 Todos os Destaques", icon: Flame },
-    { id: "SHEIN", label: "👗 SHEIN Moda", icon: Shirt },
-    { id: "ALIEXPRESS", label: "⚡ AliExpress Tech", icon: Zap },
-    { id: "VINTED", label: "📱 iPhones Vinted", icon: Smartphone },
+    { id: "ALL", label: "Destaques Principais", icon: Flame },
+    { id: "SHEIN", label: "SHEIN Moda", icon: Shirt },
+    { id: "ALIEXPRESS", label: "AliExpress Tech", icon: Zap },
+    { id: "VINTED", label: "iPhones Vinted", icon: Smartphone },
   ] as const;
 
   return (
@@ -132,7 +132,7 @@ function getMockProducts(platform: string) {
         currency: "EUR",
         weightGrams: 221,
         batteryHealth: "94%",
-        badge: "🔋 Bateria 94%",
+        badge: "Bateria 94%",
       },
       {
         id: "vinted-iphone-14-pro-128gb",
@@ -146,7 +146,7 @@ function getMockProducts(platform: string) {
         currency: "EUR",
         weightGrams: 206,
         batteryHealth: "89%",
-        badge: "🔋 Bateria 89%",
+        badge: "Bateria 89%",
       },
       {
         id: "vinted-iphone-13-128gb-midnight",
@@ -160,7 +160,7 @@ function getMockProducts(platform: string) {
         currency: "EUR",
         weightGrams: 174,
         batteryHealth: "88%",
-        badge: "🔋 Bateria 88%",
+        badge: "Bateria 88%",
       },
       {
         id: "vinted-iphone-12-pro-128gb",
@@ -174,7 +174,7 @@ function getMockProducts(platform: string) {
         currency: "EUR",
         weightGrams: 189,
         batteryHealth: "86%",
-        badge: "🔋 Bateria 86%",
+        badge: "Bateria 86%",
       },
     ],
     SHEIN: [
@@ -189,7 +189,7 @@ function getMockProducts(platform: string) {
         originalCurrency: "USD",
         currency: "USD",
         weightGrams: 320,
-        badge: "✨ Mais Vendido",
+        badge: "Mais Vendido",
       },
       {
         id: "demo-vestido-longo-festa-cetim",
@@ -202,7 +202,7 @@ function getMockProducts(platform: string) {
         originalCurrency: "USD",
         currency: "USD",
         weightGrams: 380,
-        badge: "✨ Festa & Gala",
+        badge: "Festa & Gala",
       },
       {
         id: "demo-conjunto-feminino-blazer",
@@ -215,7 +215,7 @@ function getMockProducts(platform: string) {
         originalCurrency: "USD",
         currency: "USD",
         weightGrams: 620,
-        badge: "✨ Alfaiataria 2 Peças",
+        badge: "Alfaiataria 2 Peças",
       },
       {
         id: "demo-vestido-evase-estampado",
@@ -228,7 +228,7 @@ function getMockProducts(platform: string) {
         originalCurrency: "USD",
         currency: "USD",
         weightGrams: 290,
-        badge: "✨ Casual",
+        badge: "Linha Casual",
       },
     ],
     ALIEXPRESS: [
@@ -243,7 +243,7 @@ function getMockProducts(platform: string) {
         originalCurrency: "USD",
         currency: "USD",
         weightGrams: 55,
-        badge: "⭐ Choice",
+        badge: "Choice Seleção",
         verifiedSupplier: true,
         freeShipping: true,
       },

@@ -344,9 +344,6 @@ async function generateRealCommunityPosts(): Promise<any[]> {
 }
 
 function generateRealPostContent(order: any): string {
-  const emojis = ['✅', '🎉', '🙏', '😍', '🏰'];
-  const randomEmoji = emojis[Math.floor(Math.random() * emojis.length)];
-
   const platforms = {
     Shein: ['roupas', 'vestidos', 'blazers', 'tenis'],
     AliExpress: ['gadgets', 'fones de ouvido', 'carregadores', 'smartwatches'],
@@ -363,11 +360,11 @@ function generateRealPostContent(order: any): string {
   const costAoa = Math.floor(costUsd * 830); // taxa de câmbio aproximada
 
   const contents = [
-    `${randomEmoji} Acabei de receber meu(a) ${products}! Chegou em ${days} dias. Pagando em Kwanzas via transferência. Entrega na porta em ${order.customerName.split(' ')[0]}. Muito satisfeito!`,
-    `🎉 Meu pedido ${order.reference} chegou hoje! O ${products} da ${order.platform} custou $${costUsd} + taxas. Aqui em Angola custaria o dobro! Paguei $${costAoa} Kz e valeu a pena!`,
-    `🙏 O ${products} da ${order.platform} acabou de chegar. Processo super rápido, pagamento easy em Kwanzas. Entregaram na minha casa em Luanda. Recomendo muito!`,
-    `😍 Meu pedido #${order.reference} está aqui! O ${products} funciona perfeitamente. Entrega: ${days} dias, custo total: $${costAoa} Kz. Valeu cada cêntimo!`,
-    `🏰 Segunda compra pela ImportEasy! Desta vez comprei ${products} da ${order.platform} por $${costUsd}. Entregou em ${days} dias para ${order.customerName}. Muito profissional!`
+    `Acabei de receber o meu ${products}! Chegou em ${days} dias. Pagamento em Kwanzas via transferência. Entrega sem complicações. Recomendo!`,
+    `O meu pedido ${order.reference} chegou hoje. O artigo ${products} da ${order.platform} custou $${costUsd} + taxas. Em Angola custaria o dobro. Paguei ${costAoa} Kz e correu tudo bem.`,
+    `O ${products} da ${order.platform} acabou de ser entregue. Processo organizado, pagamento direto em Kwanzas. Entregaram na minha morada em Luanda.`,
+    `Pedido #${order.reference} recebido! O ${products} funciona perfeitamente. Entrega em ${days} dias, custo total: ${costAoa} Kz. Serviço impecável.`,
+    `Segunda compra com a ImportEasy. Encomendei ${products} da ${order.platform} por $${costUsd}. Entregue em ${days} dias para ${order.customerName}. Muito profissional.`
   ];
 
   return contents[Math.floor(Math.random() * contents.length)];

@@ -114,7 +114,7 @@ export function ProductCard({ product, compact }: ProductCardProps) {
         {(safeProduct.badge || safeProduct.batteryHealth || safeProduct.freeShipping) && (
           <div className="absolute top-2.5 right-2.5 flex gap-1 z-10 max-w-[65%]">
             <span className="bg-ink-950/85 text-white text-[9px] sm:text-[9.5px] font-medium tracking-tight px-2 py-0.5 rounded-full backdrop-blur-sm truncate shadow-sm border border-white/10">
-              {safeProduct.badge || (safeProduct.batteryHealth ? `🔋 Bateria ${safeProduct.batteryHealth}` : "Entrega Grátis")}
+              {safeProduct.badge || (safeProduct.batteryHealth ? `Bateria ${safeProduct.batteryHealth}` : "Entrega Rápida")}
             </span>
           </div>
         )}

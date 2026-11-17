@@ -302,9 +302,9 @@ export default function ComunidadePage() {
         // Notificações flutuantes de prova social
         const toasts = [
           `Nova partilha de ${simulated.user} (${simulated.location})`,
-          `🎉 Comprovativo aprovado para ${simulated.user}`,
-          `📦 Pedido entregue em ${simulated.location}: ${simulated.product}`,
-          `⚡ Novo pedido registado via Express por ${simulated.user}`,
+          `Comprovativo aprovado para ${simulated.user}`,
+          `Pedido entregue em ${simulated.location}: ${simulated.product}`,
+          `Novo pedido registado via Express por ${simulated.user}`,
         ];
         const randomToast = toasts[Math.floor(Math.random() * toasts.length)];
         setNotifications((prev) => [...prev.slice(-2), randomToast]);

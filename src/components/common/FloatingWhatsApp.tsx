@@ -51,7 +51,7 @@ export function FloatingWhatsApp() {
           <div className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping shrink-0 mt-1" />
           <div className="flex-1">
             <p className="font-extrabold text-emerald-950 flex items-center gap-1">
-              Atendimento Online Angola 🇦🇴
+              Atendimento Oficial Angola
             </p>
             <p className="text-ink-600 mt-0.5 leading-snug">
               {strategy.floatingTooltip || "Tens dúvidas de como pagar ou como encomendar? Clica aqui e fala connosco no WhatsApp!"}
