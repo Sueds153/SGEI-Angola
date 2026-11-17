@@ -41,42 +41,60 @@ export default async function AdminDashboardPage() {
   const startOfToday = new Date();
   startOfToday.setHours(0, 0, 0, 0);
 
-  // 2. Consulta paralela de alto desempenho
-  const [
-    allOrders,
-    todayOrdersList,
-    pendingProofs,
-    recentAudits,
-    customerCountRes,
-  ] = await Promise.all([
-    db.select().from(orders).orderBy(desc(orders.createdAt)).limit(10),
-    db.select().from(orders).where(gte(orders.createdAt, startOfToday)),
-    db
-      .select({
-        order: orders,
-        payment: payments,
-      })
-      .from(orders)
-      .leftJoin(payments, eq(payments.orderId, orders.id))
-      .where(eq(orders.status, "PAYMENT_REVIEW"))
-      .orderBy(desc(orders.updatedAt))
-      .limit(10),
-    db.select().from(auditLogs).orderBy(desc(auditLogs.createdAt)).limit(6),
-    db.select({ count: sql<number>`count(*)` }).from(users).where(eq(users.role, "customer")),
-  ]);
+  // 2. Consulta paralela com resiliência total a falhas
+  let allOrders: any[] = [];
+  let todayOrdersList: any[] = [];
+  let pendingProofs: any[] = [];
+  let recentAudits: any[] = [];
+  let customersCount = 0;
+  let totalOrdersCount = 0;
+  let totalRevenueKz = 0;
 
-  // Contadores agregados
-  const totalOrdersCount = (await db.select({ count: sql<number>`count(*)` }).from(orders))[0]?.count || 0;
-  
-  // Receita de pedidos pagos
-  const paidOrdersSum = await db
-    .select({ total: sql<number>`coalesce(sum(${orders.totalCents}), 0)` })
-    .from(orders)
-    .where(eq(orders.paymentStatus, "PAID"));
-  const totalRevenueKz = Number(paidOrdersSum[0]?.total || 0);
+  try {
+    const [
+      ordersRes,
+      todayRes,
+      proofsRes,
+      auditsRes,
+      custRes,
+    ] = await Promise.all([
+      db.select().from(orders).orderBy(desc(orders.createdAt)).limit(10).catch(() => []),
+      db.select().from(orders).where(gte(orders.createdAt, startOfToday)).catch(() => []),
+      db
+        .select({
+          order: orders,
+          payment: payments,
+        })
+        .from(orders)
+        .leftJoin(payments, eq(payments.orderId, orders.id))
+        .where(eq(orders.status, "PAYMENT_REVIEW"))
+        .orderBy(desc(orders.updatedAt))
+        .limit(10)
+        .catch(() => []),
+      db.select().from(auditLogs).orderBy(desc(auditLogs.createdAt)).limit(6).catch(() => []),
+      db.select({ count: sql<number>`count(*)` }).from(users).where(eq(users.role, "customer")).catch(() => [{ count: 0 }]),
+    ]);
+
+    allOrders = ordersRes;
+    todayOrdersList = todayRes;
+    pendingProofs = proofsRes;
+    recentAudits = auditsRes;
+    customersCount = Number(custRes[0]?.count || 0);
+
+    const countRes = await db.select({ count: sql<number>`count(*)` }).from(orders).catch(() => [{ count: 0 }]);
+    totalOrdersCount = countRes[0]?.count || 0;
+
+    const paidOrdersSum = await db
+      .select({ total: sql<number>`coalesce(sum(${orders.totalCents}), 0)` })
+      .from(orders)
+      .where(eq(orders.paymentStatus, "PAID"))
+      .catch(() => [{ total: 0 }]);
+    totalRevenueKz = Number(paidOrdersSum[0]?.total || 0);
+  } catch (err) {
+    console.error("[AdminDashboard] Error loading metrics:", err);
+  }
 
   const pendingProofsCount = pendingProofs.length;
-  const customersCount = Number(customerCountRes[0]?.count || 0);
   const todayOrdersCount = todayOrdersList.length;
 
   return (

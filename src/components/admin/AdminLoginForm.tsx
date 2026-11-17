@@ -29,8 +29,7 @@ export function AdminLoginForm() {
         setError(data.error || "Credenciais inválidas.");
         return;
       }
-      router.push("/admin");
-      router.refresh();
+      window.location.href = "/admin";
     } catch {
       setError("Erro de ligação.");
     } finally {

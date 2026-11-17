@@ -20,6 +20,7 @@ import {
 } from "lucide-react";
 import { getSession } from "@/lib/auth";
 import { Logo } from "@/components/brand/Logo";
+import { AdminNavLinkClient } from "./AdminNavLinkClient";
 
 export const metadata: Metadata = {
   title: "Admin · ImportEasy",
@@ -94,7 +95,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   );
 }
 
-async function AdminNavLink({
+function AdminNavLink({
   href,
   icon: Icon,
   children,
@@ -103,6 +104,5 @@ async function AdminNavLink({
   icon: any;
   children: React.ReactNode;
 }) {
-  const { AdminNavLinkClient } = await import("./AdminNavLinkClient");
   return <AdminNavLinkClient href={href} icon={Icon}>{children}</AdminNavLinkClient>;
 }
