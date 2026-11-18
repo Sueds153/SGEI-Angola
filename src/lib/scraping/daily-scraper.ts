@@ -49,7 +49,7 @@ interface ScraperTask {
  * ou bloqueados, e exigimos um preço compatível com um telemóvel funcional.
  */
 const IPHONE_REJECT =
-  /pe[cç]as|pecas|bloquead|bloqueado|icloud|partid|quebrad|para arranjo|avariad|as[- ]is|n[aã]o funciona|sem funcionar|defeito|danificad|coque|hoesje|hoesjes|case|cover|capa|capinha|funda|etui|h[uü]lle|carcasa|pel[ií]cula|ecr[aã]|carregador|cabo|charger|cable|bateria|battery|suporte|peluche/i;
+  /pe[cç]as|pecas|bloquead|bloqueado|icloud|partid|quebrad|para arranjo|avariad|as[- ]is|n[aã]o funciona|sem funcionar|defeito|danificad|coque|hoesje|hoesjes|case|cover|capa|capinha|funda|etui|h[uü]lle|carcasa|pel[ií]cula|ecr[aã]|carregador|cabo|charger|cable|bateria|battery|suporte|peluche|teclado|keyboard|clicks|\bfor iphone\b|para iphone/i;
 
 const IPHONE_MIN_PRICE = 60;
 
@@ -172,9 +172,9 @@ async function fetchSheinHtml(term: string): Promise<string | null> {
   }
 }
 
-async function collectShein(term: string): Promise<Listing[]> {
+async function collectShein(term: string, page: number): Promise<Listing[]> {
   const markdown = await fetchMarkdown(
-    `https://pt.shein.com/pdsearch/${encodeURIComponent(term)}/`
+    `https://pt.shein.com/pdsearch/${encodeURIComponent(term)}/?page=${page}`
   );
   if (markdown) {
     const listings = parseSheinMarkdown(markdown);
@@ -303,22 +303,33 @@ async function saveListings(
   return { created, updated: toUpdate.length };
 }
 
+/**
+ * As pesquisas devolvem sempre os mesmos primeiros anúncios. Rodar a página
+ * pelo dia do mês faz o catálogo crescer ao longo da semana em vez de repetir
+ * os mesmos produtos todos os dias.
+ */
+function searchPage(): number {
+  return (new Date().getUTCDate() % 3) + 1;
+}
+
 async function collect(task: ScraperTask): Promise<Listing[]> {
+  const page = searchPage();
+
   if (task.platform === "VINTED") {
     const markdown = await fetchMarkdown(
-      `https://www.vinted.pt/catalog?search_text=${encodeURIComponent(task.term)}&order=newest_first`
+      `https://www.vinted.pt/catalog?search_text=${encodeURIComponent(task.term)}&order=newest_first&page=${page}`
     );
     return markdown ? parseVinted(markdown) : [];
   }
 
   if (task.platform === "ALIEXPRESS") {
     const markdown = await fetchMarkdown(
-      `https://pt.aliexpress.com/w/wholesale-${encodeURIComponent(task.term)}.html`
+      `https://pt.aliexpress.com/w/wholesale-${encodeURIComponent(task.term)}.html?page=${page}`
     );
     return markdown ? parseAliExpress(markdown) : [];
   }
 
-  return collectShein(task.term);
+  return collectShein(task.term, page);
 }
 
 // ───────────────────────────── Execução ─────────────────────────────
