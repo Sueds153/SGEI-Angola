@@ -58,6 +58,10 @@ export async function createOrderFromInput(input: OrderCreateInput): Promise<Cre
   let serviceFeeCents = Math.round(itemsSubtotalCents * cfg.serviceFeePct);
   if (serviceFeeCents < cfg.serviceFeeMinCents) serviceFeeCents = cfg.serviceFeeMinCents;
   const logisticsFeeCents = cfg.logisticsBaseCents;
+  // Alfândega sobre CIF (subtotal + logística)
+  const cifBaseCents = itemsSubtotalCents + logisticsFeeCents;
+  let customsFeeCents = Math.round(cifBaseCents * cfg.customsFeePct);
+  if (customsFeeCents < cfg.customsFeeMinCents) customsFeeCents = cfg.customsFeeMinCents;
   let deliveryFeeCents = cfg.localDeliveryCents;
   if (
     input.address.province &&
@@ -66,7 +70,7 @@ export async function createOrderFromInput(input: OrderCreateInput): Promise<Cre
   ) {
     deliveryFeeCents = cfg.deliveryByProvince[input.address.province];
   }
-  const rawTotal = itemsSubtotalCents + serviceFeeCents + logisticsFeeCents + deliveryFeeCents;
+  const rawTotal = itemsSubtotalCents + serviceFeeCents + logisticsFeeCents + customsFeeCents + deliveryFeeCents;
   const totalCents = Math.round(rawTotal / cfg.roundToNearestCents) * cfg.roundToNearestCents;
 
   // Encontra/cria cliente
@@ -107,6 +111,7 @@ export async function createOrderFromInput(input: OrderCreateInput): Promise<Cre
       subtotalCents: itemsSubtotalCents,
       serviceFeeCents,
       logisticsFeeCents,
+      customsFeeCents,
       deliveryFeeCents,
       totalCents,
       currency: "AOA",
