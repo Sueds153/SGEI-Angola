@@ -16,6 +16,19 @@ interface ResponsiveImageProps {
   fallbackText?: string;
 }
 
+const FALLBACK_BASE =
+  "grid place-items-center bg-ink-100 text-ink-400 text-[11px] font-medium text-center leading-tight px-1";
+
+/**
+ * Imagens locais (ex.: /uploads/..., /products/...) passam pelo otimizador do Next.
+ * Imagens externas (CDN de marketplaces, avatares gerados, ficheiros temporários do
+ * cliente) são servidas tal como estão, porque o otimizador rejeitaria estes domínios
+ * ou formatos e as imagens apareceriam quebradas.
+ */
+function shouldOptimize(src: string) {
+  return src.startsWith("/") && !src.startsWith("//");
+}
+
 export function ResponsiveImage({
   src,
   alt,
@@ -26,85 +39,60 @@ export function ResponsiveImage({
   priority = false,
   fill = false,
   objectFit = "cover",
-  fallbackText = "Imagem não disponível",
+  fallbackText = "Imagem indisponível",
 }: ResponsiveImageProps) {
-  const [error, setError] = useState(false);
-  const [loaded, setLoaded] = useState(false);
+  const [failed, setFailed] = useState(false);
 
-  // Se a imagem for local (começa com /), usar next/image normalmente
-  // Se for externa, verificar se é permitida
-  const isLocal = src?.startsWith("/");
-  const isExternal = src?.startsWith("http");
+  const style: React.CSSProperties = fill
+    ? { width: "100%", height: "100%", objectFit }
+    : { objectFit };
 
-  // Para imagens externas, verificar se o domínio é permitido
-  const allowedDomains = [
-    "importeasy-angola.vercel.app",
-    "images.unsplash.com",
-    "i.pravatar.cc",
-    "api.dicebear.com",
-    "via.placeholder.com",
-    "res.cloudinary.com",
-    "cloudinary.com",
-  ];
-
-  const isAllowedExternal = isExternal && allowedDomains.some((d) =>
-    src.includes(d)
-  );
-
-  if (error || (!isLocal && !isAllowedExternal)) {
+  if (!src || failed) {
+    if (fill) {
+      return (
+        <div className={`${FALLBACK_BASE} h-full w-full ${className}`}>{fallbackText}</div>
+      );
+    }
     return (
       <div
-        className={`flex items-center justify-center bg-ink-100 text-ink-400 text-xs ${className}`}
+        className={`${FALLBACK_BASE} ${className}`}
+        style={{ width: width ?? 400, height: height ?? 300 }}
       >
-        <span className="px-2 py-1 text-center">{fallbackText}</span>
+        {fallbackText}
       </div>
     );
   }
 
-  // Usar next/image para imagens locais e externas permitidas
-  if (fill) {
+  const loading = priority ? "eager" : "lazy";
+
+  if (shouldOptimize(src)) {
     return (
-      <div className={`relative overflow-hidden ${className}`}>
-        <Image
-          src={src}
-          alt={alt}
-          fill
-          sizes={sizes || "(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"}
-          priority={priority}
-          className={`object-${objectFit} transition-opacity duration-300 ${
-            loaded ? "opacity-100" : "opacity-0"
-          }`}
-          style={{ objectFit }}
-          onError={() => setError(true)}
-          onLoad={() => setLoaded(true)}
-        />
-        {!loaded && (
-          <div className="absolute inset-0 bg-ink-100 animate-pulse" />
-        )}
-      </div>
+      <Image
+        src={src}
+        alt={alt}
+        {...(fill
+          ? { width: 0, height: 0, sizes: sizes ?? "(max-width: 768px) 100vw, 33vw" }
+          : { width: width ?? 400, height: height ?? 300, sizes })}
+        priority={priority}
+        className={className}
+        style={style}
+        onError={() => setFailed(true)}
+      />
     );
   }
 
   return (
-    <div className={`relative overflow-hidden ${className}`}>
-      <Image
-        src={src}
-        alt={alt}
-        width={width || 400}
-        height={height || 300}
-        sizes={sizes || "(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"}
-        priority={priority}
-        className={`object-${objectFit} transition-opacity duration-300 ${
-          loaded ? "opacity-100" : "opacity-0"
-        }`}
-        style={{ objectFit }}
-        onError={() => setError(true)}
-        onLoad={() => setLoaded(true)}
-      />
-      {!loaded && (
-        <div className="absolute inset-0 bg-ink-100 animate-pulse" />
-      )}
-    </div>
+    // eslint-disable-next-line @next/next/no-img-element
+    <img
+      src={src}
+      alt={alt}
+      {...(fill ? {} : { width: width ?? 400, height: height ?? 300 })}
+      loading={loading}
+      decoding="async"
+      className={className}
+      style={style}
+      onError={() => setFailed(true)}
+    />
   );
 }
 
