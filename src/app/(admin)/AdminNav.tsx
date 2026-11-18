@@ -16,6 +16,8 @@ import {
   MessageSquare,
   Banknote,
   Search,
+  AlertTriangle,
+  RotateCcw,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -31,6 +33,7 @@ const adminNav = [
   { href: "/admin/clientes", label: "Clientes", icon: Users },
   { href: "/admin/precos", label: "Preços & Margens", icon: BarChart3 },
   { href: "/admin/comunidade", label: "Comunidade", icon: MessageSquare },
+  { href: "/admin/revisao-manual", label: "Revisão Manual", icon: AlertTriangle },
   { href: "/admin/configuracoes", label: "Configurações", icon: Settings },
   { href: "/admin/logs", label: "Logs", icon: FileText },
 ];
