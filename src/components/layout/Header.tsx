@@ -76,8 +76,8 @@ export function Header() {
             : "bg-white/0 border-b border-transparent"
         )}
       >
-        <div className="mx-auto max-w-[1200px] px-5 sm:px-8">
-          <div className="flex h-14 md:h-[60px] items-center justify-between">
+        <div className="mx-auto max-w-[1200px] px-4 sm:px-6 lg:px-8">
+          <div className="flex h-14 md:h-[60px] items-center justify-between gap-2">
             <Logo size="md" />
 
             {/* Nav desktop */}
@@ -107,7 +107,7 @@ export function Header() {
             <div className="flex items-center gap-1">
               <button
                 onClick={() => setSearchOpen((v) => !v)}
-                className="h-11 w-11 grid place-items-center rounded-full text-ink-700 hover:bg-ink-100 transition"
+                className="h-10 w-10 sm:h-11 sm:w-11 grid place-items-center rounded-full text-ink-700 hover:bg-ink-100 transition"
                 aria-label="Pesquisar"
               >
                 <Search className="h-[18px] w-[18px]" />
@@ -116,12 +116,12 @@ export function Header() {
               {/* Botão Mala Coletiva / Carrinho com Frete Grátis */}
               <button
                 onClick={() => setIsOpen(true)}
-                className="relative h-11 w-11 grid place-items-center rounded-full text-ink-700 hover:bg-ink-100 transition"
+                className="relative h-10 w-10 sm:h-11 sm:w-11 grid place-items-center rounded-full text-ink-700 hover:bg-ink-100 transition"
                 aria-label="Mala Coletiva / Carrinho"
               >
                 <ShoppingBag className="h-[20px] w-[20px] text-ink-800" />
                 {itemCount > 0 && (
-                  <span className="absolute top-1.5 right-1.5 min-w-[18px] h-[18px] px-1 rounded-full bg-emerald-600 text-white text-[10px] font-extrabold grid place-items-center animate-scale-in shadow-sm">
+                  <span className="absolute top-1 right-1 sm:top-1.5 sm:right-1.5 min-w-[18px] h-[18px] px-1 rounded-full bg-emerald-600 text-white text-[10px] font-extrabold grid place-items-center animate-scale-in shadow-sm">
                     {itemCount}
                   </span>
                 )}

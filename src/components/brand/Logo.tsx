@@ -25,9 +25,9 @@ export function Logo({
 }) {
   const isLight = variant === "light";
   const sizeMap = {
-    sm: { box: 36, word: "text-[15px]", tag: "text-[8px]", gap: "gap-2" },
-    md: { box: 44, word: "text-[19px]", tag: "text-[9px]", gap: "gap-2.5" },
-    lg: { box: 60, word: "text-[24px]", tag: "text-[10px]", gap: "gap-3" },
+    sm: { box: 32, word: "text-[13px]", tag: "text-[8px]", gap: "gap-2" },
+    md: { box: 40, word: "text-[15px] sm:text-[19px]", tag: "text-[9px]", gap: "gap-2 sm:gap-2.5" },
+    lg: { box: 60, word: "text-xl sm:text-2xl", tag: "text-[10px]", gap: "gap-3" },
   } as const;
   const s = sizeMap[size];
 
@@ -50,10 +50,10 @@ export function Logo({
           priority={size === "md" || size === "lg"}
         />
       </span>
-      <span className="leading-none">
+      <span className="leading-none min-w-0">
         <span
           className={cn(
-            "block font-semibold tracking-tight leading-none",
+            "block truncate font-semibold tracking-tight leading-none",
             s.word,
             isLight ? "text-white" : "text-ink-900"
           )}

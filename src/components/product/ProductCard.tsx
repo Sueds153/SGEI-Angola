@@ -85,7 +85,7 @@ export function ProductCard({ product, compact }: ProductCardProps) {
       href={`/produto/${product.slug}`}
       className="group block focus:outline-none"
     >
-      <div className={cn("relative bg-ink-100 rounded-[20px] overflow-hidden aspect-[3/4]", compact && "aspect-[3/4]")}>
+      <div className={cn("relative bg-ink-100 rounded-[20px] overflow-hidden aspect-[3/4] sm:aspect-[4/5]", compact && "aspect-[3/4] sm:aspect-[4/5]")}>
         {image && !imageError ? (
           <Image
             src={image}
@@ -101,10 +101,10 @@ export function ProductCard({ product, compact }: ProductCardProps) {
             <ShoppingBag className="h-10 w-10" />
           </div>
         )}
-        
+
         {/* Badge de origem */}
-        <div className="absolute top-2.5 left-2.5 flex gap-1.5 z-10">
-          <span className={`${sourceInfo.color} text-[9px] sm:text-[10px] font-semibold tracking-wide px-2.5 py-0.5 rounded-full backdrop-blur-sm flex items-center gap-1 shadow-sm`}>
+        <div className="absolute top-1.5 left-1.5 flex gap-1 z-10">
+          <span className={`${sourceInfo.color} text-[9px] sm:text-[10px] font-semibold tracking-wide px-2 py-0.5 rounded-full backdrop-blur-sm flex items-center gap-1 shadow-sm`}>
             <SourceIcon className="h-3 w-3" />
             {sourceInfo.label}
           </span>
@@ -112,19 +112,19 @@ export function ProductCard({ product, compact }: ProductCardProps) {
 
         {/* Badge adicional (Bateria iPhone, Fornecedor Verificado, Entrega Grátis) */}
         {(safeProduct.badge || safeProduct.batteryHealth || safeProduct.freeShipping) && (
-          <div className="absolute top-2.5 right-2.5 flex gap-1 z-10 max-w-[65%]">
+          <div className="absolute top-1.5 right-1.5 flex gap-1 z-10 max-w-[60%]">
             <span className="bg-ink-950/85 text-white text-[9px] sm:text-[9.5px] font-medium tracking-tight px-2 py-0.5 rounded-full backdrop-blur-sm truncate shadow-sm border border-white/10">
               {safeProduct.badge || (safeProduct.batteryHealth ? `Bateria ${safeProduct.batteryHealth}` : "Entrega Rápida")}
             </span>
           </div>
         )}
-        
+
         {safeProduct.availability !== "IN_STOCK" && (
           <div className="absolute inset-0 bg-white/75 backdrop-blur-[2px] grid place-items-center">
             <span className="text-sm font-medium text-ink-900">Sem stock</span>
           </div>
         )}
-        <div className="absolute bottom-2.5 right-2.5 h-9 w-9 rounded-full bg-white/95 backdrop-blur grid place-items-center opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-1 group-hover:translate-y-0 shadow-sm">
+        <div className="absolute bottom-1.5 right-1.5 h-9 w-9 rounded-full bg-white/95 backdrop-blur grid place-items-center opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-1 group-hover:translate-y-0 shadow-sm">
           <ShoppingBag className="h-4 w-4 text-ink-900" />
         </div>
       </div>

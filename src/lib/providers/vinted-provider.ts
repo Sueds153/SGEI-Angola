@@ -59,7 +59,15 @@ async function fetchVintedItem(itemId: string, sourceUrl?: string): Promise<Norm
 
     // Vinted usa EUR
     const sourceCurrency = "EUR";
-    const priceAmount = parseFloat(vintedItem.price.amount);
+    const priceAmount = parseFloat(vintedItem.price.amount);  // preço base do vendedor
+
+    // Taxa de proteção ao comprador Vinted (extraída do scraper ou calculada pela fórmula oficial)
+    const serviceFeeAmount = parseFloat(vintedItem.service_fee.amount) ||
+      parseFloat((0.70 + priceAmount * 0.05).toFixed(2));
+    const totalVintedPrice = parseFloat(vintedItem.total_price.amount) ||
+      parseFloat((priceAmount + serviceFeeAmount).toFixed(2));
+
+    console.log(`[Vinted] Preço base: ${priceAmount}€ | Taxa Proteção: ${serviceFeeAmount}€ | Total Vinted: ${totalVintedPrice}€`);
 
     // Estimativa de peso baseada no título
     const titleLower = vintedItem.title.toLowerCase();
@@ -112,7 +120,8 @@ async function fetchVintedItem(itemId: string, sourceUrl?: string): Promise<Norm
       category: null,
       images,
       defaultImage: images[0] || null,
-      originalPriceUsd: priceAmount, // Valor em EUR
+      // originalPriceUsd guarda o TOTAL que a nossa equipa pagará na Vinted (preço + taxa proteção)
+      originalPriceUsd: totalVintedPrice,
       currency: sourceCurrency,
       availability: "IN_STOCK",
       status: "ACTIVE",
@@ -121,7 +130,11 @@ async function fetchVintedItem(itemId: string, sourceUrl?: string): Promise<Norm
       reviewCount: vintedItem.user.feedback_reputation || 0,
       weightGrams: estimatedWeight,
       variants,
-    };
+      // Campos extras para discriminação no frontend
+      vintedBasePrice: priceAmount,
+      vintedProtectionFee: serviceFeeAmount,
+      vintedTotalPrice: totalVintedPrice,
+    } as any;
   } catch (error: any) {
     console.error('[Vinted] Erro ao buscar item:', error.message);
     return null;

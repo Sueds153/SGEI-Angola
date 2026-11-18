@@ -59,27 +59,97 @@ function extractFromJinaAIText(text: string): VintedItem | null {
       }
     }
     
-    // Extrai preço (formato: 50,00€ ou 50.00 €)
+    // Extrai preço base e preço com taxa de proteção do comprador
     let priceStr = '';
-    for (const line of lines) {
-      // Procura padrão de preço: dígitos + vírgula/ponto + €
+    let totalPriceStr = '';
+    let serviceFeeStr = '';
+
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i];
+
+      // Detecta linha explícita de proteção: ex "11,20€incl. taxa Vinted", "11.20 € incl. Frais Vinted", etc.
+      const protectedMatch = line.match(/^([\d,.]+)\s*€?\s*(?:incl|com\s+prote|frais|taxa|protection|buyer)/i) ||
+                             line.match(/^([\d,.]+)\s*€\s*incl/i);
+      if (protectedMatch && !totalPriceStr) {
+        const val = protectedMatch[1].replace(',', '.');
+        if (parseFloat(val) > 0) {
+          totalPriceStr = parseFloat(val).toFixed(2);
+        }
+      }
+
+      // Procura padrão de preço base: dígitos + vírgula/ponto + €
       const priceMatch = line.match(/^([\d,.]+)\s*€/);
-      if (priceMatch) {
-        // Ignora "Frais Vinted inclus" que vem depois do preço principal
-        const value = priceMatch[1].replace(',', '.');
-        if (parseFloat(value) > 0) {
-          priceStr = value;
-          break;
+      if (priceMatch && !priceStr) {
+        // Se a linha tem "incl" ou "taxa", guardamos como total com proteção
+        if (/incl|taxa|frais|prote/i.test(line)) {
+          if (!totalPriceStr) {
+            totalPriceStr = parseFloat(priceMatch[1].replace(',', '.')).toFixed(2);
+          }
+        } else {
+          const value = priceMatch[1].replace(',', '.');
+          if (parseFloat(value) > 0) {
+            priceStr = parseFloat(value).toFixed(2);
+          }
         }
       }
     }
-    
-    // Extrai imagens (prioriza URLs do Vinted)
+
+    // Se encontramos o preço base mas não o total com proteção, calcula pela fórmula oficial Vinted
+    // Fórmula oficial Vinted: 0,70 € fixo + 5% do valor do artigo
+    if (priceStr && !totalPriceStr) {
+      const baseNum = parseFloat(priceStr);
+      const fee = 0.70 + (baseNum * 0.05);
+      serviceFeeStr = fee.toFixed(2);
+      totalPriceStr = (baseNum + fee).toFixed(2);
+    } else if (priceStr && totalPriceStr) {
+      const baseNum = parseFloat(priceStr);
+      const totalNum = parseFloat(totalPriceStr);
+      if (totalNum > baseNum) {
+        serviceFeeStr = (totalNum - baseNum).toFixed(2);
+      } else {
+        // Se totalPriceStr acabou igual ou menor, recalcula fórmula oficial
+        const fee = 0.70 + (baseNum * 0.05);
+        serviceFeeStr = fee.toFixed(2);
+        totalPriceStr = (baseNum + fee).toFixed(2);
+      }
+    } else if (!priceStr && totalPriceStr) {
+      // Se só encontrou o total com taxa, desconta a taxa
+      const totalNum = parseFloat(totalPriceStr);
+      const baseNum = Math.max(0, (totalNum - 0.70) / 1.05);
+      priceStr = baseNum.toFixed(2);
+      serviceFeeStr = (totalNum - baseNum).toFixed(2);
+    }
+
+    // Extrai imagens (captura robusta de URLs Vinted em qualquer formato markdown ou plain)
     const imageUrls: string[] = [];
-    const imgRegex = /!\[Image \d+: [^\]]*\]\((https:\/\/images[0-9]\.vinted\.net\/[^)]+)\)/g;
+    const imgRegex = /!\[([^\]]*)\]\((https:\/\/[^)]*(?:vinted\.(?:net|com)|vinted-media)[^)]+)\)/gi;
     let imgMatch;
     while ((imgMatch = imgRegex.exec(markdownContent)) !== null) {
-      imageUrls.push(imgMatch[1]);
+      const u = imgMatch[2];
+      if (
+        !u.includes('buyer-protection') &&
+        !u.includes('logo') &&
+        !u.includes('facebook') &&
+        !u.includes('instagram') &&
+        !u.includes('linkedin') &&
+        !u.includes('google-play') &&
+        !u.includes('app-store') &&
+        !imageUrls.includes(u)
+      ) {
+        imageUrls.push(u);
+      }
+    }
+
+    // Fallback de imagens: busca URLs diretas do CDN da Vinted no texto todo
+    if (imageUrls.length === 0) {
+      const directUrlRegex = /(https:\/\/images[0-9]*\.vinted\.net\/t\/[^\s"')]+)/gi;
+      let directMatch;
+      while ((directMatch = directUrlRegex.exec(text)) !== null) {
+        const u = directMatch[1];
+        if (!imageUrls.includes(u)) {
+          imageUrls.push(u);
+        }
+      }
     }
     
     // Extrai detalhes estruturados (Tamanho, Estado, Marca, Cor)
@@ -146,29 +216,48 @@ function extractFromJinaAIText(text: string): VintedItem | null {
       return null;
     }
     
-    // Prepara imagens
-    const thumbnails = imageUrls.filter(url => url.includes('vinted.net'));
-    const fullSize = thumbnails.map(url => url.replace('/310x430/', '/f800/').replace('/190x260/', '/f800/'));
-    
+    // Prepara imagens — agora usa imageUrls já filtradas de logos/ícones
+    // Garante full-size (substitui tamanhos 310x430, 190x260, 820x1120 pelo /f800/)
+    const thumbnails = imageUrls.filter(u => u.includes('vinted.net'));
+    const fullSize = thumbnails.map(u =>
+      u.replace(/\/\d+x\d+\//, '/f800/')
+       .replace('/310x430/', '/f800/')
+       .replace('/190x260/', '/f800/')
+       .replace('/820x1120/', '/f800/')
+    );
+
+    // Se não encontrou imagens de produto, busca qualquer URL CDN Vinted restante no texto bruto
+    if (thumbnails.length === 0) {
+      const fallbackRegex = /(https:\/\/images[0-9]*\.vinted\.net\/[^\s"')\]]+\.(?:jpg|jpeg|webp|png)(?:\?[^\s"')\]]*)?)/gi;
+      let fm: RegExpExecArray | null;
+      while ((fm = fallbackRegex.exec(text)) !== null) {
+        const u = fm[1];
+        if (!thumbnails.includes(u)) thumbnails.push(u);
+        const full = u.replace(/\/\d+x\d+\//, '/f800/');
+        if (!fullSize.includes(full)) fullSize.push(full);
+      }
+    }
+
     return {
       id: 0, // Será preenchido pelo caller
       title: title || 'Item Vinted',
       images: {
         url: fullSize[0] || thumbnails[0] || '',
         full_size_url: fullSize[0] || thumbnails[0] || '',
-        thumbnails,
+        thumbnails: fullSize.length > 0 ? fullSize : thumbnails,
       },
-      price: { 
-        amount: priceStr || '0', 
-        currency_code: 'EUR' 
+      price: {
+        amount: priceStr || '0',
+        currency_code: 'EUR',
       },
       discount: null,
       brand_title: brand || 'Sem marca',
       size_title: size || '',
       status,
       user: { id: 0, login: '', feedback_reputation: 0 },
-      service_fee: { amount: '0', currency_code: 'EUR' },
-      total_price: { amount: '0', currency_code: 'EUR' },
+      // Taxa de proteção do comprador Vinted: 0,70€ + 5% do preço base (fórmula oficial)
+      service_fee: { amount: serviceFeeStr || '0', currency_code: 'EUR' },
+      total_price: { amount: totalPriceStr || priceStr || '0', currency_code: 'EUR' },
     };
   } catch (error: any) {
     console.warn('[Vinted Parser] Erro ao extrair de texto Jina AI:', error.message);

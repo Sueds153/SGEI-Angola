@@ -80,28 +80,34 @@ export function UrlResolverForm({ variant = "light" }: { variant?: Variant }) {
       });
       const data = await res.json();
 
-      if (data.status === "found" && data.product) {
+      if ((data.status === "found" || data.success) && (data.product || data.title)) {
         const cfg = await getPricingConfig();
-        const price = data.product.originalPriceUsd
+        // Suporta resposta plana (title, price, images) e resposta aninhada (product.*)
+        const productName = data.product?.name || data.title;
+        const productPrice = data.product?.originalPriceUsd ?? data.price;
+        const productCurrency = data.currency || data.product?.currency || "USD";
+        const productWeight = data.product?.weightGrams;
+
+        const price = productPrice != null
           ? clientCalculatePrice(
               {
-                productPrice: data.product.originalPriceUsd,
-                productCurrency: (data.currency as "USD" | "EUR" | "CNY" | "AOA") || "USD",
-                weightGrams: data.product.weightGrams,
+                productPrice: productPrice,
+                productCurrency: (productCurrency as "USD" | "EUR" | "CNY" | "AOA"),
+                weightGrams: productWeight,
               },
               cfg
             )
           : null;
-        
+
         setState({
           status: "found",
-          externalId: data.externalId,
-          source: data.source,
-          currency: data.currency,
+          externalId: data.externalId || data.productId,
+          source: data.source || data.platform,
+          currency: productCurrency,
           preview: {
-            title: data.product.name,
-            estimatedOriginal: data.product.originalPriceUsd,
-            originalCurrency: data.currency,
+            title: productName,
+            estimatedOriginal: productPrice,
+            originalCurrency: productCurrency,
             estimatedKz: price?.totalCents,
           },
         });

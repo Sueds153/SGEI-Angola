@@ -76,14 +76,13 @@ export function ProductDetail({ product }: { product: NormalizedProduct }) {
 
   const variantAvailable = selectedVariant?.available !== false;
 
-  // Detecta moeda do produto (usa campo currency do produto ou campo originalCurrency se disponível)
   const productCurrency = ((product as any).originalCurrency || product.currency || "USD") as SupportedCurrency;
 
   const pricing = useMemo(() => {
     if (!priceCfg || product.originalPriceUsd == null) return null;
     return clientCalculatePrice(
       {
-        productPrice: product.originalPriceUsd, // Agora contém o preço na moeda original
+        productPrice: product.originalPriceUsd,
         productCurrency,
         quantity,
         weightGrams: product.weightGrams,
@@ -114,7 +113,6 @@ export function ProductDetail({ product }: { product: NormalizedProduct }) {
     router.push(`/checkout?${params.toString()}`);
   }
 
-  // Preço na moeda original para referência
   const originalPrice = product.originalPriceUsd
     ? product.originalPriceUsd + (selectedVariant?.priceModifierUsd || 0)
     : null;
@@ -140,34 +138,56 @@ export function ProductDetail({ product }: { product: NormalizedProduct }) {
               <PackageIcon className="h-20 w-20" />
             </div>
           )}
-
+          {product.images.length > 1 && (
+            <div className="mt-3 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-5 gap-2">
+              {product.images.slice(0, 5).map((img, i) => (
+                <button
+                  key={i}
+                  onClick={() => setActiveImage(i)}
+                  className={cn(
+                    "relative aspect-square rounded-xl overflow-hidden bg-ink-100 ring-2 transition",
+                    activeImage === i ? "ring-ink-900" : "ring-transparent hover:ring-ink-300"
+                  )}
+                >
+                  <Image
+                    src={img}
+                    alt={`Imagem ${i + 1} de ${product.name}`}
+                    fill
+                    sizes="20vw"
+                    unoptimized={!img.startsWith("/")}
+                    className="object-cover"
+                  />
+                </button>
+              ))}
+            </div>
+          )}
           {product.images.length > 1 && (
             <>
               <button
                 onClick={prevImage}
-                className="absolute left-4 top-1/2 -translate-y-1/2 h-11 w-11 rounded-full bg-white/90 backdrop-blur-sm shadow-sm grid place-items-center hover:bg-white transition"
+                className="absolute left-4 top-1/2 -translate-y-1/2 h-10 sm:h-11 w-10 sm:w-11 rounded-full bg-white/90 backdrop-blur-sm shadow-sm grid place-items-center hover:bg-white transition"
                 aria-label="Imagem anterior"
               >
-                <ChevronLeft className="h-5 w-5 text-ink-900" />
+                <ChevronLeft className="h-4 w-4 sm:h-5 sm:w-5 text-ink-900" />
               </button>
               <button
                 onClick={nextImage}
-                className="absolute right-4 top-1/2 -translate-y-1/2 h-11 w-11 rounded-full bg-white/90 backdrop-blur-sm shadow-sm grid place-items-center hover:bg-white transition"
+                className="absolute right-4 top-1/2 -translate-y-1/2 h-10 sm:h-11 w-10 sm:w-11 rounded-full bg-white/90 backdrop-blur-sm shadow-sm grid place-items-center hover:bg-white transition"
                 aria-label="Próxima imagem"
               >
-                <ChevronRight className="h-5 w-5 text-ink-900" />
+                <ChevronRight className="h-4 w-4 sm:h-5 sm:w-5 text-ink-900" />
               </button>
             </>
           )}
-          <span className="absolute top-4 left-4 bg-brand-600/90 text-white text-[10px] font-semibold tracking-wide px-3 py-1 rounded-full backdrop-blur-sm shadow-sm">
+          <span className="absolute top-4 left-4 sm:top-[12px] sm:left-[12px] bg-brand-600/90 text-white text-[10px] font-semibold tracking-wide px-3 py-1 rounded-full backdrop-blur-sm shadow-sm">
             Importação Garantida
           </span>
           <button
             onClick={() => setLiked((v) => !v)}
-            className="absolute top-4 right-4 h-10 w-10 rounded-full bg-white/90 backdrop-blur-sm grid place-items-center hover:bg-white transition"
+            className="absolute top-4 right-4 sm:top-[12px] sm:right-[12px] h-10 sm:h-11 w-10 sm:w-11 rounded-full bg-white/90 backdrop-blur-sm grid place-items-center hover:bg-white transition"
             aria-label="Favorito"
           >
-            <Heart className={cn("h-5 w-5 transition", liked ? "fill-primary-600 text-primary-600" : "text-ink-700")} />
+            <Heart className={cn("h-4 w-4 sm:h-5 sm:w-5 transition", liked ? "fill-primary-600 text-primary-600" : "text-ink-700")} />
           </button>
           {!variantAvailable && (
             <div className="absolute inset-0 bg-white/80 backdrop-blur-[2px] grid place-items-center">
@@ -178,22 +198,6 @@ export function ProductDetail({ product }: { product: NormalizedProduct }) {
             </div>
           )}
         </div>
-        {product.images.length > 1 && (
-          <div className="mt-3 grid grid-cols-5 gap-2">
-            {product.images.slice(0, 5).map((img, i) => (
-              <button
-                key={i}
-                onClick={() => setActiveImage(i)}
-                className={cn(
-                  "relative aspect-square rounded-xl overflow-hidden bg-ink-100 ring-2 transition",
-                  activeImage === i ? "ring-ink-900" : "ring-transparent hover:ring-ink-300"
-                )}
-              >
-                <Image src={img} alt={`Imagem ${i + 1} de ${product.name}`} fill sizes="20vw" unoptimized={!img.startsWith("/")} className="object-cover" />
-              </button>
-            ))}
-          </div>
-        )}
       </div>
 
       {/* Info */}
@@ -221,7 +225,7 @@ export function ProductDetail({ product }: { product: NormalizedProduct }) {
         <div className="mt-6 flex items-baseline gap-3 flex-wrap">
           {pricing ? (
             <>
-              <div className="text-[32px] md:text-[40px] font-semibold text-ink-900 tracking-tight leading-none">
+              <div className="text-[32px] md:text-[40px] font-semibold text-ink-900 tracking-tight">
                 {formatCents(pricing.totalCents)}
               </div>
               {originalPriceStr && (
@@ -273,10 +277,7 @@ export function ProductDetail({ product }: { product: NormalizedProduct }) {
                 {availableColors.map((c) => (
                   <button
                     key={c}
-                    onClick={() => {
-                      setSelectedColor(c);
-                      setSelectedSize(null);
-                    }}
+                    onClick={() => setSelectedColor(c)}
                     className={cn(
                       "px-4 py-2.5 rounded-full text-sm font-medium ring-1 transition",
                       selectedColor === c
@@ -310,8 +311,8 @@ export function ProductDetail({ product }: { product: NormalizedProduct }) {
                         selectedSize === s
                           ? "bg-ink-900 text-white ring-ink-900"
                           : hasStock
-                          ? "bg-white text-ink-800 ring-ink-200 hover:ring-ink-400"
-                          : "bg-ink-50 text-ink-400 ring-ink-200 line-through cursor-not-allowed"
+                            ? "bg-white text-ink-800 ring-ink-200 hover:ring-ink-400"
+                            : "bg-ink-50 text-ink-400 line-through cursor-not-allowed"
                       )}
                     >
                       {s}
@@ -343,59 +344,55 @@ export function ProductDetail({ product }: { product: NormalizedProduct }) {
               </button>
             </div>
           </div>
-        </div>
-
-        {/* Ações */}
-        <div className="mt-8 flex flex-col sm:flex-row gap-3">
-          <Button
-            size="lg"
-            fullWidth
-            variant="primary"
-            onClick={handleCheckout}
-            disabled={!canAddToCart || !pricing || adding}
-            loading={adding}
-          >
-            <ShoppingBag className="h-5 w-5" />
-            Fazer pedido
-          </Button>
-          <a
-            href={`https://wa.me/244922058136?text=${encodeURIComponent(
-              `Olá ImportEasy! Tenho uma dúvida sobre o produto: ${product.name}`
-            )}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="w-full sm:w-auto"
-          >
-            <Button size="lg" variant="secondary" fullWidth>
-              <MessageCircle className="h-5 w-5" />
-              Tirar dúvidas no WhatsApp
+          <div className="mt-8 flex flex-col sm:flex-row gap-3">
+            <Button
+              size="lg"
+              fullWidth
+              variant="primary"
+              onClick={handleCheckout}
+              disabled={!canAddToCart || !pricing || adding}
+              loading={adding}
+            >
+              <ShoppingBag className="h-5 w-5" />
+              Fazer pedido
             </Button>
-          </a>
-        </div>
-
-        {/* Info servicos */}
-        <div className="mt-8 grid grid-cols-2 gap-4 text-sm">
-          <InfoLine icon={<Truck className="h-4 w-4" />} text="Entrega em 15–25 dias úteis" />
-          <InfoLine icon={<Shield className="h-4 w-4" />} text="Express 929 423 278 / Entidade 10116" />
-          <InfoLine icon={<Clock className="h-4 w-4" />} text="Desalfandegamento incluído" />
-          <InfoLine icon={<Sparkles className="h-4 w-4" />} text="Rastreio ponto a ponto" />
-        </div>
-
-        {product.description && (
-          <div className="mt-10 pt-8 border-t border-ink-200">
-            <h3 className="text-lg font-semibold text-ink-900">Sobre o produto</h3>
-            <p className="mt-3 text-[15px] text-ink-700 leading-relaxed">{product.description}</p>
+            <a
+              href={`https://wa.me/244922058136?text=${encodeURIComponent(
+                `Olá ImportEasy! Tenho uma dúvida sobre o produto: ${product.name}`
+              )}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-full sm:w-auto"
+            >
+              <Button size="lg" variant="secondary" fullWidth>
+                <MessageCircle className="h-5 w-5" />
+                Tirar dúvidas no WhatsApp
+              </Button>
+            </a>
           </div>
-        )}
-
-        <div className="mt-8 p-4 rounded-2xl bg-brand-50 border border-brand-200 text-xs text-ink-700 space-y-2">
-          <div className="flex items-center gap-2 font-semibold text-brand-900">
-            <Shield className="h-4 w-4 text-brand-600" />
-            <span>Garantia de Compra Protegida ImportEasy</span>
+          <div className="mt-8 grid grid-cols-2 gap-4 text-sm">
+            <InfoLine icon={<Truck className="h-4 w-4" />} text="Entrega em 15–25 dias úteis" />
+            <InfoLine icon={<Shield className="h-4 w-4" />} text="Express 929 423 278 / Entidade 10116" />
+            <InfoLine icon={<Clock className="h-4 w-4" />} text="Desalfandegamento incluído" />
+            <InfoLine icon={<Sparkles className="h-4 w-4" />} text="Rastreio ponto a ponto" />
           </div>
-          <p className="text-ink-600 leading-relaxed">
-            Compramos diretamente ao fornecedor internacional ({getSourceDisplayName(product.source)}), tratamos de todo o processo alfandegário e entregamos na sua morada em Luanda e províncias. Pague em Kwanzas com segurança via <strong>Multicaixa Express (929 423 278)</strong> ou <strong>Referência (Entidade 10116 / Ref 929423278)</strong>.
-          </p>
+
+          {product.description && (
+            <div className="mt-10 pt-8 border-t border-ink-200">
+              <h3 className="text-lg font-semibold text-ink-900">Sobre o produto</h3>
+              <p className="mt-3 text-[15px] text-ink-700 leading-relaxed">{product.description}</p>
+            </div>
+          )}
+
+          <div className="mt-8 p-4 rounded-2xl bg-brand-50 border border-brand-200 text-xs text-ink-700 space-y-2">
+            <div className="flex items-center gap-2 font-semibold text-brand-900">
+              <Shield className="h-4 w-4 text-brand-600" />
+              <span>Garantia de Compra Protegida ImportEasy</span>
+            </div>
+            <p className="text-ink-600 leading-relaxed">
+              Compramos diretamente ao fornecedor internacional ({getSourceDisplayName(product.source)}), tratamos de todo o processo alfandegário e entregamos na sua morada em Luanda e províncias. Pague em Kwanzas com segurança via <strong>Multicaixa Express (929 423 278)</strong> ou <strong>Referência (Entidade 10116 / Ref 929423278)</strong>.
+            </p>
+          </div>
         </div>
       </div>
     </div>

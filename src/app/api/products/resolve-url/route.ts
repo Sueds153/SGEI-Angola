@@ -24,7 +24,7 @@ export async function POST(req: Request) {
       const internalResult = await provider.resolveProductFromUrl(url);
 
       if (internalResult.status === "found" && internalResult.product) {
-        const prod = internalResult.product;
+        const prod = internalResult.product as any;
         const config = await loadPricingConfig();
         const price = prod.originalPriceUsd || 15;
         const breakdown = calculatePrice({ productPriceUsd: price, quantity: 1, weightGrams: prod.weightGrams }, config);
@@ -33,12 +33,14 @@ export async function POST(req: Request) {
           status: "found",
           success: true,
           platform: prod.source,
+          source: prod.source,
           productId: prod.id,
+          externalId: prod.externalId,
           title: prod.name,
           price: price,
-          currency: prod.currency || "USD",
+          currency: prod.currency || "EUR",
           images: prod.images || (prod.defaultImage ? [prod.defaultImage] : []),
-          defaultImage: prod.defaultImage,
+          defaultImage: prod.defaultImage || prod.images?.[0] || null,
           sourceUrl: url,
           estimatedTotalAOA: Math.round(breakdown.totalCents / 100),
           exchangeRate: config.exchangeRateUsdToAoa,
@@ -46,6 +48,13 @@ export async function POST(req: Request) {
           logisticsFee: Math.round(breakdown.logisticsFeeCents / 100),
           deliveryFee: Math.round(breakdown.deliveryFeeCents / 100),
           estimatedDays: 18,
+          // Campos específicos do Vinted para discriminação transparente
+          ...(prod.source === "VINTED" && {
+            vintedBasePrice: prod.vintedBasePrice,
+            vintedProtectionFee: prod.vintedProtectionFee,
+            vintedTotalPrice: prod.vintedTotalPrice,
+          }),
+          product: prod,
         });
       }
     } catch {
