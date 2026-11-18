@@ -223,6 +223,7 @@ export const orders = pgTable(
     subtotalCents: integer("subtotal_cents").notNull(),
     serviceFeeCents: integer("service_fee_cents").notNull(),
     logisticsFeeCents: integer("logistics_fee_cents").notNull(),
+    customsFeeCents: integer("customs_fee_cents").notNull().default(0),
     deliveryFeeCents: integer("delivery_fee_cents").notNull(),
     totalCents: integer("total_cents").notNull(),
     currency: varchar("currency", { length: 10 }).notNull().default("AOA"),
@@ -284,6 +285,7 @@ export const orderItems = pgTable("order_items", {
     exchangeRate: number;
     serviceFeeCents: number;
     logisticsFeeCents: number;
+    customsFeeCents: number;
     deliveryFeeCents: number;
   }>(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
