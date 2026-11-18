@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/Button";
 import { Alert, Card } from "@/components/ui";
 import { RefreshCw, Trash2, DollarSign, Database, CheckCircle2, AlertCircle, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { formatNumber } from "@/lib/money";
 
 interface SystemStatus {
   exchangeRates: {
@@ -71,13 +72,6 @@ export function SystemConfig() {
     }
   }
 
-  function formatCurrency(amount: number, currency: string) {
-    return new Intl.NumberFormat("pt-PT", {
-      style: "currency",
-      currency,
-    }).format(amount);
-  }
-
   function formatRelativeTime(dateString: string) {
     const date = new Date(dateString);
     const now = new Date();
@@ -133,19 +127,19 @@ export function SystemConfig() {
               <div className="p-4 bg-ink-50 rounded-xl">
                 <div className="text-sm text-ink-500 mb-1">USD → AOA</div>
                 <div className="text-2xl font-semibold text-ink-900">
-                  {status.exchangeRates.USD_TO_AOA} Kz
+                  {formatNumber(status.exchangeRates.USD_TO_AOA)} Kz
                 </div>
               </div>
               <div className="p-4 bg-ink-50 rounded-xl">
                 <div className="text-sm text-ink-500 mb-1">EUR → AOA</div>
                 <div className="text-2xl font-semibold text-ink-900">
-                  {status.exchangeRates.EUR_TO_AOA} Kz
+                  {formatNumber(status.exchangeRates.EUR_TO_AOA)} Kz
                 </div>
               </div>
               <div className="p-4 bg-ink-50 rounded-xl">
                 <div className="text-sm text-ink-500 mb-1">CNY → AOA</div>
                 <div className="text-2xl font-semibold text-ink-900">
-                  {status.exchangeRates.CNY_TO_AOA} Kz
+                  {formatNumber(status.exchangeRates.CNY_TO_AOA)} Kz
                 </div>
               </div>
             </div>

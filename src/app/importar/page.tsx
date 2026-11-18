@@ -22,6 +22,7 @@ import {
 import Link from "next/link";
 import { useCart } from "@/context/CartContext";
 import { ResponsiveImage } from "@/components/ui/ResponsiveImage";
+import { formatKzAmount, formatForeign as formatForeignMoney } from "@/lib/money";
 
 interface SimulationResult {
   success: boolean;
@@ -289,13 +290,9 @@ function SimulationResultCard({
   const deliveryFeeKz = 1000;
   const totalAOA = convertedKz + serviceFeeKz + logisticsFeeKz + deliveryFeeKz;
 
-  const formatAOA = (val: number) => {
-    return new Intl.NumberFormat("pt-AO", { style: "currency", currency: "AOA", minimumFractionDigits: 0 }).format(val);
-  };
+  const formatAOA = (val: number) => formatKzAmount(val);
 
-  const formatForeign = (val: number, cur: string) => {
-    return new Intl.NumberFormat("pt-PT", { style: "currency", currency: cur }).format(val);
-  };
+  const formatForeign = (val: number, cur: string) => formatForeignMoney(val, cur);
 
   const checkoutUrl = `/checkout?externalUrl=${encodeURIComponent(result.sourceUrl)}&productName=${encodeURIComponent(result.title)}&externalPriceUsd=${activePrice}&productCurrency=${currency}`;
 

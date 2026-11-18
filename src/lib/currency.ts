@@ -1,4 +1,5 @@
 import type { PricingConfig } from "./pricing";
+import { formatForeign } from "./money";
 
 /**
  * Sistema de Conversão Multi-Moeda
@@ -93,16 +94,10 @@ export function getExchangeRatesFromConfig(config: PricingConfig): ExchangeRates
 }
 
 /**
- * Formata moeda para exibição
+ * Formata moeda para exibição (padrão angolano: 1.234,56 Kz).
  */
 export function formatCurrency(amount: number, currency: SupportedCurrency): string {
-  const formatter = new Intl.NumberFormat("pt-PT", {
-    style: "currency",
-    currency,
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  });
-  return formatter.format(amount);
+  return formatForeign(amount, currency);
 }
 
 /**

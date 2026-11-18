@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Search, Truck, Package, CheckCircle, Clock, AlertCircle, MapPin, User, Clock as ClockIcon, Calendar } from "lucide-react";
+import { formatKzAmount } from "@/lib/money";
 
 const ORDER_STATUSES = [
   { key: "PENDING_PAYMENT", label: "Pagamento pendente", icon: Clock, color: "text-yellow-600 bg-yellow-100" },
@@ -189,14 +190,14 @@ export default function RastrearPage() {
                         </div>
                       </div>
                       <span className="font-semibold text-ink-900">
-                        {new Intl.NumberFormat("pt-AO", { style: "currency", currency: "AOA", minimumFractionDigits: 0 }).format(item.price)}
+                        {formatKzAmount(item.price)}
                       </span>
                     </div>
                   ))}
                 </div>
                 <div className="mt-4 pt-4 border-t border-ink-200 flex justify-end">
                   <span className="text-lg font-bold text-ink-900">
-                    Total: {new Intl.NumberFormat("pt-AO", { style: "currency", currency: "AOA", minimumFractionDigits: 0 }).format(order.total)}
+                    Total: {formatKzAmount(order.total)}
                   </span>
                 </div>
               </div>

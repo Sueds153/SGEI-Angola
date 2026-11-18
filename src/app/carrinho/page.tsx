@@ -13,7 +13,7 @@ import {
   CheckCircle2,
   ExternalLink,
 } from "lucide-react";
-import { formatKz } from "@/lib/types";
+import { formatKzAmount } from "@/lib/money";
 import { useRouter } from "next/navigation";
 import { ResponsiveImage } from "@/components/ui/ResponsiveImage";
 import { FlightStatusBanner } from "@/components/home/FlightStatusBanner";
@@ -138,7 +138,7 @@ export default function CarrinhoPage() {
                       </div>
 
                       <span className="font-extrabold text-base text-ink-900 tabular-nums">
-                        {formatKz(item.priceKz * item.quantity)}
+                        {formatKzAmount(item.priceKz * item.quantity)}
                       </span>
                     </div>
                   </div>
@@ -163,7 +163,7 @@ export default function CarrinhoPage() {
                 <div className="space-y-2 text-xs">
                   <div className="flex justify-between text-ink-600">
                     <span>Artigos ({itemCount}):</span>
-                    <span className="font-semibold text-ink-900">{formatKz(totalKz)}</span>
+                    <span className="font-semibold text-ink-900">{formatKzAmount(totalKz)}</span>
                   </div>
                   <div className="flex justify-between text-ink-600">
                     <span>Frete Internacional Aéreo:</span>
@@ -184,7 +184,7 @@ export default function CarrinhoPage() {
                 <div className="pt-3 border-t border-ink-100 flex items-baseline justify-between">
                   <span className="font-bold text-ink-900 text-sm">Total Final em Kwanzas:</span>
                   <span className="text-2xl font-extrabold text-brand-700 tabular-nums">
-                    {formatKz(totalKz)}
+                    {formatKzAmount(totalKz)}
                   </span>
                 </div>
 

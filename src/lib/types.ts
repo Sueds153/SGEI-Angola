@@ -1,4 +1,6 @@
 // Tipos partilhados por toda a aplicação
+import { formatKzCents, formatForeign } from "./money";
+
 export type OrderStatus =
   | "PENDING_PAYMENT"
   | "PAYMENT_REVIEW"
@@ -125,20 +127,16 @@ export interface Category {
 }
 
 // Helpers formatação
+/**
+ * Formata cêntimos de Kwanza no padrão angolano: "1.234,56 Kz".
+ * Cêntimos só aparecem quando o valor os tem.
+ */
 export function formatKz(cents: number): string {
-  const kwanzas = Math.round(cents) / 100;
-  return new Intl.NumberFormat("pt-PT", {
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
-  }).format(kwanzas) + " Kz";
+  return formatKzCents(cents);
 }
 
 export function formatUsd(amount: number): string {
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "USD",
-    minimumFractionDigits: 2,
-  }).format(amount);
+  return formatForeign(amount, "USD");
 }
 
 export function formatDate(date: Date | string | null | undefined, withTime = false): string {

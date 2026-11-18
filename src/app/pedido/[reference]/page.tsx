@@ -1,6 +1,6 @@
 import { Container, Badge, Alert as AlertBox, Card } from "@/components/ui";
 import { getOrderByReference } from "@/lib/orders";
-import { ORDER_STATUS_LABELS, PAYMENT_STATUS_LABELS, PAYMENT_METHOD_LABELS, formatDateTime } from "@/lib/types";
+import { ORDER_STATUS_LABELS, PAYMENT_STATUS_LABELS, PAYMENT_METHOD_LABELS, formatDateTime, formatKz } from "@/lib/types";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import type { Metadata } from "next";
@@ -233,11 +233,6 @@ export default async function OrderPage({
       </div>
     </Container>
   );
-}
-
-function formatKz(cents: number) {
-  const kz = Math.round(cents) / 100;
-  return new Intl.NumberFormat("pt-PT", { maximumFractionDigits: 0 }).format(kz) + " Kz";
 }
 
 function Row({ label, value }: { label: string; value: React.ReactNode }) {

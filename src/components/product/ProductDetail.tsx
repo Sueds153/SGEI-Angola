@@ -33,6 +33,7 @@ import {
   type SupportedCurrency,
 } from "@/lib/pricing-client";
 import { cn } from "@/lib/utils";
+import { formatForeign } from "@/lib/money";
 
 export function ProductDetail({ product }: { product: NormalizedProduct }) {
   const router = useRouter();
@@ -117,7 +118,6 @@ export function ProductDetail({ product }: { product: NormalizedProduct }) {
   const originalPrice = product.originalPriceUsd
     ? product.originalPriceUsd + (selectedVariant?.priceModifierUsd || 0)
     : null;
-  const originalCurrencyLabel = productCurrency === "USD" ? "USD" : productCurrency === "EUR" ? "EUR" : "CNY";
   const originalPriceStr = originalPrice ? `~ ${formatOriginalPrice(originalPrice, productCurrency)}` : null;
 
   return (
@@ -414,14 +414,7 @@ function getSourceDisplayName(source: string): string {
 }
 
 function formatOriginalPrice(amount: number, currency: SupportedCurrency): string {
-  const symbols: Record<SupportedCurrency, string> = {
-    USD: "$",
-    EUR: "€",
-    CNY: "¥",
-    AOA: "Kz",
-  };
-  const symbol = symbols[currency] || "$";
-  return `${symbol}${amount.toFixed(2)} ${currency}`;
+  return formatForeign(amount, currency);
 }
 
 function PriceRow({ label, value }: { label: string; value: string }) {

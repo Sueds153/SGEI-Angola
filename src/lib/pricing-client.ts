@@ -1,6 +1,8 @@
 // Cálculo de preço no cliente (sem acesso à DB)
 // Este espelha o cálculo do servidor mas lê configs de um endpoint público.
 
+import { formatKzCents } from "./money";
+
 export type SupportedCurrency = "USD" | "EUR" | "CNY" | "AOA";
 
 export interface ClientPricingConfig {
@@ -116,6 +118,5 @@ export function clientCalculatePrice(
 }
 
 export function formatCents(cents: number): string {
-  const kz = Math.round(cents) / 100;
-  return new Intl.NumberFormat("pt-PT", { maximumFractionDigits: 0 }).format(kz) + " Kz";
+  return formatKzCents(cents);
 }

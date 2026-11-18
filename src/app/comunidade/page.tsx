@@ -7,6 +7,7 @@ import { Logo } from "@/components/brand/Logo";
 import { getCommunityPosts, getCommunityStats, refreshRealCommunityData } from "@/lib/actions/community";
 import { CommunityFilters } from "@/components/community/CommunityFilters";
 import { ResponsiveImage } from "@/components/ui/ResponsiveImage";
+import { formatNumber } from "@/lib/money";
 
 // Avatares locais baseados nas iniciais do nome (sem dependências externas)
 function getAvatarUrl(seed: string): string {
@@ -148,7 +149,7 @@ function generateConversation(id: number, isNew = false): any {
     category: product.category,
     ref,
     days: days.toString(),
-    aoa: aoa.toLocaleString("pt-AO"),
+    aoa: formatNumber(aoa),
     friends: friends.toString(),
   });
 
@@ -449,8 +450,8 @@ export default function ComunidadePage() {
 
           {/* Stats */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-            <StatCard icon={Users} value={stats.clientesAtivos > 0 ? stats.clientesAtivos.toLocaleString() : "2.500+"} label="Clientes em Angola" />
-            <StatCard icon={CheckCircle2} value={stats.totalPedidos > 0 ? stats.totalPedidos.toLocaleString() : "8.340+"} label="Pedidos entregues" />
+            <StatCard icon={Users} value={stats.clientesAtivos > 0 ? formatNumber(stats.clientesAtivos) : "2.500+"} label="Clientes em Angola" />
+            <StatCard icon={CheckCircle2} value={stats.totalPedidos > 0 ? formatNumber(stats.totalPedidos) : "8.340+"} label="Pedidos entregues" />
             <StatCard icon={Star} value="4,8/5" label="Avaliação média" />
             <StatCard icon={TrendingUp} value={stats.tempoMedio || "15 a 22 dias"} label="Tempo médio de entrega" />
           </div>

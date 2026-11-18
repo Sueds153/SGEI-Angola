@@ -15,6 +15,7 @@ import {
   Zap,
 } from "lucide-react";
 import { formatKz, formatDateTime } from "@/lib/types";
+import { formatNumber } from "@/lib/money";
 import { useRouter } from "next/navigation";
 
 interface InformalExchangeProps {
@@ -220,7 +221,7 @@ export function InformalExchangeManager({
                 </div>
                 <p className="text-[11px] text-amber-800 mt-2 font-medium">
                   Taxa efetiva aplicada ao simulador do cliente:{" "}
-                  <strong>{Math.round(effectiveUsdRate)} Kz / USD</strong>
+                  <strong>{formatNumber(Math.round(effectiveUsdRate))} Kz / USD</strong>
                 </p>
               </div>
 

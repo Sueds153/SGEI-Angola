@@ -7,6 +7,10 @@ import { cn } from "@/lib/utils";
 /**
  * Logotipo ImportEasy.
  * Marca: "ImportEasy" — "Sua ponte para o mundo"
+ *
+ * O ficheiro /logo.png é quadrado, com fundo transparente e sem margens mortas.
+ * O ícone nunca é cortado: usa object-contain e o fundo branco só aparece no
+ * tema escuro (footer e admin), onde o azul-escuro do globo perderia contraste.
  */
 export function Logo({
   variant = "dark",
@@ -21,31 +25,32 @@ export function Logo({
 }) {
   const isLight = variant === "light";
   const sizeMap = {
-    sm: { box: 36, word: "text-[13px]", tag: "text-[8px]" },
-    md: { box: 48, word: "text-[17px]", tag: "text-[9px]" },
-    lg: { box: 64, word: "text-xl", tag: "text-xs" },
+    sm: { box: 36, word: "text-[15px]", tag: "text-[8px]", gap: "gap-2" },
+    md: { box: 44, word: "text-[19px]", tag: "text-[9px]", gap: "gap-2.5" },
+    lg: { box: 60, word: "text-[24px]", tag: "text-[10px]", gap: "gap-3" },
   } as const;
   const s = sizeMap[size];
 
   return (
-    <Link href={href} className="group inline-flex items-center gap-2.5">
+    <Link href={href} className={cn("group inline-flex items-center", s.gap)}>
       <span
         className={cn(
-          "relative inline-flex shrink-0 items-center justify-center overflow-hidden rounded-xl bg-white p-0.5 transition-transform group-hover:scale-105",
-          isLight ? "ring-1 ring-white/20" : "ring-1 ring-black/10"
+          "relative inline-flex shrink-0 items-center justify-center transition-transform group-hover:scale-105",
+          isLight ? "rounded-xl bg-white p-1 shadow-sm ring-1 ring-white/10" : "rounded-lg"
         )}
-        style={{ width: s.box, height: s.box, position: "relative", display: "inline-flex" }}
+        style={{ width: s.box, height: s.box }}
       >
         <Image
           src="/logo.png"
-          alt="ImportEasy"
-          fill
+          alt=""
+          width={512}
+          height={512}
           sizes={`${s.box}px`}
-          className="object-contain"
+          className="h-full w-full object-contain"
           priority={size === "md" || size === "lg"}
         />
       </span>
-      <div className="leading-none">
+      <span className="leading-none">
         <span
           className={cn(
             "block font-semibold tracking-tight leading-none",
@@ -53,12 +58,13 @@ export function Logo({
             isLight ? "text-white" : "text-ink-900"
           )}
         >
-          ImportEasy
+          Import
+          <span className={isLight ? "text-brand-400" : "text-brand-600"}>Easy</span>
         </span>
         {showTagline && (
           <span
             className={cn(
-              "block font-medium uppercase tracking-[0.14em] leading-none mt-0.5",
+              "block font-medium uppercase tracking-[0.14em] leading-none mt-1",
               s.tag,
               isLight ? "text-white/70" : "text-ink-500"
             )}
@@ -66,7 +72,7 @@ export function Logo({
             Sua ponte para o mundo
           </span>
         )}
-      </div>
+      </span>
     </Link>
   );
 }

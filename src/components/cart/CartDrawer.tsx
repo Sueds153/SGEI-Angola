@@ -14,7 +14,7 @@ import {
   ExternalLink,
 } from "lucide-react";
 import Link from "next/link";
-import { formatKz } from "@/lib/types";
+import { formatKzAmount } from "@/lib/money";
 import { ResponsiveImage } from "@/components/ui/ResponsiveImage";
 import { useRouter } from "next/navigation";
 import { useAdaptiveIntelligence } from "@/context/AdaptiveIntelligenceContext";
@@ -173,7 +173,7 @@ export function CartDrawer() {
 
                       {/* Preço em Kwanzas */}
                       <span className="font-extrabold text-sm text-ink-900 tabular-nums">
-                        {formatKz(item.priceKz * item.quantity)}
+                        {formatKzAmount(item.priceKz * item.quantity)}
                       </span>
                     </div>
                   </div>
@@ -206,7 +206,7 @@ export function CartDrawer() {
                   <p className="text-[11px] text-emerald-700 font-medium">Tudo incluído até Luanda</p>
                 </div>
                 <span className="text-2xl font-extrabold text-brand-700 tabular-nums">
-                  {formatKz(totalKz)}
+                  {formatKzAmount(totalKz)}
                 </span>
               </div>
 

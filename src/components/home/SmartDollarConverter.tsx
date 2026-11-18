@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Calculator, ArrowRight, Sparkles, CheckCircle2, Globe, Shirt, Cpu } from "lucide-react";
-import { formatKz } from "@/lib/types";
+import { formatKzAmount } from "@/lib/money";
 import Link from "next/link";
 
 export function SmartDollarConverter() {
@@ -138,7 +138,7 @@ export function SmartDollarConverter() {
               Preço Final Estimado em Angola ({currency === "USD" ? "1 $ ≈ 1.150 Kz" : "1 € ≈ 1.250 Kz"}):
             </span>
             <span className="text-2xl font-black text-brand-700 tabular-nums">
-              {formatKz(totalEstimadoKz)}
+              {formatKzAmount(totalEstimadoKz)}
             </span>
           </div>
           <p className="text-[11px] text-emerald-700 font-semibold flex items-center gap-1">

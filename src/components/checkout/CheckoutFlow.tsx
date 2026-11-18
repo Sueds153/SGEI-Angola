@@ -27,7 +27,8 @@ import {
   type ClientPricingConfig,
   type SupportedCurrency,
 } from "@/lib/pricing-client";
-import { PROVINCES_OF_ANGOLA, PAYMENT_METHOD_LABELS, formatKz } from "@/lib/types";
+import { PROVINCES_OF_ANGOLA, PAYMENT_METHOD_LABELS } from "@/lib/types";
+import { formatNumber, formatKzAmount } from "@/lib/money";
 import Link from "next/link";
 import { useEffect } from "react";
 import { PaymentProofUpload } from "@/components/order/PaymentProofUpload";
@@ -354,7 +355,7 @@ export function CheckoutFlow({ prefill }: { prefill: Prefill | null }) {
                       {it.variantColor && ` · ${it.variantColor}`}
                       {it.variantSize && ` · ${it.variantSize}`}
                     </p>
-                    <p className="text-xs font-bold text-brand-600 mt-1">{formatKz(it.priceKz)}</p>
+                    <p className="text-xs font-bold text-brand-600 mt-1">{formatKzAmount(it.priceKz)}</p>
                   </div>
                 </div>
               ))}
@@ -393,7 +394,7 @@ export function CheckoutFlow({ prefill }: { prefill: Prefill | null }) {
             <div className="mt-4 space-y-2 text-sm">
               {isCartCheckout ? (
                 <>
-                  <SummaryRow label="Artigos no lote" value={formatKz(cartTotalKz)} />
+                  <SummaryRow label="Artigos no lote" value={formatKzAmount(cartTotalKz)} />
                   <div className="flex justify-between text-ink-700">
                     <span className="text-emerald-700 font-medium">Frete Internacional & Alfândega</span>
                     <span className="font-extrabold text-emerald-600">0 Kz (Mala Coletiva)</span>
@@ -401,7 +402,7 @@ export function CheckoutFlow({ prefill }: { prefill: Prefill | null }) {
                   <SummaryRow label="Entrega ao domicílio" value="Grátis" />
                   <div className="pt-4 mt-2 border-t border-ink-100 flex justify-between font-semibold text-ink-900 text-lg">
                     <span>Total</span>
-                    <span className="tracking-tight text-brand-600 font-extrabold">{formatKz(cartTotalKz)}</span>
+                    <span className="tracking-tight text-brand-600 font-extrabold">{formatKzAmount(cartTotalKz)}</span>
                   </div>
                   <div className="p-2.5 bg-emerald-50 rounded-xl border border-emerald-200 text-[11px] text-emerald-800">
                     <strong>Benefício Ativo:</strong> As tuas peças viajam no Lote Luanda #48 sem custos alfandegários extras.
@@ -418,7 +419,7 @@ export function CheckoutFlow({ prefill }: { prefill: Prefill | null }) {
                     <span className="tracking-tight">{formatCents(pricing.totalCents)}</span>
                   </div>
                   <p className="text-[11px] text-ink-500">
-                    Câmbio: 1 USD = {cfg?.exchangeRateUsdToAoa ?? "..."} Kz · 1 EUR = {cfg?.exchangeRateEurToAoa ?? "..."} Kz
+                    Câmbio: 1 USD = {cfg ? `${formatNumber(cfg.exchangeRateUsdToAoa)} Kz` : "..."} · 1 EUR = {cfg ? `${formatNumber(cfg.exchangeRateEurToAoa)} Kz` : "..."}
                   </p>
                   <p className="text-[11px] text-ink-500 mt-0.5">
                     {isExternal
