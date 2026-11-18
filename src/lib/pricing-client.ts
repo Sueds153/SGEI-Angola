@@ -9,11 +9,15 @@ export interface ClientPricingConfig {
   exchangeRateUsdToAoa: number;
   exchangeRateEurToAoa: number;
   exchangeRateCnyToAoa: number;
+  exchangeMode: "INFORMAL_MANUAL" | "OFFICIAL_AUTO";
+  currencyBufferPct: number;
   serviceFeePct: number;
   serviceFeeMinCents: number;
   logisticsBaseCents: number;
   logisticsPerGramCents: number;
   localDeliveryCents: number;
+  customsFeePct: number;
+  customsFeeMinCents: number;
   roundToNearestCents: number;
   deliveryByProvince: Record<string, number>;
 }
@@ -82,6 +86,7 @@ export function clientCalculatePrice(
   subtotalCents: number;
   serviceFeeCents: number;
   logisticsFeeCents: number;
+  customsFeeCents: number;
   deliveryFeeCents: number;
   totalCents: number;
 } {
@@ -95,23 +100,30 @@ export function clientCalculatePrice(
   let serviceFeeCents = Math.round(grossProductCents * cfg.serviceFeePct);
   if (serviceFeeCents < cfg.serviceFeeMinCents) serviceFeeCents = cfg.serviceFeeMinCents;
 
+  // Logística (consolidada: base uma vez, peso por quantidade)
   const weightLogisticsCents = input.weightGrams
     ? Math.round(input.weightGrams * cfg.logisticsPerGramCents * quantity)
     : 0;
-  const logisticsFeeCents = cfg.logisticsBaseCents * quantity + weightLogisticsCents;
+  const logisticsFeeCents = cfg.logisticsBaseCents + weightLogisticsCents;
+
+  // Alfândega (sobre CIF = produto + logística)
+  const cifBaseCents = grossProductCents + logisticsFeeCents;
+  let customsFeeCents = Math.round(cifBaseCents * cfg.customsFeePct);
+  if (customsFeeCents < cfg.customsFeeMinCents) customsFeeCents = cfg.customsFeeMinCents;
 
   let deliveryFeeCents = cfg.localDeliveryCents;
   if (input.province && cfg.deliveryByProvince && cfg.deliveryByProvince[input.province] != null) {
     deliveryFeeCents = cfg.deliveryByProvince[input.province];
   }
 
-  const rawTotal = grossProductCents + serviceFeeCents + logisticsFeeCents + deliveryFeeCents;
+  const rawTotal = grossProductCents + serviceFeeCents + logisticsFeeCents + customsFeeCents + deliveryFeeCents;
   const totalCents = roundToNearest(rawTotal, cfg.roundToNearestCents);
 
   return {
     subtotalCents: grossProductCents,
     serviceFeeCents,
     logisticsFeeCents,
+    customsFeeCents,
     deliveryFeeCents,
     totalCents,
   };

@@ -106,10 +106,6 @@ export function Footer() {
               <span>Sem surpresas na alfândega</span>
             </div>
             <div className="flex items-center gap-2 text-sm text-ink-400">
-              <CreditCard className="w-5 h-5 text-brand-500" />
-              <span>Express (929 423 278) · Entidade (10116)</span>
-            </div>
-            <div className="flex items-center gap-2 text-sm text-ink-400">
               <Truck className="w-5 h-5 text-brand-500" />
               <span>Entrega em Luanda e províncias</span>
             </div>

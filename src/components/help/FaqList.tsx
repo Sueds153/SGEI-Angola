@@ -12,7 +12,7 @@ const FAQS = [
   },
   {
     q: "Como faço o pagamento em Kwanzas?",
-    a: "Paga comodamente em Kwanzas através de dois métodos simples: 1) Pelo aplicativo Multicaixa Express enviando diretamente para o número 929 423 278; ou 2) No ATM / Express por Pagamento por Referência (Entidade: 10116 · Referência: 929 423 278). Não necessita de cartão de crédito internacional nem de dólares/euros.",
+    a: "Paga comodamente em Kwanzas por Multicaixa Express ou referência bancária. Os dados de pagamento (número de entidade e referência) só são mostrados quando inicia o checkout, para garantir a segurança da sua transação. Não necessita de cartão de crédito internacional nem de dólares/euros.",
   },
   {
     q: "Tenho de pagar alguma taxa extra na alfândega quando a encomenda chegar?",

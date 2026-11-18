@@ -5,11 +5,17 @@ import type { MarginStatus, PriceBreakdown } from "./types";
 
 export interface PricingConfig {
   exchangeRateUsdToAoa: number;
+  exchangeRateEurToAoa: number;
+  exchangeRateCnyToAoa: number;
+  exchangeMode: "INFORMAL_MANUAL" | "OFFICIAL_AUTO"; // controla se o site usa taxa do admin ou APIs externas
+  currencyBufferPct: number; // margem de segurança contra flutuação informal (0..50)
   serviceFeePct: number; // percentagem sobre o subtotal convertido
   serviceFeeMinCents: number; // taxa mínima em cêntimos
-  logisticsBaseCents: number; // custo logístico base
+  logisticsBaseCents: number; // custo logístico base por pedido (consolidado)
   logisticsPerGramCents: number; // custo por grama
   localDeliveryCents: number; // entrega local (base)
+  customsFeePct: number; // taxa alfandegária estimada (% sobre CIF)
+  customsFeeMinCents: number; // taxa alfandegária mínima
   minimumMarginPct: number; // margem mínima (0..1)
   warningMarginPct: number; // margem de atenção
   roundToNearestCents: number; // arredondamento (ex: 10000 = 100 Kz)
@@ -19,11 +25,17 @@ export interface PricingConfig {
 
 const DEFAULTS: PricingConfig = {
   exchangeRateUsdToAoa: 920,
+  exchangeRateEurToAoa: 1050,
+  exchangeRateCnyToAoa: 130,
+  exchangeMode: "INFORMAL_MANUAL",
+  currencyBufferPct: 3,
   serviceFeePct: 0.12,
   serviceFeeMinCents: 1500 * 100, // 1.500 Kz
-  logisticsBaseCents: 2500 * 100, // 2.500 Kz
+  logisticsBaseCents: 8000 * 100, // 8.000 Kz ≈ 8.7 USD
   logisticsPerGramCents: 2, // 2 cêntimos por grama
   localDeliveryCents: 1000 * 100, // 1.000 Kz
+  customsFeePct: 0.05, // 5% sobre CIF
+  customsFeeMinCents: 500 * 100, // 500 Kz
   minimumMarginPct: 0.15,
   warningMarginPct: 0.25,
   roundToNearestCents: 500 * 100, // 500 Kz
@@ -46,6 +58,18 @@ export async function loadPricingConfig(): Promise<PricingConfig> {
         case "exchangeRateUsdToAoa":
           cfg.exchangeRateUsdToAoa = Number(val) || DEFAULTS.exchangeRateUsdToAoa;
           break;
+        case "exchangeRateEurToAoa":
+          cfg.exchangeRateEurToAoa = Number(val) || DEFAULTS.exchangeRateEurToAoa;
+          break;
+        case "exchangeRateCnyToAoa":
+          cfg.exchangeRateCnyToAoa = Number(val) || DEFAULTS.exchangeRateCnyToAoa;
+          break;
+        case "exchangeMode":
+          cfg.exchangeMode = (val as "INFORMAL_MANUAL" | "OFFICIAL_AUTO") || DEFAULTS.exchangeMode;
+          break;
+        case "currencyBufferPct":
+          cfg.currencyBufferPct = Number(val) || DEFAULTS.currencyBufferPct;
+          break;
         case "serviceFeePct":
           cfg.serviceFeePct = Number(val) || DEFAULTS.serviceFeePct;
           break;
@@ -60,6 +84,12 @@ export async function loadPricingConfig(): Promise<PricingConfig> {
           break;
         case "localDeliveryCents":
           cfg.localDeliveryCents = Number(val) || DEFAULTS.localDeliveryCents;
+          break;
+        case "customsFeePct":
+          cfg.customsFeePct = Number(val) || DEFAULTS.customsFeePct;
+          break;
+        case "customsFeeMinCents":
+          cfg.customsFeeMinCents = Number(val) || DEFAULTS.customsFeeMinCents;
           break;
         case "minimumMarginPct":
           cfg.minimumMarginPct = Number(val) || DEFAULTS.minimumMarginPct;
@@ -120,20 +150,27 @@ export function calculatePrice(input: CalculatePriceInput, config: PricingConfig
     serviceFeeCents = config.serviceFeeMinCents;
   }
 
-  // Logística
+  // Logística (consolidada: base uma vez por pedido, peso por unidade)
   const weightLogisticsCents = input.weightGrams
     ? Math.round(input.weightGrams * config.logisticsPerGramCents * quantity)
     : 0;
-  let logisticsFeeCents = config.logisticsBaseCents * quantity + weightLogisticsCents;
+  const logisticsFeeCents = config.logisticsBaseCents + weightLogisticsCents;
 
-  // Entrega
+  // Alfândega (sobre CIF = produto + logística + frete internacional se aplicável)
+  const cifBaseCents = grossProductCents + logisticsFeeCents;
+  let customsFeeCents = Math.round(cifBaseCents * config.customsFeePct);
+  if (customsFeeCents < config.customsFeeMinCents) {
+    customsFeeCents = config.customsFeeMinCents;
+  }
+
+  // Entrega local
   let deliveryFeeCents = config.localDeliveryCents;
   if (input.province && config.deliveryByProvince && config.deliveryByProvince[input.province] != null) {
     deliveryFeeCents = config.deliveryByProvince[input.province];
   }
 
   const subtotalCents = grossProductCents;
-  const rawTotalCents = subtotalCents + serviceFeeCents + logisticsFeeCents + deliveryFeeCents;
+  const rawTotalCents = subtotalCents + serviceFeeCents + logisticsFeeCents + customsFeeCents + deliveryFeeCents;
   const totalCents = roundToNearest(rawTotalCents, config.roundToNearestCents);
 
   // Margem estimada
@@ -154,6 +191,7 @@ export function calculatePrice(input: CalculatePriceInput, config: PricingConfig
     subtotalCents,
     serviceFeeCents,
     logisticsFeeCents,
+    customsFeeCents,
     deliveryFeeCents,
     totalCents,
     currency: "AOA",
@@ -173,6 +211,7 @@ export function calculateOrderTotals(
   itemsSubtotalCents: number;
   serviceFeeCents: number;
   logisticsFeeCents: number;
+  customsFeeCents: number;
   deliveryFeeCents: number;
   totalCents: number;
 } {
@@ -180,13 +219,17 @@ export function calculateOrderTotals(
   let serviceFeeCents = Math.round(itemsSubtotalCents * config.serviceFeePct);
   if (serviceFeeCents < config.serviceFeeMinCents) serviceFeeCents = config.serviceFeeMinCents;
   const logisticsFeeCents = config.logisticsBaseCents;
+  // Alfândega sobre CIF (subtotal + logística)
+  const cifBaseCents = itemsSubtotalCents + logisticsFeeCents;
+  let customsFeeCents = Math.round(cifBaseCents * config.customsFeePct);
+  if (customsFeeCents < config.customsFeeMinCents) customsFeeCents = config.customsFeeMinCents;
   let deliveryFeeCents = config.localDeliveryCents;
   if (province && config.deliveryByProvince && config.deliveryByProvince[province] != null) {
     deliveryFeeCents = config.deliveryByProvince[province];
   }
-  const rawTotal = itemsSubtotalCents + serviceFeeCents + logisticsFeeCents + deliveryFeeCents;
+  const rawTotal = itemsSubtotalCents + serviceFeeCents + logisticsFeeCents + customsFeeCents + deliveryFeeCents;
   const totalCents = roundToNearest(rawTotal, config.roundToNearestCents);
-  return { itemsSubtotalCents, serviceFeeCents, logisticsFeeCents, deliveryFeeCents, totalCents };
+  return { itemsSubtotalCents, serviceFeeCents, logisticsFeeCents, customsFeeCents, deliveryFeeCents, totalCents };
 }
 
 export async function setPricingConfig(key: string, value: string) {

@@ -5,7 +5,7 @@
  * Fontes:
  * 1. ExchangeRate-API (gratuito)
  * 2. Frankfurter API (gratuito, sem chave)
- * 3. Valor hardcoded do admin
+ * 3. Valor do admin (respeitado quando exchangeMode = INFORMAL_MANUAL)
  */
 
 import { setPricingConfig, loadPricingConfig } from "@/lib/pricing";
@@ -38,7 +38,7 @@ export async function fetchExchangeRates(): Promise<{ USD_TO_AOA: number; EUR_TO
       try {
         const rates = await fetcher();
         if (rates && rates.USD_TO_AOA > 0) {
-          console.log('[ExchangeRates] Taxas atualizadas com sucesso');
+          console.log('[ExchangeRates] Taxas atualizadas com sucesso (API externa)');
           return rates;
         }
       } catch (error) {
@@ -46,7 +46,7 @@ export async function fetchExchangeRates(): Promise<{ USD_TO_AOA: number; EUR_TO
       }
     }
 
-    console.warn('[ExchangeRates] Todas as fontes falharam, usando valores do admin');
+    console.warn('[ExchangeRates] Todas as fontes falharam');
     return null;
   } catch (error) {
     console.error('[ExchangeRates] Erro ao buscar taxas:', error);
@@ -114,6 +114,14 @@ async function fetchExchangeRateApi(): Promise<{ USD_TO_AOA: number; EUR_TO_AOA:
 
 export async function updateExchangeRatesInDb(): Promise<boolean> {
   try {
+    const config = await loadPricingConfig();
+    
+    // Só atualiza via APIs externas se estiver em modo OFFICIAL_AUTO
+    if (config.exchangeMode !== "OFFICIAL_AUTO") {
+      console.log('[ExchangeRates] Modo INFORMAL_MANUAL ativo — não sobrescreve taxas do admin');
+      return false;
+    }
+
     const rates = await fetchExchangeRates();
     
     if (!rates) {
@@ -121,16 +129,24 @@ export async function updateExchangeRatesInDb(): Promise<boolean> {
       return false;
     }
 
+    // Aplica buffer de segurança se configurado
+    const buffer = config.currencyBufferPct / 100;
+    const bufferedRates = {
+      USD_TO_AOA: Math.round(rates.USD_TO_AOA * (1 + buffer)),
+      EUR_TO_AOA: Math.round(rates.EUR_TO_AOA * (1 + buffer)),
+      CNY_TO_AOA: Math.round(rates.CNY_TO_AOA * (1 + buffer)),
+    };
+
     // Salva no banco
-    await setPricingConfig('exchangeRateUsdToAoa', String(rates.USD_TO_AOA));
-    await setPricingConfig('exchangeRateEurToAoa', String(rates.EUR_TO_AOA));
-    await setPricingConfig('exchangeRateCnyToAoa', String(rates.CNY_TO_AOA));
+    await setPricingConfig('exchangeRateUsdToAoa', String(bufferedRates.USD_TO_AOA));
+    await setPricingConfig('exchangeRateEurToAoa', String(bufferedRates.EUR_TO_AOA));
+    await setPricingConfig('exchangeRateCnyToAoa', String(bufferedRates.CNY_TO_AOA));
     await setPricingConfig('exchangeRatesUpdatedAt', new Date().toISOString());
 
     // Atualiza cache
-    cachedRates = { ...rates, updatedAt: new Date() };
+    cachedRates = { ...bufferedRates, updatedAt: new Date() };
     
-    console.log(`[ExchangeRates] Taxas atualizadas no DB: USD=${rates.USD_TO_AOA}, EUR=${rates.EUR_TO_AOA}, CNY=${rates.CNY_TO_AOA}`);
+    console.log(`[ExchangeRates] Taxas atualizadas no DB (com buffer ${config.currencyBufferPct}%): USD=${bufferedRates.USD_TO_AOA}, EUR=${bufferedRates.EUR_TO_AOA}, CNY=${bufferedRates.CNY_TO_AOA}`);
     return true;
   } catch (error) {
     console.error('[ExchangeRates] Erro ao atualizar taxas no DB:', error);
@@ -147,23 +163,55 @@ export async function getExchangeRates(): Promise<{ USD_TO_AOA: number; EUR_TO_A
   try {
     const config = await loadPricingConfig();
     
-    // Tenta buscar taxas atuais
+    // Se modo INFORMAL_MANUAL, usa SEMPRE a taxa do admin (não tenta APIs externas)
+    if (config.exchangeMode === "INFORMAL_MANUAL") {
+      cachedRates = {
+        USD_TO_AOA: config.exchangeRateUsdToAoa,
+        EUR_TO_AOA: config.exchangeRateEurToAoa,
+        CNY_TO_AOA: config.exchangeRateCnyToAoa,
+        updatedAt: new Date(),
+      };
+      lastFetchTime = Date.now();
+      console.log('[ExchangeRates] Modo INFORMAL_MANUAL — usando taxas do painel admin');
+      return cachedRates;
+    }
+
+    // Modo OFFICIAL_AUTO: tenta APIs externas
     const rates = await fetchExchangeRates();
     
     if (rates) {
-      cachedRates = { ...rates, updatedAt: new Date() };
+      // Aplica buffer de segurança
+      const buffer = config.currencyBufferPct / 100;
+      const bufferedRates = {
+        USD_TO_AOA: Math.round(rates.USD_TO_AOA * (1 + buffer)),
+        EUR_TO_AOA: Math.round(rates.EUR_TO_AOA * (1 + buffer)),
+        CNY_TO_AOA: Math.round(rates.CNY_TO_AOA * (1 + buffer)),
+      };
+      cachedRates = { ...bufferedRates, updatedAt: new Date() };
       lastFetchTime = Date.now();
+      console.log('[ExchangeRates] Taxas obtidas via API externa (com buffer)');
     } else {
-      // Usa taxas do admin
+      // Fallback para taxas do admin
       cachedRates = {
         USD_TO_AOA: config.exchangeRateUsdToAoa,
-        EUR_TO_AOA: Math.round(config.exchangeRateUsdToAoa * 1.06),
-        CNY_TO_AOA: Math.round(config.exchangeRateUsdToAoa * 0.138),
+        EUR_TO_AOA: config.exchangeRateEurToAoa,
+        CNY_TO_AOA: config.exchangeRateCnyToAoa,
         updatedAt: new Date(),
       };
+      console.warn('[ExchangeRates] APIs falharam — usando taxas do admin como fallback');
     }
   } catch (error) {
     console.error('[ExchangeRates] Erro ao obter taxas:', error);
+    // Fallback final
+    const config = await loadPricingConfig().catch(() => null);
+    if (config) {
+      cachedRates = {
+        USD_TO_AOA: config.exchangeRateUsdToAoa,
+        EUR_TO_AOA: config.exchangeRateEurToAoa,
+        CNY_TO_AOA: config.exchangeRateCnyToAoa,
+        updatedAt: new Date(),
+      };
+    }
   }
 
   return cachedRates || {

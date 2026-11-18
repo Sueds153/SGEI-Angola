@@ -59,7 +59,7 @@ export default function Hero() {
             <span className="text-brand-600">entregues na tua porta em Angola</span>
           </h1>
           <p className="text-sm sm:text-base text-ink-600 max-w-xl mx-auto leading-relaxed">
-            Sem cartão Visa internacional. Paga em Kwanzas por Multicaixa Express e nós tratamos de comprar, desalfandegar e entregar.
+            Sem cartão internacional. Paga em Kwanzas por Multicaixa Express ou referência bancária e nós tratamos de comprar, desalfandegar e entregar.
           </p>
         </div>
 
@@ -115,7 +115,7 @@ export default function Hero() {
         <div className="grid grid-cols-3 gap-2 mt-6 max-w-xl mx-auto text-center">
           <div className="flex flex-col items-center p-2 rounded-xl bg-ink-50/60 border border-ink-100">
             <CreditCard className="w-4 h-4 text-brand-600 mb-1" />
-            <span className="text-[11px] font-bold text-ink-900 leading-tight">Multicaixa Express</span>
+            <span className="text-[11px] font-bold text-ink-900 leading-tight">Pagamento Local</span>
             <span className="text-[10px] text-ink-500">Sem cartão Visa</span>
           </div>
           <div className="flex flex-col items-center p-2 rounded-xl bg-ink-50/60 border border-ink-100">

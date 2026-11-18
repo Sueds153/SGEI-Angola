@@ -67,6 +67,7 @@ export interface PriceBreakdown {
   subtotalCents: number;
   serviceFeeCents: number;
   logisticsFeeCents: number;
+  customsFeeCents: number;
   deliveryFeeCents: number;
   totalCents: number;
   currency: "AOA";

@@ -14,7 +14,7 @@ const steps = [
   {
     number: "2",
     title: "Paga em Kwanzas pelo Express",
-    description: "Cola o link aqui e vê o valor final em Kz. Paga pelo Multicaixa Express ou Referência sem precisar de cartão Visa.",
+    description: "Cola o link aqui e vê o valor final em Kz. Paga pelo Multicaixa Express ou referência bancária, sem precisar de cartão internacional.",
     icon: CreditCard,
     color: "bg-brand-50 text-brand-600 border-brand-200",
   },

@@ -115,6 +115,7 @@ export function CheckoutFlow({ prefill }: { prefill: Prefill | null }) {
       subtotalCents,
       serviceFeeCents: 0,
       logisticsFeeCents: 0, // Mala Coletiva - Frete Grátis!
+      customsFeeCents: 0,
       deliveryFeeCents: 0,
       totalCents: subtotalCents,
     };
@@ -412,8 +413,9 @@ export function CheckoutFlow({ prefill }: { prefill: Prefill | null }) {
                 <>
                   <SummaryRow label="Produto" value={formatCents(pricing.subtotalCents)} />
                   <SummaryRow label="Taxa de serviço" value={formatCents(pricing.serviceFeeCents)} />
-                  <SummaryRow label="Logística" value={formatCents(pricing.logisticsFeeCents)} />
-                  <SummaryRow label="Entrega" value={formatCents(pricing.deliveryFeeCents)} />
+                  <SummaryRow label="Logística internacional" value={formatCents(pricing.logisticsFeeCents)} />
+                  <SummaryRow label="Taxa alfandegária estimada" value={formatCents(pricing.customsFeeCents)} />
+                  <SummaryRow label="Entrega em Angola" value={formatCents(pricing.deliveryFeeCents)} />
                   <div className="pt-4 mt-2 border-t border-ink-100 flex justify-between font-semibold text-ink-900 text-lg">
                     <span>Total</span>
                     <span className="tracking-tight">{formatCents(pricing.totalCents)}</span>
@@ -424,7 +426,7 @@ export function CheckoutFlow({ prefill }: { prefill: Prefill | null }) {
                   <p className="text-[11px] text-ink-500 mt-0.5">
                     {isExternal
                       ? "Preço calculado em USD. Para produtos de outros sites, indica a moeda no campo abaixo."
-                      : "Preço final inclui taxa, logística e entrega."}
+                      : "Preço final inclui taxa, logística, alfândega e entrega."}
                   </p>
                 </>
               )}

@@ -132,8 +132,9 @@ export default async function OrderPage({
             <dl className="mt-4 space-y-2 text-sm">
               <Row label="Produto" value={formatKz(order.subtotalCents)} />
               <Row label="Taxa de serviço" value={formatKz(order.serviceFeeCents)} />
-              <Row label="Logística" value={formatKz(order.logisticsFeeCents)} />
-              <Row label="Entrega" value={formatKz(order.deliveryFeeCents)} />
+              <Row label="Logística internacional" value={formatKz(order.logisticsFeeCents)} />
+              <Row label="Taxa alfandegária estimada" value={formatKz((order as any).customsFeeCents || 0)} />
+              <Row label="Entrega em Angola" value={formatKz(order.deliveryFeeCents)} />
               <div className="pt-3 mt-3 border-t border-ink-100 flex justify-between font-semibold text-ink-900 text-base">
                 <span>Total</span>
                 <span className="tracking-tight">{formatKz(order.totalCents)}</span>

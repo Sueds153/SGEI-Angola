@@ -50,22 +50,18 @@ function TrustSection() {
           </p>
         </div>
 
-        {/* Cartões de Pagamento e Entrega */}
+        {/* Garantias de Pagamento (sem dados sensíveis) */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 sm:gap-4 mb-8">
           <div className="p-4 sm:p-5 rounded-2xl bg-ink-50 border border-ink-200">
             <div className="flex items-center gap-2 mb-2">
               <div className="w-8 h-8 rounded-lg bg-brand-100 text-brand-600 grid place-items-center">
                 <CreditCard className="w-4 h-4" />
               </div>
-              <h3 className="font-bold text-ink-900 text-sm">App Multicaixa Express</h3>
+              <h3 className="font-bold text-ink-900 text-sm">Pagamento Local</h3>
             </div>
-            <p className="text-xs text-ink-600 mb-2.5">
-              Transfere diretamente para o número oficial da ImportEasy:
+            <p className="text-xs text-ink-600">
+              Paga em Kwanzas por Multicaixa Express ou referência bancária. Os dados de pagamento são mostrados apenas quando o cliente inicia o checkout.
             </p>
-            <div className="p-2.5 bg-white rounded-xl border border-ink-200 font-mono text-base font-extrabold text-ink-950 flex items-center justify-between">
-              <span>929 423 278</span>
-              <span className="text-[11px] font-sans font-semibold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-md">Ativo</span>
-            </div>
           </div>
 
           <div className="p-4 sm:p-5 rounded-2xl bg-ink-50 border border-ink-200">
@@ -73,19 +69,11 @@ function TrustSection() {
               <div className="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-600 grid place-items-center">
                 <ShieldCheck className="w-4 h-4" />
               </div>
-              <h3 className="font-bold text-ink-900 text-sm">Pagamento por Referência</h3>
+              <h3 className="font-bold text-ink-900 text-sm">Sem Cartão Internacional</h3>
             </div>
-            <p className="text-xs text-ink-600 mb-2.5">
-              Paga em qualquer ATM ou pelo teu banco com os dados:
+            <p className="text-xs text-ink-600">
+              Não precisa de cartão Visa ou Mastercard. Usamos os canais oficiais do sistema bancário angolano.
             </p>
-            <div className="p-2.5 bg-white rounded-xl border border-ink-200 text-xs font-mono text-ink-950 flex items-center justify-between">
-              <div>
-                <span>Entidade: <strong className="text-sm font-extrabold text-brand-600">10116</strong></span>
-              </div>
-              <div>
-                <span>Ref: <strong className="text-sm font-extrabold text-brand-600">929 423 278</strong></span>
-              </div>
-            </div>
           </div>
         </div>
 

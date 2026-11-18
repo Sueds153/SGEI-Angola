@@ -240,7 +240,7 @@ export function ProductDetail({ product }: { product: NormalizedProduct }) {
         </div>
         {pricing && (
           <p className="mt-1 text-xs text-ink-500">
-            Preço final em Kz · inclui taxas, logística e entrega
+            Preço final em Kz · inclui taxas, logística, alfândega e entrega
           </p>
         )}
 
@@ -255,6 +255,7 @@ export function ProductDetail({ product }: { product: NormalizedProduct }) {
               <PriceRow label="Produto" value={formatCents(pricing.subtotalCents)} />
               <PriceRow label="Taxa de serviço" value={formatCents(pricing.serviceFeeCents)} />
               <PriceRow label="Logística internacional" value={formatCents(pricing.logisticsFeeCents)} />
+              <PriceRow label="Taxa alfandegária estimada" value={formatCents(pricing.customsFeeCents)} />
               <PriceRow label="Entrega em Angola" value={formatCents(pricing.deliveryFeeCents)} />
               <div className="pt-2 mt-2 border-t border-ink-200 flex justify-between font-semibold text-ink-900">
                 <span>Total</span>
@@ -372,7 +373,7 @@ export function ProductDetail({ product }: { product: NormalizedProduct }) {
           </div>
           <div className="mt-8 grid grid-cols-2 gap-4 text-sm">
             <InfoLine icon={<Truck className="h-4 w-4" />} text="Entrega em 15–25 dias úteis" />
-            <InfoLine icon={<Shield className="h-4 w-4" />} text="Express 929 423 278 / Entidade 10116" />
+            <InfoLine icon={<Shield className="h-4 w-4" />} text="Pagamento seguro em Kwanzas" />
             <InfoLine icon={<Clock className="h-4 w-4" />} text="Desalfandegamento incluído" />
             <InfoLine icon={<Sparkles className="h-4 w-4" />} text="Rastreio ponto a ponto" />
           </div>
@@ -390,7 +391,7 @@ export function ProductDetail({ product }: { product: NormalizedProduct }) {
               <span>Garantia de Compra Protegida ImportEasy</span>
             </div>
             <p className="text-ink-600 leading-relaxed">
-              Compramos diretamente ao fornecedor internacional ({getSourceDisplayName(product.source)}), tratamos de todo o processo alfandegário e entregamos na sua morada em Luanda e províncias. Pague em Kwanzas com segurança via <strong>Multicaixa Express (929 423 278)</strong> ou <strong>Referência (Entidade 10116 / Ref 929423278)</strong>.
+              Compramos diretamente ao fornecedor internacional ({getSourceDisplayName(product.source)}), tratamos de todo o processo alfandegário e entregamos na sua morada em Luanda e províncias. Pague em Kwanzas com segurança via <strong>Multicaixa Express ou referência bancária</strong> — os dados de pagamento só aparecem no checkout, quando decidir pagar.
             </p>
           </div>
         </div>

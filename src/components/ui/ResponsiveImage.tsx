@@ -115,7 +115,6 @@ export function ResponsiveImage({
       loading={loading}
       decoding="async"
       referrerPolicy={referrerPolicy}
-      crossOrigin="anonymous"
       className={className}
       style={style}
       onError={() => setFailed(true)}

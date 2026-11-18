@@ -240,7 +240,7 @@ export function CartDrawer() {
               {/* Selo Papa Feita */}
               <div className="pt-1 flex items-center justify-center gap-1.5 text-[11px] text-ink-500 text-center">
                 <ShieldCheck className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
-                <span>Pague por Express (929 423 278) ou Ref. Entidade: 10116</span>
+                <span>Pague por Express ou referência bancária · dados mostrados no checkout</span>
               </div>
             </div>
           )}

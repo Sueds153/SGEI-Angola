@@ -67,7 +67,7 @@ const PRODUCTS = [
 const MESSAGES = {
   ENTREGUE: [
     "Recebi o meu {product} hoje em Talatona! Veio tudo certinho, exatamente como nas fotos. Demorou {days} dias. Recomendo muito!",
-    "Primeira vez que compro na {platform} através da ImportEasy. O {product} chegou em {days} dias! Paguei por Express (número 929 423 278), carreguei o comprovativo no site e foi logo validado.",
+    "Primeira vez que compro na {platform} através da ImportEasy. O {product} chegou em {days} dias! Paguei por Express, carreguei o comprovativo no site e foi logo validado.",
     "Melhor investimento! O {product} custou {price} na {platform} + taxas = {aoa} Kz. Aqui em Luanda nas lojas pediam quase o triplo. Poupei muito!",
     "Pedido #{ref} entregue em Benguela! O {product} veio impecável. O apoio no WhatsApp 922 058 136 acompanhou todo o envio até à minha porta.",
     "Segunda compra concluída! Da primeira vez demorou {days} dias. Já recomendei a {friends} colegas de trabalho aqui no Huambo!",
@@ -79,8 +79,8 @@ const MESSAGES = {
     "Pedido #{ref} com {product} já passou a triagem alfandegária no aeroporto de Luanda e segue para distribuição local. Super rápido!",
   ],
   PENDENTE: [
-    "Acabei de fazer o pedido! Paguei pelo app Express para o número 929 423 278 e submeti a foto do comprovativo direto no site. Já aguardo a validação!",
-    "Fiz o pagamento por referência (Entidade 10116 / Ref 929 423 278) no Multicaixa do Kilamba e anexei o talão aqui. O processo no site é muito simples!",
+    "Acabei de fazer o pedido! Paguei pelo app Express e submeti a foto do comprovativo direto no site. Já aguardo a validação!",
+    "Fiz o pagamento por referência no Multicaixa do Kilamba e anexei o talão aqui. O processo no site é muito simples!",
     "Primeiro pedido de {product} por {price}. Submeti o comprovativo para o painel da equipa e estou muito entusiasmado!",
   ],
   PERGUNTA: [
@@ -549,7 +549,7 @@ export default function ComunidadePage() {
               </span>
               <h3 className="text-xl sm:text-2xl font-bold">Pronto para importar com segurança?</h3>
               <p className="text-white/70 text-xs sm:text-sm max-w-xl">
-                Pague em Kwanzas por Multicaixa Express (929 423 278) ou Referência (10116), submeta o seu comprovativo direto no site e receba o produto na sua morada sem surpresas alfandegárias.
+                Pague em Kwanzas por Multicaixa Express ou referência bancária, submeta o seu comprovativo direto no site e receba o produto na sua morada sem surpresas alfandegárias.
               </p>
             </div>
             <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto shrink-0">

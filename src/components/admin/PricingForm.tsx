@@ -9,11 +9,17 @@ import { Loader2, CheckCircle2 } from "lucide-react";
 
 const FIELDS: Array<{ key: string; label: string; hint?: string; type?: "number" | "text"; prefix?: string; suffix?: string; step?: string }> = [
   { key: "exchangeRateUsdToAoa", label: "Câmbio USD → Kz", hint: "Valor de 1 USD em Kz", type: "number", step: "0.01" },
+  { key: "exchangeRateEurToAoa", label: "Câmbio EUR → Kz", hint: "Valor de 1 EUR em Kz", type: "number", step: "0.01" },
+  { key: "exchangeRateCnyToAoa", label: "Câmbio CNY → Kz", hint: "Valor de 1 CNY em Kz", type: "number", step: "0.01" },
+  { key: "exchangeMode", label: "Modo de câmbio", hint: "INFORMAL_MANUAL = usa taxas do admin; OFFICIAL_AUTO = tenta APIs externas", type: "text" },
+  { key: "currencyBufferPct", label: "Buffer de câmbio (%)", hint: "Margem de segurança sobre taxa oficial (0-50)", type: "number", step: "0.1" },
   { key: "serviceFeePct", label: "Taxa de serviço (%)", hint: "Percentagem sobre o produto", type: "number", step: "0.01" },
   { key: "serviceFeeMinCents", label: "Taxa de serviço mínima (cêntimos)", hint: "Ex: 150000 = 1.500 Kz", type: "number" },
-  { key: "logisticsBaseCents", label: "Custo logística base (cêntimos)", hint: "Por pedido", type: "number" },
+  { key: "logisticsBaseCents", label: "Custo logística base (cêntimos)", hint: "Por pedido consolidado (≈ 8-9 USD)", type: "number" },
   { key: "logisticsPerGramCents", label: "Logística por grama (cêntimos)", type: "number", step: "0.01" },
   { key: "localDeliveryCents", label: "Entrega local base (cêntimos)", type: "number" },
+  { key: "customsFeePct", label: "Taxa alfandegária estimada (%)", hint: "Sobre CIF (produto + logística)", type: "number", step: "0.01" },
+  { key: "customsFeeMinCents", label: "Taxa alfandegária mínima (cêntimos)", type: "number" },
   { key: "minimumMarginPct", label: "Margem mínima (0 a 1)", hint: "Ex: 0.15 = 15%", type: "number", step: "0.01" },
   { key: "warningMarginPct", label: "Margem de aviso", type: "number", step: "0.01" },
   { key: "roundToNearestCents", label: "Arredondamento (cêntimos)", hint: "Ex: 50000 = 500 Kz", type: "number" },

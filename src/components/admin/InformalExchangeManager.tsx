@@ -58,11 +58,14 @@ export function InformalExchangeManager({
   // Cálculos do simulador com a taxa atual
   const effectiveUsdRate = usdRate * (1 + bufferPct / 100);
   const convertedProductKz = Math.round(simUsdProduct * effectiveUsdRate);
-  // Simulação típica da taxa de serviço (12% mín 1.500) + frete base (2.500) + local (1.000)
+  // Simulação típica: taxa 12% (mín 1.500) + logística consolidada (~8.000 Kz = ~8.7 USD) + alfândega 5% (mín 500) + entrega local (1.000)
   const serviceFeeKz = Math.max(1500, Math.round(convertedProductKz * 0.12));
-  const logisticsKz = 2500 + 1000;
-  const finalPriceKz = convertedProductKz + serviceFeeKz + logisticsKz;
-  const estimatedProfitKz = serviceFeeKz;
+  const logisticsKz = 8000; // base consolidada
+  const cifBaseKz = convertedProductKz + logisticsKz;
+  const customsKz = Math.max(500, Math.round(cifBaseKz * 0.05));
+  const deliveryKz = 1000;
+  const finalPriceKz = convertedProductKz + serviceFeeKz + logisticsKz + customsKz + deliveryKz;
+  const estimatedProfitKz = serviceFeeKz + logisticsKz + customsKz + deliveryKz - Math.round(finalPriceKz * 0.62);
 
   const handleSelectPresetRate = (rate: number) => {
     setUsdRate(rate);
