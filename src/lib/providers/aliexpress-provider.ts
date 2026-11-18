@@ -3,19 +3,32 @@ import { scrapeWithFallback, scrapeWithFreeFallback, parseAliExpressHtml, extrac
 import { normalizePrice } from "@/lib/currency";
 import type { AliExpressProduct } from "@/lib/scraping/aliexpress-parser";
 
-const ALIEXPRESS_DOMAINS = [
+const ALIEXPRESS_DOMAIN_PATTERNS = [
   "aliexpress.com",
-  "pt.aliexpress.com",
+  "alixpress.com", // common typo
   "aliexpress.ru",
   "aliexpress.br",
   "es.aliexpress.com",
   "fr.aliexpress.com",
+  "de.aliexpress.com",
+  "it.aliexpress.com",
+  "pl.aliexpress.com",
+  "nl.aliexpress.com",
+  "tr.aliexpress.com",
+  "ko.aliexpress.com",
+  "ja.aliexpress.com",
 ];
 
 export function isAliExpressUrl(url: string): boolean {
   try {
-    const hostname = new URL(url).hostname.replace("www.", "");
-    return ALIEXPRESS_DOMAINS.some((d) => hostname.includes(d));
+    const hostname = new URL(url).hostname.toLowerCase().replace("www.", "");
+    // Match any subdomain of aliexpress.* or alix.*
+    return ALIEXPRESS_DOMAIN_PATTERNS.some((d) => hostname === d || hostname.endsWith("." + d)) || 
+           hostname.includes("aliexpress.") || 
+           hostname.includes("alix.") ||
+           hostname === "a.aliexpress.com" || // shortened links
+           hostname === "m.aliexpress.com" || // mobile
+           hostname === "s.click.aliexpress.com"; // affiliate/short links
   } catch {
     return false;
   }

@@ -36,8 +36,15 @@ const PROVIDERS = [
     instance: mockProductProvider, // mockProductProvider já tem lógica Shein
     matcher: (url: string) => {
       try {
-        const hostname = new URL(url).hostname.replace("www.", "");
-        return hostname.includes("shein") || hostname.includes("shein.com");
+        const hostname = new URL(url).hostname.toLowerCase().replace("www.", "");
+        return hostname.includes("shein") || 
+               hostname.includes("romwe") || 
+               hostname === "shein.top" ||
+               hostname === "m.shein.com" ||
+               hostname === "us.shein.com" ||
+               hostname === "br.shein.com" ||
+               hostname === "ar.shein.com" ||
+               hostname === "mx.shein.com";
       } catch { return false; }
     },
     extractor: extractProductIdFromSheinUrl

@@ -612,16 +612,45 @@ export const mockProductProvider: ProductProvider = {
     let id: string | undefined;
 
     if (isShein) {
-      match = url.match(/p-(\d+)/i) || url.match(/goods[/-]?sn=?(\d+)/i) || url.match(/product[/-](\d+)/i);
+      // Shein patterns including mobile, app, and shortened links
+      match = url.match(/p-(\d{6,})/i) || 
+              url.match(/goods[/-]?sn=?(\d{6,})/i) || 
+              url.match(/product[/-](\d{6,})/i) ||
+              url.match(/\/product\/(\d{6,})/i) ||
+              url.match(/\/goods\/(\d{6,})/i) ||
+              url.match(/\/p\/(\d{6,})/i) ||
+              url.match(/(\d{7,})/i);
       id = match?.[1];
     } else if (isAliExpress) {
-      // Padrões AliExpress: /item/1234567890123.html, ?productId=1234567890123
-      match = url.match(/\/item\/(\d{12,})/i) || url.match(/[?&]productId[=:](\d{12,})/i) || url.match(/\/p\/(\d{12,})/i);
-      id = match?.[1];
+      // AliExpress patterns: item/, p/, product/, shortened links, query params
+      // Check query params first
+      const urlObj = new URL(url);
+      const queryId = urlObj.searchParams.get('productId') || urlObj.searchParams.get('itemId') || urlObj.searchParams.get('id');
+      if (queryId && /^\d{10,}$/.test(queryId)) {
+        id = queryId;
+      } else {
+        // Path patterns
+        match = url.match(/\/item\/(\d{10,})/i) || 
+                url.match(/\/p\/(\d{10,})/i) || 
+                url.match(/\/product\/(\d{10,})/i) ||
+                url.match(/\/(\d{10,})\.html/i) ||
+                url.match(/(\d{10,})/i);
+        id = match?.[1];
+      }
     } else if (isVinted) {
-      // Padrões Vinted: /items/123456789, /item/123456789
-      match = url.match(/\/items\/(\d+)/i) || url.match(/\/item\/(\d+)/i) || url.match(/[?&]item[_-]?id[=:](\d+)/i);
-      id = match?.[1];
+      // Vinted patterns
+      const urlObj = new URL(url);
+      const queryId = urlObj.searchParams.get('item_id') || urlObj.searchParams.get('itemId') || urlObj.searchParams.get('id');
+      if (queryId && /^\d+$/.test(queryId)) {
+        id = queryId;
+      } else {
+        match = url.match(/\/items\/(\d+)/i) || 
+                url.match(/\/item\/(\d+)/i) || 
+                url.match(/\/catalog\/(\d+)/i) ||
+                url.match(/\/product\/(\d+)/i) ||
+                url.match(/(\d{6,})/i);
+        id = match?.[1];
+      }
     }
 
     if (id) {
