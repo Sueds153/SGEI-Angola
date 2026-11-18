@@ -1,51 +1,19 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import {
-  LayoutDashboard,
-  ShoppingBag,
-  Package as PackageIcon,
-  Users,
-  CreditCard,
-  Truck,
-  Tags,
-  Settings,
-  FileText,
-  LogOut,
-  BarChart3,
-  Shield,
-  MessageSquare,
-  Banknote,
-  Search,
-} from "lucide-react";
+import { LogOut, Shield } from "lucide-react";
 import { getSession } from "@/lib/auth";
 import { Logo } from "@/components/brand/Logo";
-import { AdminNavLinkClient } from "./AdminNavLinkClient";
+import { AdminNav } from "./AdminNav";
 
 export const metadata: Metadata = {
-  title: "Admin · ImportEasy",
+  title: "Admin — ImportEasy",
   robots: { index: false, follow: false },
 };
 
-const adminNav = [
-  { href: "/admin", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/admin/pedidos", label: "Pedidos", icon: ShoppingBag },
-  { href: "/admin/rastreio", label: "Rastreio & Intervenção", icon: Search },
-  { href: "/admin/cambio", label: "Câmbio Informal", icon: Banknote },
-  { href: "/admin/pagamentos", label: "Pagamentos", icon: CreditCard },
-  { href: "/admin/logistica", label: "Logística", icon: Truck },
-  { href: "/admin/produtos", label: "Produtos", icon: PackageIcon },
-  { href: "/admin/categorias", label: "Categorias", icon: Tags },
-  { href: "/admin/clientes", label: "Clientes", icon: Users },
-  { href: "/admin/precos", label: "Preços & Margens", icon: BarChart3 },
-  { href: "/admin/comunidade", label: "Comunidade", icon: MessageSquare },
-  { href: "/admin/configuracoes", label: "Configurações", icon: Settings },
-  { href: "/admin/logs", label: "Logs", icon: FileText },
-];
-
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const session = await getSession();
-  
+
   // Verifica autenticação - se não admin, redireciona para login
   if (!session || session.role !== "admin") {
     redirect("/admin/login");
@@ -65,13 +33,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
           </Link>
         </div>
 
-        <nav className="flex lg:flex-col gap-0.5 p-2 overflow-x-auto lg:overflow-visible no-scrollbar">
-          {adminNav.map((item) => (
-            <AdminNavLink key={item.href} href={item.href} icon={item.icon}>
-              {item.label}
-            </AdminNavLink>
-          ))}
-        </nav>
+        <AdminNav />
 
         <div className="admin-sidebar-footer mt-auto p-3 lg:border-t lg:border-ink-800 hidden lg:block">
           <p className="px-2 py-1 text-[11px] text-ink-500">Sessão: {session.name}</p>
@@ -93,16 +55,4 @@ export default async function AdminLayout({ children }: { children: React.ReactN
       </main>
     </div>
   );
-}
-
-function AdminNavLink({
-  href,
-  icon: Icon,
-  children,
-}: {
-  href: string;
-  icon: any;
-  children: React.ReactNode;
-}) {
-  return <AdminNavLinkClient href={href} icon={Icon}>{children}</AdminNavLinkClient>;
 }
