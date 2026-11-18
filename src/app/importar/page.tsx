@@ -6,18 +6,16 @@ import {
   Loader2, 
   AlertCircle, 
   CheckCircle2, 
-  Link as LinkIcon, 
   ShieldCheck, 
   Clock, 
   Calculator, 
   ArrowRight, 
   ShoppingBag, 
-  Sparkles, 
-  Share2, 
   Clipboard, 
   Check, 
   MessageCircle,
-  ExternalLink
+  ExternalLink,
+  ShieldAlert
 } from "lucide-react";
 import Link from "next/link";
 import { useCart } from "@/context/CartContext";
@@ -41,6 +39,12 @@ interface SimulationResult {
   logisticsFee?: number;
   deliveryFee?: number;
   estimatedDays?: number;
+  // Taxa de Proteção do Comprador (Vinted)
+  hasBuyerProtection?: boolean;
+  buyerProtectionFee?: number;
+  buyerProtectionFeeAOA?: number;
+  priceWithProtection?: number;
+  priceWithProtectionAOA?: number;
   error?: string;
 }
 
@@ -104,6 +108,11 @@ function ImportarContent() {
         logisticsFee: data.logisticsFee,
         deliveryFee: data.deliveryFee,
         estimatedDays: data.estimatedDays || 18,
+        hasBuyerProtection: data.hasBuyerProtection,
+        buyerProtectionFee: data.buyerProtectionFee,
+        buyerProtectionFeeAOA: data.buyerProtectionFeeAOA,
+        priceWithProtection: data.priceWithProtection,
+        priceWithProtectionAOA: data.priceWithProtectionAOA,
       });
     } catch (err: any) {
       setError(err instanceof Error ? err.message : "Erro ao processar o link. Verifique e tente novamente.");
@@ -187,7 +196,7 @@ function ImportarContent() {
                 type="text"
                 value={url}
                 onChange={(e) => setUrl(e.target.value)}
-                placeholder="Ex: https://shein.com/... ou https://aliexpress.com/..."
+                placeholder="Ex: https://shein.com/... ou https://vinted.pt/items/... ou https://aliexpress.com/..."
                 className="w-full py-3.5 pl-3.5 pr-20 bg-transparent text-sm sm:text-base text-ink-900 placeholder:text-ink-400 outline-none"
                 required
                 disabled={loading}
@@ -280,28 +289,40 @@ function SimulationResultCard({
   const [customPrice, setCustomPrice] = useState<number>(result.price || 15);
 
   const activePrice = result.price && result.price > 0 ? result.price : customPrice;
-  const currency = result.currency || "USD";
+  const currency = result.currency || (result.platform === "Vinted" ? "EUR" : "USD");
   const exchangeRate = result.exchangeRate || 920;
+  const isVinted = result.platform === "Vinted" || result.hasBuyerProtection;
 
-  // Cálculo cambial transparente em Kwanzas
-  const convertedKz = Math.round(activePrice * exchangeRate);
-  const serviceFeeKz = Math.max(1500, Math.round(convertedKz * 0.12));
+  // Lógica da Taxa de Proteção do Comprador Vinted:
+  // Fórmula oficial Vinted: 0,70 € + 5% do preço do artigo anunciado
+  const buyerProtectionEur = isVinted ? Number((0.70 + activePrice * 0.05).toFixed(2)) : 0;
+  const buyerProtectionKz = isVinted ? Math.round(buyerProtectionEur * exchangeRate) : 0;
+  const effectivePurchasePrice = isVinted ? Number((activePrice + buyerProtectionEur).toFixed(2)) : activePrice;
+
+  // Cálculo cambial transparente em Kwanzas sobre o custo real de compra
+  const baseArticleKz = Math.round(activePrice * exchangeRate);
+  const totalPurchaseKz = Math.round(effectivePurchasePrice * exchangeRate);
+  const serviceFeeKz = Math.max(1500, Math.round(totalPurchaseKz * 0.12));
   const logisticsFeeKz = 2500;
   const deliveryFeeKz = 1000;
-  const totalAOA = convertedKz + serviceFeeKz + logisticsFeeKz + deliveryFeeKz;
+  const totalAOA = totalPurchaseKz + serviceFeeKz + logisticsFeeKz + deliveryFeeKz;
 
   const formatAOA = (val: number) => formatKzAmount(val);
-
   const formatForeign = (val: number, cur: string) => formatForeignMoney(val, cur);
 
-  const checkoutUrl = `/checkout?externalUrl=${encodeURIComponent(result.sourceUrl)}&productName=${encodeURIComponent(result.title)}&externalPriceUsd=${activePrice}&productCurrency=${currency}`;
+  const bestImage = result.images?.[0] || result.defaultImage;
+
+  const checkoutUrl = `/checkout?externalUrl=${encodeURIComponent(result.sourceUrl)}&productName=${encodeURIComponent(
+    result.title
+  )}&externalPriceUsd=${effectivePurchasePrice}&productCurrency=${currency}&productImage=${encodeURIComponent(bestImage || "")}`;
 
   const handleAddToCart = () => {
     addItem({
       title: result.title,
-      priceUsd: activePrice,
+      priceUsd: effectivePurchasePrice,
       priceKz: totalAOA,
-      image: result.images?.[0] || result.defaultImage,
+      originalCurrency: currency,
+      image: bestImage,
       platform: result.platform,
       sourceUrl: result.sourceUrl,
       quantity: 1,
@@ -321,7 +342,7 @@ function SimulationResultCard({
         </div>
         <button
           onClick={onNewSimulation}
-          className="text-xs font-semibold px-3 py-1.5 bg-white/10 hover:bg-white/20 rounded-lg text-white transition active:scale-95"
+          className="text-xs font-semibold px-3 py-1.5 bg-white/10 hover:bg-white/20 rounded-lg text-white transition active:scale-95 cursor-pointer"
         >
           Novo Link
         </button>
@@ -331,9 +352,9 @@ function SimulationResultCard({
         {/* Foto e Título */}
         <div className="flex gap-3.5 items-center">
           <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-xl sm:rounded-2xl bg-ink-100 shrink-0 overflow-hidden border border-ink-200 relative">
-            {result.images?.[0] || result.defaultImage ? (
+            {bestImage ? (
               <ResponsiveImage
-                src={result.images?.[0] || result.defaultImage!}
+                src={bestImage}
                 alt={result.title}
                 fill
                 className="object-cover"
@@ -364,6 +385,19 @@ function SimulationResultCard({
           </div>
         </div>
 
+        {/* Banner Exclusivo: Proteção ao Comprador Vinted */}
+        {isVinted && (
+          <div className="p-3.5 bg-emerald-50/80 rounded-xl border border-emerald-200 flex items-start gap-3">
+            <ShieldCheck className="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" />
+            <div className="text-xs space-y-0.5">
+              <p className="font-bold text-emerald-950">Proteção ao Comprador Vinted Ativa</p>
+              <p className="text-emerald-800 leading-relaxed text-[11px]">
+                Esta simulação já inclui a <strong>Taxa de Proteção Oficial da Vinted (0,70 € + 5%)</strong>. Se a peça não for enviada pelo vendedor europeu ou se apresentar defeitos graves não declarados, o teu valor está 100% salvaguardado com direito a reembolso.
+              </p>
+            </div>
+          </div>
+        )}
+
         {/* Ajuste de Preço Manual Caso a Loja não tenha exposto o valor */}
         {result.status === "needs_price" && (
           <div className="p-3.5 bg-amber-50/80 rounded-xl border border-amber-200 text-xs space-y-2">
@@ -381,7 +415,7 @@ function SimulationResultCard({
                 onChange={(e) => setCustomPrice(Math.max(1, parseFloat(e.target.value) || 1))}
                 className="w-32 px-3 py-1.5 rounded-lg border border-amber-300 bg-white text-base font-bold text-ink-950 outline-none focus:ring-2 focus:ring-amber-500"
               />
-              <span className="text-ink-500 text-[11px]">Calculado instantaneamente abaixo</span>
+              <span className="text-ink-500 text-[11px]">Cálculo instantâneo em Kwanzas abaixo</span>
             </div>
           </div>
         )}
@@ -389,13 +423,45 @@ function SimulationResultCard({
         {/* Tabela de Valores Transparente */}
         <div className="bg-brand-50/40 rounded-xl sm:rounded-2xl p-4 border border-brand-100 space-y-2.5 text-xs sm:text-sm">
           <div className="flex justify-between text-ink-700">
-            <span>Preço do artigo ({currency})</span>
+            <span>Preço do artigo na loja ({currency})</span>
             <span className="font-semibold text-ink-950">{formatForeign(activePrice, currency)}</span>
           </div>
-          <div className="flex justify-between text-ink-700">
-            <span>Conversão cambial (1 {currency} ≈ {exchangeRate} Kz)</span>
-            <span className="font-semibold text-ink-950">{formatAOA(convertedKz)}</span>
-          </div>
+
+          {/* Linha discriminada: Proteção ao Consumidor / Comprador Vinted */}
+          {isVinted && (
+            <>
+              <div className="flex justify-between text-ink-800 bg-emerald-50/60 p-2 rounded-lg border border-emerald-100">
+                <div>
+                  <div className="flex items-center gap-1 font-semibold text-emerald-950">
+                    <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
+                    <span>Proteção ao Comprador Vinted (0,70 € + 5%)</span>
+                  </div>
+                  <span className="text-[10px] text-emerald-700 block mt-0.5">
+                    Seguro obrigatório da Vinted contra extravio ou defeito
+                  </span>
+                </div>
+                <div className="text-right">
+                  <span className="font-bold text-emerald-900 block">{formatForeign(buyerProtectionEur, "EUR")}</span>
+                  <span className="text-[10px] text-emerald-700">≈ {formatAOA(buyerProtectionKz)}</span>
+                </div>
+              </div>
+
+              <div className="flex justify-between text-ink-700 border-b border-brand-100 pb-2">
+                <span className="font-medium">Total de compra na Vinted com proteção</span>
+                <span className="font-bold text-ink-950">
+                  {formatForeign(effectivePurchasePrice, "EUR")} (≈ {formatAOA(totalPurchaseKz)})
+                </span>
+              </div>
+            </>
+          )}
+
+          {!isVinted && (
+            <div className="flex justify-between text-ink-700">
+              <span>Conversão cambial (1 {currency} ≈ {exchangeRate} Kz)</span>
+              <span className="font-semibold text-ink-950">{formatAOA(baseArticleKz)}</span>
+            </div>
+          )}
+
           <div className="flex justify-between text-ink-700">
             <span>Taxa de serviço e gestão</span>
             <span className="font-medium text-ink-950">{formatAOA(serviceFeeKz)}</span>
@@ -412,7 +478,7 @@ function SimulationResultCard({
           <div className="border-t border-brand-200/80 pt-2.5 flex justify-between items-baseline">
             <div>
               <span className="text-sm sm:text-base font-extrabold text-ink-950 block">Total Final em Kwanzas</span>
-              <span className="text-[10px] text-ink-500">Tudo incluído até à sua porta</span>
+              <span className="text-[10px] text-ink-500">Tudo incluído até à sua porta em Luanda</span>
             </div>
             <span className="text-lg sm:text-2xl font-black text-brand-600">
               {formatAOA(totalAOA)}
@@ -450,7 +516,11 @@ function SimulationResultCard({
           {/* Suporte WhatsApp */}
           <a
             href={`https://wa.me/244922058136?text=${encodeURIComponent(
-              `Olá ImportEasy! Gostaria de encomendar este artigo: "${result.title}" (${result.platform}). Valor: ${formatAOA(totalAOA)}. Link: ${result.sourceUrl}`
+              `Olá ImportEasy! Gostaria de encomendar este artigo: "${result.title}" (${result.platform}). Valor total: ${formatAOA(
+                totalAOA
+              )}${isVinted ? ` (com Proteção Vinted de ${formatForeign(buyerProtectionEur, "EUR")})` : ""}. Link: ${
+                result.sourceUrl
+              }`
             )}`}
             target="_blank"
             rel="noopener noreferrer"

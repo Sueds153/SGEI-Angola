@@ -17,6 +17,12 @@ export interface ResolvedProductInfo {
   logisticsFee?: number;
   deliveryFee?: number;
   estimatedDays?: number;
+  // Taxa de Proteção do Comprador (Vinted)
+  hasBuyerProtection?: boolean;
+  buyerProtectionFee?: number;
+  buyerProtectionFeeAOA?: number;
+  priceWithProtection?: number;
+  priceWithProtectionAOA?: number;
   error?: string;
 }
 
@@ -92,6 +98,33 @@ export async function resolveFinalUrl(targetUrl: string): Promise<string> {
   }
 }
 
+function cleanScrapedImageUrl(rawUrl: string): string | null {
+  if (!rawUrl || typeof rawUrl !== "string") return null;
+  let url = rawUrl.trim();
+  if (url.startsWith("//")) {
+    url = `https:${url}`;
+  }
+  url = decodeHtmlEntities(url);
+
+  // Filtrar tracking pixels, logos de pagamento ou ícones minúsculos
+  if (
+    url.includes("1x1") ||
+    url.includes("pixel") ||
+    url.includes("tracker") ||
+    url.includes("data:image/svg") ||
+    url.includes("apple-touch-icon") ||
+    url.includes("favicon") ||
+    url.endsWith(".svg")
+  ) {
+    return null;
+  }
+
+  if (url.startsWith("http://") || url.startsWith("https://")) {
+    return url;
+  }
+  return null;
+}
+
 export async function resolveAndScrapeUrl(rawInput: string): Promise<ResolvedProductInfo> {
   const url = extractUrlFromText(rawInput);
   if (!url) {
@@ -103,11 +136,11 @@ export async function resolveAndScrapeUrl(rawInput: string): Promise<ResolvedPro
       currency: "USD",
       images: [],
       sourceUrl: rawInput,
-      error: "Por favor insira um link válido da SHEIN, AliExpress ou outra loja online.",
+      error: "Por favor insira um link válido da SHEIN, AliExpress, Vinted ou outra loja online.",
     };
   }
 
-  // Resolver redirecionamentos (especialmente shein.top, a.aliexpress.com, etc.)
+  // Resolver redirecionamentos (especialmente links curtos de apps shein.top, a.aliexpress.com, vinted.net, etc.)
   const finalUrl = await resolveFinalUrl(url);
   const platform = detectPlatform(finalUrl);
 
@@ -139,7 +172,7 @@ export async function resolveAndScrapeUrl(rawInput: string): Promise<ResolvedPro
   let title = "";
   let price: number | undefined;
   let currency = platform.key === "VINTED" || platform.key === "ZARA" ? "EUR" : "USD";
-  const images: string[] = [];
+  const rawImages: string[] = [];
 
   if (html) {
     // 1. Tentar JSON-LD
@@ -155,7 +188,7 @@ export async function resolveAndScrapeUrl(rawInput: string): Promise<ResolvedPro
               const imgArray = Array.isArray(item.image) ? item.image : [item.image];
               imgArray.forEach((im: any) => {
                 const src = typeof im === "string" ? im : im.url || im.contentUrl;
-                if (src && !images.includes(src)) images.push(src);
+                if (src) rawImages.push(src);
               });
             }
             if (item.offers) {
@@ -173,7 +206,7 @@ export async function resolveAndScrapeUrl(rawInput: string): Promise<ResolvedPro
       }
     }
 
-    // 2. Tentar OpenGraph Tags
+    // 2. Tentar OpenGraph e Twitter Tags
     if (!title) {
       const ogTitle = html.match(/<meta[^>]+property=["']og:title["'][^>]+content=["']([^"']+)["']/i) ||
                       html.match(/<meta[^>]+content=["']([^"']+)["'][^>]+property=["']og:title["']/i);
@@ -189,13 +222,36 @@ export async function resolveAndScrapeUrl(rawInput: string): Promise<ResolvedPro
       }
     }
 
+    // Meta tags de imagem: og:image, og:image:secure_url, twitter:image, link[rel="image_src"]
     const ogImage = html.match(/<meta[^>]+property=["']og:image["'][^>]+content=["']([^"']+)["']/i) ||
-                    html.match(/<meta[^>]+content=["']([^"']+)["'][^>]+property=["']og:image["']/i);
-    if (ogImage?.[1] && !images.includes(ogImage[1])) {
-      images.unshift(ogImage[1]);
+                    html.match(/<meta[^>]+content=["']([^"']+)["'][^>]+property=["']og:image["']/i) ||
+                    html.match(/<meta[^>]+property=["']og:image:secure_url["'][^>]+content=["']([^"']+)["']/i) ||
+                    html.match(/<meta[^>]+name=["']twitter:image["'][^>]+content=["']([^"']+)["']/i) ||
+                    html.match(/<meta[^>]+name=["']twitter:image:src["'][^>]+content=["']([^"']+)["']/i) ||
+                    html.match(/<link[^>]+rel=["']image_src["'][^>]+href=["']([^"']+)["']/i);
+    if (ogImage?.[1]) {
+      rawImages.unshift(ogImage[1]);
     }
 
-    // 3. Tentar extração de preço via OpenGraph ou Regex
+    // 3. Fallbacks específicos por plataforma para imagens de alta resolução
+    if (platform.key === "VINTED") {
+      const vintedImgMatches = [...html.matchAll(/https:\/\/images\d*\.vinted\.net\/t\/[^\s"'<>\\]+/gi)];
+      for (const m of vintedImgMatches) {
+        rawImages.push(m[0]);
+      }
+    } else if (platform.key === "SHEIN") {
+      const sheinImgMatches = [...html.matchAll(/(?:https:)?\/\/img\.ltwebstatic\.com\/[^\s"'<>\\]+/gi)];
+      for (const m of sheinImgMatches) {
+        rawImages.push(m[0]);
+      }
+    } else if (platform.key === "ALIEXPRESS") {
+      const aliImgMatches = [...html.matchAll(/(?:https:)?\/\/ae\d*\.alicdn\.com\/kf\/[^\s"'<>\\]+/gi)];
+      for (const m of aliImgMatches) {
+        rawImages.push(m[0]);
+      }
+    }
+
+    // 4. Tentar extração de preço via OpenGraph ou Regex
     if (!price) {
       const ogPrice = html.match(/<meta[^>]+property=["'](?:og:price:amount|product:price:amount)["'][^>]+content=["']([^"']+)["']/i) ||
                       html.match(/<meta[^>]+content=["']([^"']+)["'][^>]+property=["'](?:og:price:amount|product:price:amount)["']/i);
@@ -210,7 +266,8 @@ export async function resolveAndScrapeUrl(rawInput: string): Promise<ResolvedPro
       const pricePatterns = [
         /"original_price":\{[^}]*"amount":"([^"]+)"/,
         /"sale_price":\{[^}]*"amount":"([^"]+)"/,
-        /"price":\s*([0-9]+\.[0-9]{2})/,
+        /"total_item_price":\{[^}]*"amount":"([^"]+)"/,
+        /"price":\s*([0-9]+(?:\.[0-9]{2})?)/,
         /"usdPrice":\s*"?([0-9]+\.[0-9]{2})"?/,
         /\$\s*([0-9]+(?:\.[0-9]{2})?)/,
         /([0-9]+(?:\.[0-9]{2})?)\s*(?:USD|\$|EUR|€)/i,
@@ -228,6 +285,15 @@ export async function resolveAndScrapeUrl(rawInput: string): Promise<ResolvedPro
     }
   }
 
+  // Limpeza de imagens e remoção de duplicados
+  const images: string[] = [];
+  for (const raw of rawImages) {
+    const cleaned = cleanScrapedImageUrl(raw);
+    if (cleaned && !images.includes(cleaned)) {
+      images.push(cleaned);
+    }
+  }
+
   // Limpeza de título
   if (title) {
     title = title.replace(/\s*[-–|]\s*(SHEIN|AliExpress|Vinted|Zara|Amazon).*$/i, "").trim();
@@ -235,14 +301,31 @@ export async function resolveAndScrapeUrl(rawInput: string): Promise<ResolvedPro
     title = `Artigo ${platform.name}`;
   }
 
-  // Se conseguimos ler o preço, calcula a simulação completa em Kwanzas
   const config = await loadPricingConfig();
   const rate = currency === "EUR" ? (config.exchangeRateUsdToAoa * 1.08) : config.exchangeRateUsdToAoa;
 
+  // Lógica de Taxa de Proteção ao Comprador da Vinted (0,70 € + 5% do artigo)
+  const isVinted = platform.key === "VINTED";
+  let buyerProtectionFee: number | undefined;
+  let buyerProtectionFeeAOA: number | undefined;
+  let priceWithProtection: number | undefined;
+  let priceWithProtectionAOA: number | undefined;
+
   if (price && price > 0) {
+    let effectivePurchasePrice = price;
+
+    if (isVinted) {
+      // Cálculo oficial Vinted: 0,70 EUR + 5% sobre o preço anunciado
+      buyerProtectionFee = Number((0.70 + price * 0.05).toFixed(2));
+      buyerProtectionFeeAOA = Math.round(buyerProtectionFee * rate);
+      priceWithProtection = Number((price + buyerProtectionFee).toFixed(2));
+      priceWithProtectionAOA = Math.round(priceWithProtection * rate);
+      effectivePurchasePrice = priceWithProtection;
+    }
+
     const breakdown = calculatePrice(
       {
-        productPriceUsd: price,
+        productPriceUsd: effectivePurchasePrice,
         quantity: 1,
         weightGrams: 300,
       },
@@ -267,6 +350,11 @@ export async function resolveAndScrapeUrl(rawInput: string): Promise<ResolvedPro
       logisticsFee: Math.round(breakdown.logisticsFeeCents / 100),
       deliveryFee: Math.round(breakdown.deliveryFeeCents / 100),
       estimatedDays: 18,
+      hasBuyerProtection: isVinted,
+      buyerProtectionFee,
+      buyerProtectionFeeAOA,
+      priceWithProtection,
+      priceWithProtectionAOA,
     };
   }
 
@@ -283,6 +371,7 @@ export async function resolveAndScrapeUrl(rawInput: string): Promise<ResolvedPro
     sourceUrl: finalUrl,
     exchangeRate: Math.round(rate),
     estimatedDays: 18,
+    hasBuyerProtection: isVinted,
   };
 }
 
