@@ -1,4 +1,4 @@
-import { and, desc, eq } from "drizzle-orm";
+import { and, desc, eq, inArray } from "drizzle-orm";
 import { db } from "@/db";
 import { categories, products } from "@/db/schema";
 import { scraperRuns } from "@/db/schema-scraper";
@@ -41,7 +41,25 @@ interface ScraperTask {
   accept?: (listing: Listing) => boolean;
 }
 
-const IPHONE_REJECT = /pe[cç]as|bloquead|partid|quebrad|para arranjo|avariad/i;
+/**
+ * Filtro de qualidade para iPhone na Vinted.
+ *
+ * A Vinted agrega vendedores de toda a Europa, pelo que o título pode vir em
+ * neerlandês, francês ou alemão. Rejeitamos acessórios e telemóveis avariados
+ * ou bloqueados, e exigimos um preço compatível com um telemóvel funcional.
+ */
+const IPHONE_REJECT =
+  /pe[cç]as|pecas|bloquead|bloqueado|icloud|partid|quebrad|para arranjo|avariad|as[- ]is|n[aã]o funciona|sem funcionar|defeito|danificad|coque|hoesje|hoesjes|case|cover|capa|capinha|funda|etui|h[uü]lle|carcasa|pel[ií]cula|ecr[aã]|carregador|cabo|charger|cable|bateria|battery|suporte|peluche/i;
+
+const IPHONE_MIN_PRICE = 60;
+
+function acceptIphone(listing: Listing): boolean {
+  return (
+    /iphone/i.test(listing.title) &&
+    !IPHONE_REJECT.test(listing.title) &&
+    listing.price >= IPHONE_MIN_PRICE
+  );
+}
 
 const TASKS: ScraperTask[] = [
   {
@@ -49,14 +67,14 @@ const TASKS: ScraperTask[] = [
     term: "iphone 13",
     categoryName: "iPhones Seminovos",
     categorySlug: "iphones-seminovos",
-    accept: (l) => /iphone/i.test(l.title) && !IPHONE_REJECT.test(l.title),
+    accept: acceptIphone,
   },
   {
     platform: "VINTED",
     term: "iphone 14 pro",
     categoryName: "iPhones Seminovos",
     categorySlug: "iphones-seminovos",
-    accept: (l) => /iphone/i.test(l.title) && !IPHONE_REJECT.test(l.title),
+    accept: acceptIphone,
   },
   {
     platform: "ALIEXPRESS",
@@ -190,57 +208,99 @@ function estimateWeight(platform: ScraperPlatform): number {
   return 400;
 }
 
-async function saveListing(
-  listing: Listing,
+/**
+ * Grava um lote de anúncios com uma única consulta de leitura e uma única
+ * inserção. Fazer isto linha a linha multiplicava as idas à base de dados e
+ * consumia o orçamento de tempo da função serverless.
+ */
+async function saveListings(
+  listings: Listing[],
   task: ScraperTask
-): Promise<"created" | "updated" | "skipped"> {
+): Promise<{ created: number; updated: number }> {
+  if (listings.length === 0) return { created: 0, updated: 0 };
+
+  // A mesma listagem pode aparecer repetida no markdown (imagem + link).
+  const uniqueListings = [...new Map(listings.map((l) => [l.externalId, l])).values()];
+
   const categoryId = await ensureCategory(task.categoryName, task.categorySlug);
+  const externalIds = uniqueListings.map((listing) => listing.externalId);
 
   const existing = await db
-    .select({ id: products.id, price: products.originalPrice })
+    .select({
+      id: products.id,
+      externalId: products.externalProductId,
+      price: products.originalPrice,
+    })
     .from(products)
     .where(
-      and(eq(products.source, task.platform), eq(products.externalProductId, listing.externalId))
-    )
-    .limit(1);
+      and(
+        eq(products.source, task.platform),
+        inArray(products.externalProductId, externalIds)
+      )
+    );
 
-  if (existing.length > 0) {
-    const current = Number(existing[0].price ?? 0);
-    if (Math.abs(current - listing.price) < 0.01) return "skipped";
+  const existingByExternalId = new Map(
+    existing.map((row) => [row.externalId ?? "", row])
+  );
 
+  const now = new Date();
+  const toCreate: Listing[] = [];
+  const toUpdate: Array<{ id: number; price: number; image: string | null }> = [];
+
+  for (const listing of uniqueListings) {
+    const current = existingByExternalId.get(listing.externalId);
+    if (!current) {
+      toCreate.push(listing);
+      continue;
+    }
+
+    if (Math.abs(Number(current.price ?? 0) - listing.price) < 0.01) continue;
+    toUpdate.push({ id: current.id, price: listing.price, image: listing.image });
+  }
+
+  let created = 0;
+  if (toCreate.length > 0) {
+    const inserted = await db
+      .insert(products)
+      .values(
+        toCreate.map((listing) => ({
+          externalProductId: listing.externalId,
+          sourceUrl: listing.url,
+          source: task.platform,
+          name: listing.title,
+          slug: buildSlug(task.platform, listing.title, listing.externalId),
+          description: `Produto real importado de ${task.platform === "VINTED" ? "Vinted" : task.platform === "SHEIN" ? "SHEIN" : "AliExpress"}: ${listing.title}`,
+          categoryId,
+          originalPrice: listing.price.toFixed(2),
+          currency: listing.currency,
+          availability: "IN_STOCK",
+          status: "ACTIVE" as const,
+          defaultImage: listing.image,
+          weightGrams: estimateWeight(task.platform),
+          sku: `IMP-${task.platform}-${listing.externalId}`.substring(0, 100),
+          lastPriceCheckAt: now,
+        }))
+      )
+      // Um slug já existente (por exemplo, o mesmo artigo relistado) não deve
+      // fazer falhar o lote inteiro.
+      .onConflictDoNothing({ target: products.slug })
+      .returning({ id: products.id });
+    created = inserted.length;
+  }
+
+  for (const item of toUpdate) {
     await db
       .update(products)
       .set({
-        originalPrice: listing.price.toFixed(2),
-        defaultImage: listing.image ?? undefined,
-        lastPriceCheckAt: new Date(),
-        updatedAt: new Date(),
+        originalPrice: item.price.toFixed(2),
+        defaultImage: item.image ?? undefined,
+        lastPriceCheckAt: now,
+        updatedAt: now,
       })
-      .where(eq(products.id, existing[0].id));
-    return "updated";
+      .where(eq(products.id, item.id));
   }
 
-  const slug = buildSlug(task.platform, listing.title, listing.externalId);
-
-  await db.insert(products).values({
-    externalProductId: listing.externalId,
-    sourceUrl: listing.url,
-    source: task.platform,
-    name: listing.title,
-    slug,
-    description: `Produto real importado de ${task.platform === "VINTED" ? "Vinted" : task.platform === "SHEIN" ? "SHEIN" : "AliExpress"}: ${listing.title}`,
-    categoryId,
-    originalPrice: listing.price.toFixed(2),
-    currency: listing.currency,
-    availability: "IN_STOCK",
-    status: "ACTIVE",
-    defaultImage: listing.image,
-    weightGrams: estimateWeight(task.platform),
-    sku: `IMP-${task.platform}-${listing.externalId}`.substring(0, 100),
-    lastPriceCheckAt: new Date(),
-  });
-
-  return "created";
+  return { created, updated: toUpdate.length };
 }
 
 async function collect(task: ScraperTask): Promise<Listing[]> {
@@ -305,41 +365,23 @@ export async function runScraperBatch(options: {
       const listings = await collect(task);
       const accepted = task.accept ? listings.filter((l) => task.accept!(l)) : listings;
 
-      let created = 0;
-      let updated = 0;
-      // Limite por tarefa e verificação de orçamento dentro do ciclo: cada
-      // gravação na base de dados demora, pelo que uma tarefa sozinha pode
-      // consumir o tempo todo.
-      const batch = accepted.slice(0, 10);
-      let processed = 0;
-      for (const listing of batch) {
-        if (Date.now() - startedAt > budgetMs) break;
-        try {
-          const outcome = await saveListing(listing, task);
-          if (outcome === "created") created++;
-          if (outcome === "updated") updated++;
-        } catch (error: any) {
-          counters.errors++;
-          console.error(`[Scraper] Erro a guardar "${listing.title}": ${error?.message ?? error}`);
-        }
-        processed++;
-      }
+      // Limite por tarefa para proteger o orçamento de tempo.
+      const batch = accepted.slice(0, 12);
+      const outcome = await saveListings(batch, task);
 
-      counters.created += created;
-      counters.updated += updated;
+      counters.created += outcome.created;
+      counters.updated += outcome.updated;
       counters.tasks++;
-      // Se a tarefa ficou a meio, o cursor não avança para que a execução
-      // seguinte a retome em vez de deixar anúncios por recolher.
-      cursor = processed < batch.length ? index : (index + 1) % TASKS.length;
+      cursor = (index + 1) % TASKS.length;
 
       details.push({
         task: `${task.platform}:${task.term}`,
         accepted: accepted.length,
-        created,
-        updated,
+        created: outcome.created,
+        updated: outcome.updated,
       });
       console.log(
-        `[Scraper] ${task.platform} "${task.term}": ${accepted.length} aceites, ${created} novos, ${updated} atualizados`
+        `[Scraper] ${task.platform} "${task.term}": ${accepted.length} aceites, ${outcome.created} novos, ${outcome.updated} atualizados`
       );
     } catch (error: any) {
       counters.errors++;
