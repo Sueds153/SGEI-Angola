@@ -2,7 +2,11 @@
   "crons": [
     {
       "path": "/api/cron/daily-scraper",
-      "schedule": "0 3 * * *"
+      "schedule": "0 2 * * *"
+    },
+    {
+      "path": "/api/cron/daily-scraper-pm",
+      "schedule": "0 14 * * *"
     }
   ]
 }

@@ -1,31 +1,24 @@
 import { NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/auth";
+import { getScraperTasks, runScraperBatch } from "@/lib/scraping/daily-scraper";
 
-export async function POST(req: Request) {
-  // Autenticação Bancária Dupla: Token Cron Seguro OU Sessão Admin Autenticada
-  const authHeader = req.headers.get("authorization");
-  const expectedToken = process.env.SCRAPER_CRON_TOKEN;
-  const isCronAuthorized = expectedToken && authHeader === `Bearer ${expectedToken}`;
-
-  if (!isCronAuthorized) {
-    try {
-      await requireAdmin();
-    } catch {
-      return NextResponse.json({ error: "Não autorizado" }, { status: 401 });
-    }
-  }
-  
-  const body = await req.json().catch(() => ({}));
-  const testMode = body.test === true;
-  
+/**
+ * Execução manual do scraper a partir do backoffice.
+ * Usa exatamente a mesma implementação do cron, apenas com trigger "manual".
+ */
+export async function POST() {
   try {
-    // @ts-ignore
-    const { runDailyScraper } = await import("../../../../../../functions/scraper/index.js");
-    const result = await runDailyScraper({ test: testMode });
+    await requireAdmin();
+  } catch {
+    return NextResponse.json({ error: "Não autorizado" }, { status: 401 });
+  }
+
+  try {
+    const result = await runScraperBatch({ trigger: "manual" });
     return NextResponse.json(result);
   } catch (error: any) {
     console.error("[ScraperAPI] Erro:", error);
-    return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+    return NextResponse.json({ ok: false, error: error?.message ?? "Erro" }, { status: 500 });
   }
 }
 
@@ -37,17 +30,12 @@ export async function GET() {
   }
 
   return NextResponse.json({
-    message: "Daily Product Scraper",
+    message: "Scraper automático de produtos",
+    schedule: "02:00 e 14:00 UTC (Vercel Cron)",
+    tasks: getScraperTasks(),
     usage: {
-      POST: {
-        test: true,
-        description: "Executa scraper em modo teste (poucos produtos)"
-      }
+      POST: "Executa um lote agora (respeita o orçamento de 45s)",
+      status: "GET /api/admin/scraper/status",
     },
-    schedule: "Diário às 03:00 UTC via Neon Function Cron",
-    endpoints: {
-      manual: "POST /api/admin/scraper/run",
-      status: "GET /api/admin/scraper/status"
-    }
   });
 }

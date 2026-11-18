@@ -437,3 +437,6 @@ export {
   communityReports,
   communityPostStatusEnum,
 } from "./schema-community";
+
+// Scraper run history (automatic daily product collection).
+export { scraperRuns } from "./schema-scraper";
