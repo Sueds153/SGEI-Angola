@@ -2,6 +2,16 @@ import { and, desc, eq } from "drizzle-orm";
 import { db } from "@/db";
 import { categories, products } from "@/db/schema";
 import { scraperRuns } from "@/db/schema-scraper";
+import {
+  cleanTitle,
+  parseAliExpress,
+  parseShein,
+  parseSheinMarkdown,
+  parseVinted,
+  toPrice,
+  type Listing,
+  type ScraperPlatform,
+} from "./parsers";
 
 /**
  * Scraper automático de produtos reais.
@@ -18,9 +28,9 @@ import { scraperRuns } from "@/db/schema-scraper";
 
 const JINA_PREFIX = "https://r.jina.ai/http://";
 const FETCH_TIMEOUT_MS = 22_000;
-export const SCRAPER_BUDGET_MS = 45_000;
+export const SCRAPER_BUDGET_MS = 32_000;
 
-export type ScraperPlatform = "SHEIN" | "ALIEXPRESS" | "VINTED";
+export type { ScraperPlatform } from "./parsers";
 
 interface ScraperTask {
   platform: ScraperPlatform;
@@ -29,15 +39,6 @@ interface ScraperTask {
   categorySlug: string;
   /** Filtro de qualidade aplicado ao título do anúncio. */
   accept?: (listing: Listing) => boolean;
-}
-
-interface Listing {
-  title: string;
-  price: number;
-  currency: string;
-  image: string | null;
-  url: string;
-  externalId: string;
 }
 
 const IPHONE_REJECT = /pe[cç]as|bloquead|partid|quebrad|para arranjo|avariad/i;
@@ -98,21 +99,6 @@ function buildSlug(platform: ScraperPlatform, title: string, externalId: string)
   return `${platform.toLowerCase()}-${slugify(title)}-${suffix}`.substring(0, 200);
 }
 
-function toPrice(raw: string | undefined): number {
-  if (!raw) return 0;
-  const normalized = raw.replace(/\s/g, "").replace(",", ".");
-  const value = Number.parseFloat(normalized);
-  return Number.isFinite(value) ? value : 0;
-}
-
-function cleanTitle(raw: string): string {
-  return raw
-    .replace(/^Image\s+\d+:\s*/i, "")
-    .replace(/\s+/g, " ")
-    .trim()
-    .substring(0, 480);
-}
-
 async function fetchMarkdown(url: string): Promise<string | null> {
   const target = url.replace(/^https?:\/\//, "");
   try {
@@ -135,78 +121,12 @@ async function fetchMarkdown(url: string): Promise<string | null> {
   }
 }
 
-// ───────────────────────────── Vinted ─────────────────────────────
-
-function parseVinted(markdown: string): Listing[] {
-  const listings: Listing[] = [];
-  const imageRe = /!\[Image \d+: ([^\]]+)\]\((https?:\/\/images\d*\.vinted\.net\/[^)\s]+)\)/g;
-
-  let match: RegExpExecArray | null;
-  while ((match = imageRe.exec(markdown)) !== null) {
-    const alt = match[1];
-    const image = match[2];
-    const window = markdown.slice(match.index, match.index + 1200);
-    const itemMatch = window.match(/https:\/\/www\.vinted\.[a-z.]+\/items\/(\d+)/);
-    if (!itemMatch) continue;
-
-    const externalId = itemMatch[1];
-    const title = cleanTitle(alt.split(", Marca:")[0].split(", Estado:")[0]);
-    const price = toPrice(alt.match(/(\d+[.,]\d{1,2})\s*€/)?.[1]);
-    if (!title || title.length < 4 || price <= 0) continue;
-
-    listings.push({
-      title,
-      price,
-      currency: "EUR",
-      image,
-      url: `https://www.vinted.pt/items/${externalId}`,
-      externalId,
-    });
-  }
-
-  return listings;
-}
-
-// ─────────────────────────── AliExpress ───────────────────────────
-
-function parseAliExpress(markdown: string): Listing[] {
-  const listings: Listing[] = [];
-  const blocks = markdown.split(/^### /m).slice(1);
-
-  for (const block of blocks) {
-    const itemMatch = block.match(
-      /\]\((https?:\/\/www\.aliexpress\.(?:us|com|pt)\/item\/(\d+)\.html[^)]*)\)/
-    );
-    if (!itemMatch) continue;
-
-    const priceIndex = block.search(/\d(?:\.\d)?\s*\$|\$\s?\d/);
-    const rawTitle = priceIndex > 0 ? block.slice(0, priceIndex) : block.slice(0, 200);
-    const title = cleanTitle(rawTitle.split(/\s·\s/)[0].replace(/\s+\d+K?\+?\s+sold.*$/i, ""));
-    const price = toPrice(block.match(/\$\s?(\d+(?:[.,]\d{1,2})?)/)?.[1]);
-    const image =
-      block.match(/https:\/\/ae-pic-[^)\s"']+?\.(?:jpg|jpeg|png|webp)[^)\s"']*/)?.[0] ?? null;
-
-    if (!title || title.length < 6 || price <= 0) continue;
-
-    listings.push({
-      title,
-      price,
-      currency: "USD",
-      image,
-      url: `https://www.aliexpress.com/item/${itemMatch[2]}.html`,
-      externalId: itemMatch[2],
-    });
-  }
-
-  return listings;
-}
-
 // ───────────────────────────── SHEIN ─────────────────────────────
 
 /**
- * A SHEIN devolve um desafio anti-bot ao Jina. Quando existe chave ScrapingBee
- * tentamos com render de JS + proxy premium; caso contrário a tarefa é ignorada
- * sem falhar a execução.
+ * A SHEIN bloqueia o domínio principal com um desafio anti-bot, mas o site
+ * português (`pt.shein.com`) responde ao leitor do Jina com preços em euros.
+ * Só se esse caminho falhar é que recorremos ao ScrapingBee (pago).
  */
 async function fetchSheinHtml(term: string): Promise<string | null> {
   const apiKey = process.env.SCRAPINGBEE_API_KEY;
@@ -234,41 +154,17 @@ async function fetchSheinHtml(term: string): Promise<string | null> {
   }
 }
 
-function parseShein(html: string): Listing[] {
-  const listings: Listing[] = [];
-  const seen = new Set<string>();
-
-  // A SHEIN embute o catálogo em JSON dentro do HTML. Os campos variam entre
-  // versões, por isso aceitamos goods_id + goods_name e procuramos o preço nas
-  // proximidades.
-  const itemRe = /"goods_id":\s*"?(\d{6,})"?[\s\S]{0,2500}?"goods_name":\s*"([^"]{6,300})"/g;
-  let match: RegExpExecArray | null;
-  while ((match = itemRe.exec(html)) !== null) {
-    const externalId = match[1];
-    if (seen.has(externalId)) continue;
-
-    const near = html.slice(match.index, match.index + 3500);
-    const price = toPrice(
-      near.match(/"(?:salePrice|sale_price|price)":\s*\{?\s*"?amount"?\s*:?\s*"?([\d.,]+)/)?.[1] ??
-        near.match(/\$\s?(\d+(?:[.,]\d{1,2})?)/)?.[1]
-    );
-    const image =
-      near.match(/https:\/\/img\.ltwebstatic\.com[^"'\s\\]+\.(?:jpg|jpeg|png|webp)[^"'\s\\]*/)?.[0] ??
-      null;
-
-    if (price <= 0) continue;
-    seen.add(externalId);
-    listings.push({
-      title: cleanTitle(match[2].replace(/\\u002F/g, "/")),
-      price,
-      currency: "USD",
-      image,
-      url: `https://www.shein.com/pdsearch/${encodeURIComponent(externalId)}.html`,
-      externalId,
-    });
+async function collectShein(term: string): Promise<Listing[]> {
+  const markdown = await fetchMarkdown(
+    `https://pt.shein.com/pdsearch/${encodeURIComponent(term)}/`
+  );
+  if (markdown) {
+    const listings = parseSheinMarkdown(markdown);
+    if (listings.length > 0) return listings;
   }
 
-  return listings;
+  const html = await fetchSheinHtml(term);
+  return html ? parseShein(html) : [];
 }
 
 // ───────────────────────── Persistência ─────────────────────────
@@ -362,8 +258,7 @@ async function collect(task: ScraperTask): Promise<Listing[]> {
     return markdown ? parseAliExpress(markdown) : [];
   }
 
-  const html = await fetchSheinHtml(task.term);
-  return html ? parseShein(html) : [];
+  return collectShein(task.term);
 }
 
 // ───────────────────────────── Execução ─────────────────────────────
@@ -412,8 +307,13 @@ export async function runScraperBatch(options: {
 
       let created = 0;
       let updated = 0;
-      // Limite por tarefa para proteger o orçamento de tempo.
-      for (const listing of accepted.slice(0, 12)) {
+      // Limite por tarefa e verificação de orçamento dentro do ciclo: cada
+      // gravação na base de dados demora, pelo que uma tarefa sozinha pode
+      // consumir o tempo todo.
+      const batch = accepted.slice(0, 10);
+      let processed = 0;
+      for (const listing of batch) {
+        if (Date.now() - startedAt > budgetMs) break;
         try {
           const outcome = await saveListing(listing, task);
           if (outcome === "created") created++;
@@ -422,12 +322,15 @@ export async function runScraperBatch(options: {
           counters.errors++;
           console.error(`[Scraper] Erro a guardar "${listing.title}": ${error?.message ?? error}`);
         }
+        processed++;
       }
 
       counters.created += created;
       counters.updated += updated;
       counters.tasks++;
-      cursor = (index + 1) % TASKS.length;
+      // Se a tarefa ficou a meio, o cursor não avança para que a execução
+      // seguinte a retome em vez de deixar anúncios por recolher.
+      cursor = processed < batch.length ? index : (index + 1) % TASKS.length;
 
       details.push({
         task: `${task.platform}:${task.term}`,
