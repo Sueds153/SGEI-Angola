@@ -442,3 +442,38 @@ export {
 
 // Scraper run history (automatic daily product collection).
 export { scraperRuns } from "./schema-scraper";
+
+// ==================== MANUAL REVIEW QUEUE ====================
+export const manualReviewQueue = pgTable(
+  "manual_review_queue",
+  {
+    id: serial("id").primaryKey(),
+    url: text("url").notNull().unique(),
+    platform: varchar("platform", { length: 50 }),
+    reason: text("reason").notNull(),
+    status: varchar("status", { length: 20 }).notNull().default("PENDING"), // PENDING, IN_PROGRESS, RESOLVED, FAILED
+    userId: integer("user_id").references(() => users.id),
+    assignedTo: integer("assigned_to").references(() => users.id),
+    priority: integer("priority").default(0), // Higher = more urgent
+    attempts: integer("attempts").default(0),
+    lastError: text("last_error"),
+    resolvedAt: timestamp("resolved_at"),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  },
+  (table) => ({
+    statusIdx: index("manual_review_status_idx").on(table.status),
+    createdAtIdx: index("manual_review_created_at_idx").on(table.createdAt),
+  })
+);
+
+export const manualReviewQueueRelations = relations(manualReviewQueue, ({ one }) => ({
+  user: one(users, {
+    fields: [manualReviewQueue.userId],
+    references: [users.id],
+  }),
+  assignee: one(users, {
+    fields: [manualReviewQueue.assignedTo],
+    references: [users.id],
+  }),
+}));

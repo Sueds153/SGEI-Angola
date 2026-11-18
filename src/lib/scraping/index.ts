@@ -7,6 +7,7 @@
 export { scrapeWithFallback, clearScrapingCache, getCacheStats } from './scraping-service';
 export { parseAliExpressHtml } from './aliexpress-parser';
 export { parseVintedHtml } from './vinted-parser';
+export { parseSheinHtml } from './shein-parser';
 export { scrapeWithFreeFallback, getFreeScraperMethods } from './free-scraper';
 
 /**
