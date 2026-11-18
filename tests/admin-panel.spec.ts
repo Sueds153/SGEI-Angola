@@ -42,7 +42,13 @@ test("admin panel carrega todas as secções sem erro de servidor", async ({ pag
 
   for (const href of adminRoutes) {
     await page.goto(`${BASE}${href}`, { waitUntil: "domcontentloaded" });
-    await page.waitForSelector("text=Dashboard", { timeout: 25000 }).catch(() => {});
+    await expect(page.locator('nav a').first()).toBeVisible({ timeout: 30000 });
+    await page
+      .waitForFunction(() => document.body.innerText.includes("Dashboard"), undefined, {
+        timeout: 30000,
+      })
+      .catch(() => {});
+    await page.waitForTimeout(300);
 
     const text = await page.locator("body").innerText();
     const broken =
