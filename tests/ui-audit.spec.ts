@@ -3,11 +3,25 @@ import { test, expect } from '@playwright/test';
 const BASE_URL = 'https://importeasy-angola.vercel.app';
 
 async function loginAsAdmin(page: any) {
-  await page.goto(`${BASE_URL}/admin/login`, { waitUntil: 'networkidle' });
-  await page.fill('input[type="email"]', 'admin@sgei.ao');
-  await page.fill('input[type="password"]', 'admin123');
-  await page.click('button[type="submit"]');
-  await page.waitForURL('**/admin/**', { timeout: 15000 });
+  test.setTimeout(120000);
+  await page.goto(`${BASE_URL}/admin/login`, { waitUntil: 'domcontentloaded' });
+  // Garante que o formulário já está hidratado antes de submeter (evita submit nativo)
+  await page.waitForTimeout(2500);
+
+  for (let attempt = 1; attempt <= 3; attempt++) {
+    await page.fill('input[type="email"]', 'admin@sgei.ao');
+    await page.fill('input[type="password"]', 'admin123');
+    await page.click('button[type="submit"]');
+
+    try {
+      await page.waitForURL((url: URL) => url.pathname.startsWith('/admin') && !url.pathname.startsWith('/admin/login'), { timeout: 25000 });
+      break;
+    } catch (error) {
+      if (attempt === 3) throw error;
+      await page.waitForTimeout(2000);
+    }
+  }
+
   await expect(page.locator('h1, h2')).not.toContainText('Entrar no backoffice');
 }
 
