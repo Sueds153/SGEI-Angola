@@ -23,10 +23,10 @@ Os caminhos `../../references/...` referidos dentro das skills apontam para
 
 ## Atualizar as skills
 
-```bash
-git clone --depth 1 https://github.com/addyosmani/agent-skills.git /tmp/agent-skills
-cp -r /tmp/agent-skills/skills/* .opencode/skills/
-cp -r /tmp/agent-skills/references/* .opencode/references/
+```powershell
+git clone --depth 1 https://github.com/addyosmani/agent-skills.git "$env:TEMP\agent-skills"
+Copy-Item "$env:TEMP\agent-skills\skills\*" .opencode\skills\ -Recurse -Force
+Copy-Item "$env:TEMP\agent-skills\references\*" .opencode\references\ -Recurse -Force
 ```
 
 Depois de atualizar, rever o `AGENTS.md` (o mapeamento pode mudar) e confirmar
