@@ -1,9 +1,44 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
+import { jwtVerify } from "jose";
 
-export function proxy(request: NextRequest) {
-  const response = NextResponse.next();
+const JWT_SECRET_STRING =
+  process.env.JWT_SECRET || "importeasy-angola-dev-secret-change-in-production-secure-key";
+const JWT_SECRET = new TextEncoder().encode(JWT_SECRET_STRING);
+
+export async function proxy(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
+
+  // 1. Proteção de rotas do Backoffice Admin
+  if (pathname.startsWith("/admin")) {
+    const isLoginPage = pathname === "/admin/login";
+    const sessionCookie = request.cookies.get("importeasy_session")?.value;
+
+    let isValidAdmin = false;
+    if (sessionCookie) {
+      try {
+        const { payload } = await jwtVerify(sessionCookie, JWT_SECRET);
+        if (payload && payload.role === "admin") {
+          isValidAdmin = true;
+        }
+      } catch {
+        isValidAdmin = false;
+      }
+    }
+
+    // Se estiver na tela de login mas já for admin autenticado, vai direto para o painel
+    if (isLoginPage && isValidAdmin) {
+      return NextResponse.redirect(new URL("/admin", request.url));
+    }
+
+    // Se tentar aceder a qualquer página do painel sem autenticação, redireciona para login com HTTP 307
+    if (!isLoginPage && !isValidAdmin) {
+      return NextResponse.redirect(new URL("/admin/login", request.url));
+    }
+  }
+
+  // 2. Cabeçalhos de Segurança
+  const response = NextResponse.next();
 
   response.headers.set("X-Content-Type-Options", "nosniff");
   response.headers.set("X-Frame-Options", "DENY");
