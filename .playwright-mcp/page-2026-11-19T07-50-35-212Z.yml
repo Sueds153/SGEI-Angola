@@ -1,0 +1,172 @@
+- generic [active] [ref=f2e1]:
+  - main [ref=f2e2]:
+    - generic [ref=f2e3]:
+      - complementary [ref=f2e4]:
+        - link "ImportEasy Sua ponte para o mundo" [ref=f2e6] [cursor=pointer]:
+          - /url: /admin
+          - generic [ref=f2e8]:
+            - generic [ref=f2e9]: ImportEasy
+            - generic [ref=f2e10]: Sua ponte para o mundo
+        - navigation [ref=f2e11]:
+          - link "Dashboard" [ref=f2e12] [cursor=pointer]:
+            - /url: /admin
+          - link "Pedidos" [ref=f2e19] [cursor=pointer]:
+            - /url: /admin/pedidos
+          - link "Rastreio & Intervenção" [ref=f2e24] [cursor=pointer]:
+            - /url: /admin/rastreio
+          - link "Câmbio Informal" [ref=f2e29] [cursor=pointer]:
+            - /url: /admin/cambio
+          - link "Pagamentos" [ref=f2e34] [cursor=pointer]:
+            - /url: /admin/pagamentos
+          - link "Logística" [ref=f2e38] [cursor=pointer]:
+            - /url: /admin/logistica
+          - link "Produtos" [ref=f2e45] [cursor=pointer]:
+            - /url: /admin/produtos
+          - link "Categorias" [ref=f2e51] [cursor=pointer]:
+            - /url: /admin/categorias
+          - link "Clientes" [ref=f2e57] [cursor=pointer]:
+            - /url: /admin/clientes
+          - link "Preços & Margens" [ref=f2e64] [cursor=pointer]:
+            - /url: /admin/precos
+          - link "Comunidade" [ref=f2e68] [cursor=pointer]:
+            - /url: /admin/comunidade
+          - link "Revisão Manual" [ref=f2e72] [cursor=pointer]:
+            - /url: /admin/revisao-manual
+          - link "Configurações" [ref=f2e76] [cursor=pointer]:
+            - /url: /admin/configuracoes
+          - link "Logs" [ref=f2e81] [cursor=pointer]:
+            - /url: /admin/logs
+        - generic [ref=f2e86]:
+          - paragraph [ref=f2e87]: "Sessão: Administrador"
+          - button "Terminar sessão" [ref=f2e89]
+      - main [ref=f2e93]:
+        - generic [ref=f2e95]:
+          - generic [ref=f2e96]:
+            - generic [ref=f2e97]:
+              - generic [ref=f2e98]:
+                - heading "Painel de Controlo" [level=1] [ref=f2e99]
+                - generic [ref=f2e100]: Segurança Ativa
+              - paragraph [ref=f2e104]: Visão executiva em tempo real de pedidos, pagamentos e operações da ImportEasy.
+            - generic [ref=f2e105]:
+              - link [ref=f2e106] [cursor=pointer]:
+                - /url: /admin/rastreio
+                - button "Rastreio & Intervenção" [ref=f2e107]
+              - link [ref=f2e108] [cursor=pointer]:
+                - /url: /admin/cambio
+                - button "Câmbio Informal (Rua)" [ref=f2e109]
+          - generic [ref=f2e113]:
+            - generic [ref=f2e114]:
+              - generic [ref=f2e115]: Receita Confirmada
+              - generic [ref=f2e121]:
+                - paragraph [ref=f2e122]: 136.800 Kz
+                - paragraph [ref=f2e123]: Total liquidado e pago
+            - generic [ref=f2e127]:
+              - generic [ref=f2e128]: Pedidos (Hoje / Total)
+              - generic [ref=f2e134]:
+                - generic [ref=f2e135]:
+                  - generic [ref=f2e136]: "0"
+                  - generic [ref=f2e137]: hoje
+                  - generic [ref=f2e138]: / 6 no total
+                - paragraph [ref=f2e139]: Volume contínuo de importações
+            - generic [ref=f2e140]:
+              - generic [ref=f2e141]: Revisão de Pagamentos
+              - generic [ref=f2e146]:
+                - paragraph [ref=f2e147]: "0"
+                - paragraph [ref=f2e148]: Aguardam confirmação de talão
+            - generic [ref=f2e152]:
+              - generic [ref=f2e153]: Clientes Registados
+              - generic [ref=f2e161]:
+                - paragraph [ref=f2e162]: "2"
+                - paragraph [ref=f2e163]: Base de clientes em Angola
+          - generic [ref=f2e164]:
+            - generic [ref=f2e166]:
+              - generic [ref=f2e167]:
+                - generic [ref=f2e168]:
+                  - heading "Últimos Pedidos Recebidos" [level=3] [ref=f2e169]
+                  - paragraph [ref=f2e174]: Atualizações de pedidos e encomendas em tempo real
+                - link "Ver todos" [ref=f2e175] [cursor=pointer]:
+                  - /url: /admin/pedidos
+              - table [ref=f2e179]:
+                - rowgroup [ref=f2e180]:
+                  - row [ref=f2e181]:
+                    - columnheader "Ref" [ref=f2e182]
+                    - columnheader "Cliente" [ref=f2e183]
+                    - columnheader "Valor" [ref=f2e184]
+                    - columnheader "Estado" [ref=f2e185]
+                    - columnheader "Ação" [ref=f2e186]
+                - rowgroup [ref=f2e187]:
+                  - row [ref=f2e188]:
+                    - cell "Nenhum pedido registado até ao momento." [ref=f2e189]
+            - generic [ref=f2e190]:
+              - generic [ref=f2e191]:
+                - heading "Gestão Operacional Rápida" [level=3] [ref=f2e192]
+                - generic [ref=f2e193]:
+                  - link "Câmbio Informal Taxa da rua" [ref=f2e194] [cursor=pointer]:
+                    - /url: /admin/cambio
+                    - generic [ref=f2e198]: Câmbio Informal
+                    - generic [ref=f2e199]: Taxa da rua
+                  - link "Super Rastreio Intervenção rápida" [ref=f2e200] [cursor=pointer]:
+                    - /url: /admin/rastreio
+                    - generic [ref=f2e204]: Super Rastreio
+                    - generic [ref=f2e205]: Intervenção rápida
+                  - link "Pagamentos Verificar talões" [ref=f2e206] [cursor=pointer]:
+                    - /url: /admin/pagamentos
+                    - generic [ref=f2e209]: Pagamentos
+                    - generic [ref=f2e210]: Verificar talões
+                  - link "Logística Trackings SHEIN" [ref=f2e211] [cursor=pointer]:
+                    - /url: /admin/logistica
+                    - generic [ref=f2e216]: Logística
+                    - generic [ref=f2e217]: Trackings SHEIN
+                  - link "Comunidade Moderar feed" [ref=f2e218] [cursor=pointer]:
+                    - /url: /admin/comunidade
+                    - generic [ref=f2e224]: Comunidade
+                    - generic [ref=f2e225]: Moderar feed
+              - generic [ref=f2e226]:
+                - generic [ref=f2e227]:
+                  - heading "Segurança & Auditoria" [level=3] [ref=f2e228]
+                  - link "Ver todos" [ref=f2e232] [cursor=pointer]:
+                    - /url: /admin/logs
+                - generic [ref=f2e233]:
+                  - generic [ref=f2e234]:
+                    - generic [ref=f2e235]:
+                      - generic [ref=f2e236]: ADMIN_LOGIN_SUCCESS
+                      - generic [ref=f2e237]: 19/11/2026, 07:50
+                    - generic [ref=f2e238]:
+                      - generic [ref=f2e239]: admin@sgei.ao
+                      - generic [ref=f2e240]: "IP: 102.215.170.22"
+                  - generic [ref=f2e241]:
+                    - generic [ref=f2e242]:
+                      - generic [ref=f2e243]: ADMIN_LOGIN_SUCCESS
+                      - generic [ref=f2e244]: 19/11/2026, 07:46
+                    - generic [ref=f2e245]:
+                      - generic [ref=f2e246]: josuemiguelsued@gmail.com
+                      - generic [ref=f2e247]: "IP: 102.215.170.22"
+                  - generic [ref=f2e248]:
+                    - generic [ref=f2e249]:
+                      - generic [ref=f2e250]: ADMIN_LOGIN_SUCCESS
+                      - generic [ref=f2e251]: 18/11/2026, 18:05
+                    - generic [ref=f2e252]:
+                      - generic [ref=f2e253]: josuemiguelsued@gmail.com
+                      - generic [ref=f2e254]: "IP: 102.218.85.242"
+                  - generic [ref=f2e255]:
+                    - generic [ref=f2e256]:
+                      - generic [ref=f2e257]: ADMIN_LOGIN_SUCCESS
+                      - generic [ref=f2e258]: 18/11/2026, 16:58
+                    - generic [ref=f2e259]:
+                      - generic [ref=f2e260]: admin@sgei.ao
+                      - generic [ref=f2e261]: "IP: 102.215.170.22"
+                  - generic [ref=f2e262]:
+                    - generic [ref=f2e263]:
+                      - generic [ref=f2e264]: ADMIN_LOGIN_SUCCESS
+                      - generic [ref=f2e265]: 18/11/2026, 16:58
+                    - generic [ref=f2e266]:
+                      - generic [ref=f2e267]: admin@sgei.ao
+                      - generic [ref=f2e268]: "IP: 102.215.170.22"
+                  - generic [ref=f2e269]:
+                    - generic [ref=f2e270]:
+                      - generic [ref=f2e271]: ADMIN_LOGIN_SUCCESS
+                      - generic [ref=f2e272]: 18/11/2026, 16:58
+                    - generic [ref=f2e273]:
+                      - generic [ref=f2e274]: admin@sgei.ao
+                      - generic [ref=f2e275]: "IP: 102.215.170.22"
+  - alert [ref=f2e276]

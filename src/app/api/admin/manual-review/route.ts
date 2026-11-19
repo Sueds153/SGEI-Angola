@@ -58,33 +58,43 @@ export async function GET(req: Request) {
 
   const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
 
-  const [items, totalResult] = await Promise.all([
-    db
-      .select({
-        id: manualReviewQueue.id,
-        url: manualReviewQueue.url,
-        platform: manualReviewQueue.platform,
-        reason: manualReviewQueue.reason,
-        status: manualReviewQueue.status,
-        userId: manualReviewQueue.userId,
-        assignedTo: manualReviewQueue.assignedTo,
-        priority: manualReviewQueue.priority,
-        attempts: manualReviewQueue.attempts,
-        lastError: manualReviewQueue.lastError,
-        resolvedAt: manualReviewQueue.resolvedAt,
-        createdAt: manualReviewQueue.createdAt,
-        updatedAt: manualReviewQueue.updatedAt,
-      })
-      .from(manualReviewQueue)
-      .where(whereClause)
-      .orderBy(desc(manualReviewQueue.priority), desc(manualReviewQueue.createdAt))
-      .limit(limit)
-      .offset(offset),
-    db
-      .select({ count: sql<number>`count(*)` })
-      .from(manualReviewQueue)
-      .where(whereClause),
-  ]);
+  let items: any[];
+  let totalResult: { count: number | string }[];
+  try {
+    [items, totalResult] = await Promise.all([
+      db
+        .select({
+          id: manualReviewQueue.id,
+          url: manualReviewQueue.url,
+          platform: manualReviewQueue.platform,
+          reason: manualReviewQueue.reason,
+          status: manualReviewQueue.status,
+          userId: manualReviewQueue.userId,
+          assignedTo: manualReviewQueue.assignedTo,
+          priority: manualReviewQueue.priority,
+          attempts: manualReviewQueue.attempts,
+          lastError: manualReviewQueue.lastError,
+          resolvedAt: manualReviewQueue.resolvedAt,
+          createdAt: manualReviewQueue.createdAt,
+          updatedAt: manualReviewQueue.updatedAt,
+        })
+        .from(manualReviewQueue)
+        .where(whereClause)
+        .orderBy(desc(manualReviewQueue.priority), desc(manualReviewQueue.createdAt))
+        .limit(limit)
+        .offset(offset),
+      db
+        .select({ count: sql<number>`count(*)` })
+        .from(manualReviewQueue)
+        .where(whereClause),
+    ]);
+  } catch (error: any) {
+    console.error("[manual-review] GET failed:", error);
+    return NextResponse.json(
+      { error: `Erro na base de dados: ${error?.message || "desconhecido"}` },
+      { status: 500 }
+    );
+  }
 
   // Fetch user emails separately for items that have userId or assignedTo
   const userIds = new Set<number>();

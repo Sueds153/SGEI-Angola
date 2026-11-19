@@ -232,6 +232,15 @@ export default function ManualReviewPage() {
             <Loader2 className="w-8 h-8 animate-spin text-brand-600 mx-auto mb-3" />
             <p className="text-ink-500">A carregar fila...</p>
           </div>
+        ) : message && message.type === "error" ? (
+          <div className="p-12 text-center">
+            <AlertCircle className="w-12 h-12 text-red-400 mx-auto mb-3" />
+            <h3 className="text-lg font-semibold text-ink-900">Erro ao carregar</h3>
+            <p className="mt-1 text-sm text-red-600">{message.text}</p>
+            <Button onClick={fetchData} variant="secondary" size="sm" className="mt-4">
+              <RefreshCw className="w-4 h-4" /> Tentar novamente
+            </Button>
+          </div>
         ) : !data || data.items.length === 0 ? (
           <div className="p-12 text-center">
             <MessageSquare className="w-12 h-12 text-ink-300 mx-auto mb-3" />

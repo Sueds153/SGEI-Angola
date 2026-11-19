@@ -1,0 +1,64 @@
+- generic [active] [ref=f3e1]:
+  - main [ref=f3e2]:
+    - generic [ref=f3e3]:
+      - complementary [ref=f3e4]:
+        - link "ImportEasy Sua ponte para o mundo" [ref=f3e6] [cursor=pointer]:
+          - /url: /admin
+          - generic [ref=f3e8]:
+            - generic [ref=f3e9]: ImportEasy
+            - generic [ref=f3e10]: Sua ponte para o mundo
+        - navigation [ref=f3e11]:
+          - link "Dashboard" [ref=f3e12] [cursor=pointer]:
+            - /url: /admin
+          - link "Pedidos" [ref=f3e19] [cursor=pointer]:
+            - /url: /admin/pedidos
+          - link "Rastreio & Intervenção" [ref=f3e24] [cursor=pointer]:
+            - /url: /admin/rastreio
+          - link "Câmbio Informal" [ref=f3e29] [cursor=pointer]:
+            - /url: /admin/cambio
+          - link "Pagamentos" [ref=f3e34] [cursor=pointer]:
+            - /url: /admin/pagamentos
+          - link "Logística" [ref=f3e38] [cursor=pointer]:
+            - /url: /admin/logistica
+          - link "Produtos" [ref=f3e45] [cursor=pointer]:
+            - /url: /admin/produtos
+          - link "Categorias" [ref=f3e51] [cursor=pointer]:
+            - /url: /admin/categorias
+          - link "Clientes" [ref=f3e57] [cursor=pointer]:
+            - /url: /admin/clientes
+          - link "Preços & Margens" [ref=f3e64] [cursor=pointer]:
+            - /url: /admin/precos
+          - link "Comunidade" [ref=f3e68] [cursor=pointer]:
+            - /url: /admin/comunidade
+          - link "Revisão Manual" [ref=f3e72] [cursor=pointer]:
+            - /url: /admin/revisao-manual
+          - link "Configurações" [ref=f3e76] [cursor=pointer]:
+            - /url: /admin/configuracoes
+          - link "Logs" [ref=f3e81] [cursor=pointer]:
+            - /url: /admin/logs
+        - generic [ref=f3e86]:
+          - paragraph [ref=f3e87]: "Sessão: Administrador"
+          - button "Terminar sessão" [ref=f3e89]
+      - main [ref=f3e93]:
+        - generic [ref=f3e95]:
+          - generic [ref=f3e96]:
+            - generic [ref=f3e97]:
+              - heading "Fila de Revisão Manual" [level=1] [ref=f3e98]
+              - paragraph [ref=f3e99]: URLs que falharam na resolução automática e requerem intervenção da equipa.
+            - button "Atualizar" [ref=f3e100]
+          - generic [ref=f3e107]:
+            - textbox "Buscar por URL, razão ou plataforma..." [ref=f3e113]
+            - combobox [ref=f3e115]:
+              - option "Todos os Status" [selected]
+              - option "Pendente"
+              - option "Em Progresso"
+              - option "Resolvido"
+              - option "Falhou"
+            - combobox [ref=f3e117]:
+              - option "Todas Prioridades" [selected]
+              - option "Alta (10)"
+              - option "Média (5)"
+              - option "Baixa (1)"
+              - option "Normal (0)"
+          - paragraph [ref=f3e122]: A carregar fila...
+  - alert [ref=f3e123]

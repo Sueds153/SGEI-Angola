@@ -1,0 +1,18 @@
+- generic [active] [ref=e1]:
+  - main [ref=e2]:
+    - generic [ref=e4]:
+      - link "ImportEasy" [ref=e5] [cursor=pointer]:
+        - /url: /
+      - generic [ref=e10]:
+        - heading "Entrar no backoffice" [level=1] [ref=e11]
+        - paragraph [ref=e12]: Sessão reservada a administradores da plataforma.
+        - generic [ref=e14]:
+          - generic [ref=e15]:
+            - generic [ref=e16]: Email
+            - textbox "josuemiguelsued@gmail.com" [ref=e17]
+          - generic [ref=e18]:
+            - generic [ref=e19]: Palavra-passe
+            - textbox [ref=e20]
+          - button "Entrar" [ref=e21]
+        - generic [ref=e22]: Área segura e restrita. Acessos registados com trilha de auditoria bancária.
+  - alert [ref=e25]
