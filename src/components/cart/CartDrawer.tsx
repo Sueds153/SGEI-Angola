@@ -139,8 +139,10 @@ export function CartDrawer() {
                       <ResponsiveImage
                         src={item.image}
                         alt={item.title}
-                        fill
-                        className="object-cover"
+                        width={64}
+                        height={64}
+                        objectFit="cover"
+                        className="h-full w-full object-cover"
                         fallbackText={item.platform}
                       />
                     ) : (

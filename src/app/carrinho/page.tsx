@@ -91,8 +91,10 @@ export default function CarrinhoPage() {
                       <ResponsiveImage
                         src={item.image}
                         alt={item.title}
-                        fill
-                        className="object-cover"
+                        width={80}
+                        height={80}
+                        objectFit="cover"
+                        className="h-full w-full object-cover"
                         fallbackText={item.platform}
                       />
                     ) : (
