@@ -167,13 +167,23 @@ async function fetchWithRetry(
  */
 async function tryInternalCatalog(url: string): Promise<RobustResolveResult | null> {
   try {
+    const requested = extractProductId(url);
+    if (!requested) return null;
+
     const provider = await getActiveProvider();
     const result = await provider.resolveProductFromUrl(url);
     
     if (result.status === "found" && result.product) {
       const prod = result.product as any;
+      // Catálogo/demo só pode responder quando a plataforma e o ID coincidem.
+      // O provider de administração também pode procurar por URL parcial.
+      if (prod.source?.toLowerCase() !== requested.platform || prod.externalId !== requested.id) {
+        return null;
+      }
+
       const config = await loadPricingConfig();
-      const price = prod.originalPriceUsd || 15;
+      const price = Number(prod.originalPriceUsd);
+      if (!Number.isFinite(price) || price <= 0) return null;
       const breakdown = calculatePrice({ productPriceUsd: price, quantity: 1, weightGrams: prod.weightGrams }, config);
 
       return {
@@ -531,7 +541,13 @@ export async function robustResolveProductUrl(rawInput: string): Promise<RobustR
   // CAMADA 3: Resolvedor universal (OpenGraph, JSON-LD)
   const universalResult = await tryUniversalResolver(url);
   if (universalResult) {
-    if (universalResult.success && universalResult.status === "found") return universalResult;
+    // O resolver universal baseia-se em OpenGraph/regex sem validar o ID do
+    // artigo. Para estes marketplaces seria suficiente para voltar a mostrar
+    // recomendações como se fossem o produto pedido.
+    const requiresProductIdentity = platform === "shein" || platform === "aliexpress";
+    if (universalResult.success && universalResult.status === "found" && !requiresProductIdentity) {
+      return universalResult;
+    }
     allAttempts.push(...(universalResult.attempts || []));
   }
   

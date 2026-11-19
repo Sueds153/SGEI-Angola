@@ -149,6 +149,16 @@ function extractTitle(html: string): string {
   return 'Produto AliExpress';
 }
 
+function containsRequestedProduct(html: string, productId: string): boolean {
+  const escapedId = productId.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const identityPatterns = [
+    new RegExp(`(?:productId|product_id|itemId|item_id|productID|itemID)\\s*[\\"']?\\s*:\\s*[\\"']?${escapedId}(?:[\\"'&,}]|$)`, "i"),
+    new RegExp(`(?:canonical|og:url)[^>]*(?:/item/${escapedId}(?:\\.html)?|[?&](?:productId|itemId)=${escapedId})`, "i"),
+    new RegExp(`<link[^>]+href=[\\"'][^\\"']*/item/${escapedId}(?:\\.html)?[^\\"']*[\\"'][^>]*rel=[\\"']canonical`, "i"),
+  ];
+  return identityPatterns.some((pattern) => pattern.test(html));
+}
+
 export function parseAliExpressHtml(html: string, productId: string): AliExpressProduct | null {
   if (!html || html.length < 100) {
     console.warn('[AliExpress Parser] HTML muito curto, ignorando');
@@ -156,6 +166,10 @@ export function parseAliExpressHtml(html: string, productId: string): AliExpress
   }
 
   try {
+    // Uma página de bloqueio ou uma recomendação também pode conter título,
+    // imagem e preço. Exigimos que o HTML identifique o artigo pedido.
+    if (!containsRequestedProduct(html, productId)) return null;
+
     // Extrai dados básicos
     const title = extractTitle(html);
     const price = extractPrice(html);
@@ -222,7 +236,7 @@ export function parseAliExpressHtml(html: string, productId: string): AliExpress
       weightGrams: 250, // Estimativa padrão
     };
 
-    if (product.title && product.images.length > 0) {
+    if (product.title && product.title !== "Produto AliExpress" && product.price.min > 0 && product.images.length > 0) {
       console.log(`[AliExpress Parser] Produto extraído com sucesso: ${product.title}`);
       return product;
     }

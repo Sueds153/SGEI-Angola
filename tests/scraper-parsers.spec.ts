@@ -5,6 +5,8 @@ import {
   parseSheinMarkdown,
   parseVinted,
 } from "../src/lib/scraping/parsers";
+import { parseAliExpressHtml } from "../src/lib/scraping/aliexpress-parser";
+import { parseSheinHtml } from "../src/lib/scraping/shein-parser";
 
 /**
  * Testes dos parsers do scraper. Usam amostras de markdown/HTML reais dos
@@ -101,5 +103,15 @@ test.describe("parsers do scraper", () => {
       title: "Conjunto blazer feminino",
       price: 29.9,
     });
+  });
+
+  test("SHEIN não confunde metadados genéricos com o produto do link", () => {
+    const html = `<meta property="og:title" content="Produto recomendado"><meta property="og:image" content="https://img.ltwebstatic.com/recommended.jpg"><meta property="og:price:amount" content="9.99">`;
+    expect(parseSheinHtml(html, "12345678")).toBeNull();
+  });
+
+  test("AliExpress rejeita HTML sem identidade do produto solicitado", () => {
+    const html = `<title>Produto recomendado</title><script type="application/ld+json">{"name":"Produto recomendado","image":"https://ae01.alicdn.com/kf/recommended.jpg","offers":{"price":"9.99"}}</script>`;
+    expect(parseAliExpressHtml(html, "1005001234567890")).toBeNull();
   });
 });

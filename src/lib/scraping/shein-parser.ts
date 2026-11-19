@@ -70,13 +70,18 @@ export function parseSheinHtml(html: string, productId: string): ParsedSheinProd
       if (productData) break;
     }
 
-    // Se encontrou dados estruturados, extrai deles
+    // Só aceitamos dados estruturados que identifiquem o artigo do URL.
+    // OpenGraph, <title> e imagens soltas podem pertencer a recomendações ou
+    // à página de bloqueio da SHEIN, por isso não servem como identidade.
     if (productData) {
       // Navega pela estrutura típica da SHEIN
       const detail = productData.productDetail || productData.detail || productData;
       const goods = detail.goods || detail.product || detail;
       
       if (goods) {
+        const actualId = String(goods.goods_id || goods.goodsSn || goods.product_id || goods.id || "");
+        if (actualId !== productId) return null;
+
         title = goods.goods_name || goods.title || goods.name || "";
         
         // Preço
@@ -129,65 +134,10 @@ export function parseSheinHtml(html: string, productId: string): ParsedSheinProd
       }
     }
 
-    // 2. Fallback: OpenGraph / Meta tags
-    if (!title) {
-      const ogTitle = html.match(/<meta[^>]+property=["']og:title["'][^>]+content=["']([^"']+)["']/i) ||
-                      html.match(/<meta[^>]+content=["']([^"']+)["'][^>]+property=["']og:title["']/i);
-      if (ogTitle?.[1]) title = decodeHtmlEntities(ogTitle[1]).trim();
-    }
-
-    if (!title) {
-      const titleTag = html.match(/<title[^>]*>([^<]+)<\/title>/i);
-      if (titleTag?.[1]) title = decodeHtmlEntities(titleTag[1]).replace(/\s*[-|]\s*SHEIN.*$/i, "").trim();
-    }
-
-    if (images.length === 0) {
-      const ogImage = html.match(/<meta[^>]+property=["']og:image["'][^>]+content=["']([^"']+)["']/i) ||
-                      html.match(/<meta[^>]+name=["']twitter:image["'][^>]+content=["']([^"']+)["']/i);
-      if (ogImage?.[1]) images.push(ogImage[1].startsWith("//") ? "https:" + ogImage[1] : ogImage[1]);
-    }
-
-    // 3. Fallback: Regex para preço no HTML
-    if (price.min === 0) {
-      const pricePatterns = [
-        /"salePrice"\s*:\s*"?([0-9]+\.[0-9]{2})"?/i,
-        /"price"\s*:\s*"?([0-9]+\.[0-9]{2})"?/i,
-        /"minPrice"\s*:\s*"?([0-9]+\.[0-9]{2})"?/i,
-        /\$([0-9]+\.[0-9]{2})/,
-        /"amount"\s*:\s*"?([0-9]+\.[0-9]{2})"?/i,
-        /data-price=["']([0-9]+\.[0-9]{2})["']/i,
-      ];
-      for (const pattern of pricePatterns) {
-        const match = html.match(pattern);
-        if (match?.[1]) {
-          const val = parseFloat(match[1]);
-          if (val > 0 && val < 5000) {
-            price.min = val;
-            price.max = val;
-            price.original = val;
-            break;
-          }
-        }
-      }
-    }
-
-    // 4. Fallback: Extração de imagens via regex para SHEIN
-    if (images.length === 0) {
-      const imgPatterns = [
-        /(?:https:)?\/\/img\.ltwebstatic\.com\/[^\s"'<>\\]+/gi,
-        /(?:https:)?\/\/cdn\.shein\.com\/[^\s"'<>\\]+/gi,
-        /(?:https:)?\/\/s\.shein\.com\/[^\s"'<>\\]+/gi,
-      ];
-      for (const pattern of imgPatterns) {
-        const matches = html.match(pattern);
-        if (matches) {
-          images.push(...matches.slice(0, 10));
-        }
-      }
-    }
-
-    // Limpeza e validação
-    if (!title) title = `Produto SHEIN ${productId}`;
+    // Não transformar metadados da página nem recomendações em produto.
+    // Se a loja não devolveu os dados do ID solicitado, o resolver deve pedir
+    // confirmação manual em vez de apresentar um artigo possivelmente errado.
+    if (!title || price.min <= 0 || images.length === 0) return null;
     
     // Remove duplicatas de imagens
     images = [...new Set(images)].filter((img) => {
@@ -198,6 +148,7 @@ export function parseSheinHtml(html: string, productId: string): ParsedSheinProd
              !clean.includes("logo") &&
              !clean.endsWith(".svg");
     }).slice(0, 15);
+    if (images.length === 0) return null;
 
     // Normaliza moeda
     const currencyMap: Record<string, string> = {
