@@ -44,8 +44,16 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         <AdaptiveIntelligenceProvider>
           <CartProvider>
             <Sentry.ErrorBoundary fallback={<p>Algo deu errado. Tente recarregar a página.</p>}>
+              <a
+                href="#main-content"
+                className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-lg focus:bg-brand-700 focus:px-4 focus:py-3 focus:text-white focus:shadow-lg"
+              >
+                Saltar para o conteúdo principal
+              </a>
               <Header />
-              <main className="flex-1 pb-16 md:pb-0">{children}</main>
+              <main id="main-content" tabIndex={-1} className="flex-1 pb-24 md:pb-0">
+                {children}
+              </main>
               <Footer />
               <CartDrawer />
               <BottomNav />

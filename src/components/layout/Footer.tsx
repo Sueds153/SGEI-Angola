@@ -43,14 +43,14 @@ export function Footer() {
                 href="https://wa.me/244922058136"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="h-10 w-10 rounded-full bg-ink-800 hover:bg-brand-600 text-white grid place-items-center transition"
+                className="h-11 w-11 rounded-full bg-ink-800 hover:bg-brand-600 text-white grid place-items-center transition"
                 aria-label="WhatsApp"
               >
                 <MessageCircle className="h-4 w-4" />
               </a>
               <a
                 href="mailto:apoio@importeasy.ao"
-                className="h-10 w-10 rounded-full bg-ink-800 hover:bg-brand-600 text-white grid place-items-center transition"
+                className="h-11 w-11 rounded-full bg-ink-800 hover:bg-brand-600 text-white grid place-items-center transition"
                 aria-label="Email"
               >
                 <Mail className="h-4 w-4" />
@@ -61,21 +61,21 @@ export function Footer() {
           <div>
             <h4 className="text-white text-sm font-semibold mb-4">Importar</h4>
             <ul className="space-y-3 text-sm">
-              <li><Link href="/produtos" className="hover:text-white transition">Produtos em destaque</Link></li>
-              <li><Link href="/importar" className="hover:text-white transition">Simular importação</Link></li>
-              <li><Link href="/rastrear" className="hover:text-white transition">Rastrear pedido</Link></li>
-              <li><Link href="/comunidade" className="hover:text-white transition">Comunidade</Link></li>
+              <li><Link href="/produtos" className="inline-flex min-h-11 items-center hover:text-white transition">Produtos em destaque</Link></li>
+              <li><Link href="/importar" className="inline-flex min-h-11 items-center hover:text-white transition">Simular importação</Link></li>
+              <li><Link href="/rastrear" className="inline-flex min-h-11 items-center hover:text-white transition">Rastrear pedido</Link></li>
+              <li><Link href="/comunidade" className="inline-flex min-h-11 items-center hover:text-white transition">Comunidade</Link></li>
             </ul>
           </div>
 
           <div>
             <h4 className="text-white text-sm font-semibold mb-4">Apoio</h4>
             <ul className="space-y-3 text-sm">
-              <li><Link href="/como-funciona" className="hover:text-white transition">Como funciona</Link></li>
-              <li><Link href="/ajuda" className="hover:text-white transition">Perguntas frequentes</Link></li>
-              <li><Link href="/ajuda#pagamento" className="hover:text-white transition">Formas de pagamento</Link></li>
-              <li><Link href="/ajuda#entrega" className="hover:text-white transition">Prazos de entrega</Link></li>
-              <li><Link href="/ajuda#alfandega" className="hover:text-white transition">Alfândega e taxas</Link></li>
+              <li><Link href="/como-funciona" className="inline-flex min-h-11 items-center hover:text-white transition">Como funciona</Link></li>
+              <li><Link href="/ajuda" className="inline-flex min-h-11 items-center hover:text-white transition">Perguntas frequentes</Link></li>
+              <li><Link href="/ajuda#pagamento" className="inline-flex min-h-11 items-center hover:text-white transition">Formas de pagamento</Link></li>
+              <li><Link href="/ajuda#entrega" className="inline-flex min-h-11 items-center hover:text-white transition">Prazos de entrega</Link></li>
+              <li><Link href="/ajuda#alfandega" className="inline-flex min-h-11 items-center hover:text-white transition">Alfândega e taxas</Link></li>
             </ul>
           </div>
 

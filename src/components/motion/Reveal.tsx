@@ -154,11 +154,11 @@ export function WordReveal({
 
   const Component: any = Tag;
   return (
-    <Component ref={ref as any} className={className}>
+    <Component ref={ref as any} className={className} aria-label={text}>
       {words.map((w, i) => (
         <span
           key={i}
-          aria-hidden={false}
+          aria-hidden="true"
           className="inline-block mr-[0.25em] align-baseline"
           style={{
             opacity: visible ? 1 : 0,

@@ -87,10 +87,16 @@ export const adminCatalogProvider: _ProductProvider = {
       )
       .limit(params?.limit || 24);
 
-    const dbRows = await dbQuery;
     const dbProducts: NormalizedProduct[] = [];
-    for (const row of dbRows) {
-      dbProducts.push(await dbProductToNormalized({ ...row.p, category: row.c }));
+    try {
+      const dbRows = await dbQuery;
+      for (const row of dbRows) {
+        dbProducts.push(await dbProductToNormalized({ ...row.p, category: row.c }));
+      }
+    } catch (error) {
+      // The local SQLite fallback may not have the product table yet. Keep
+      // search usable with the bundled catalogue while the database is absent.
+      console.warn("[AdminCatalogProvider] Pesquisa local indisponível; a usar catálogo de demonstração.", error);
     }
 
     // Complementa com mock se necessário (para catálogo demo)

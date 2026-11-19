@@ -77,12 +77,15 @@ function ImportarContent() {
     setError(null);
     setResult(null);
     setLoading(true);
+    const controller = new AbortController();
+    const timeout = window.setTimeout(() => controller.abort(), 20_000);
 
     try {
       const response = await fetch("/api/products/resolve-url", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ url: targetUrl }),
+        signal: controller.signal,
       });
 
       const data = await response.json();
@@ -115,8 +118,15 @@ function ImportarContent() {
         priceWithProtectionAOA: data.priceWithProtectionAOA,
       });
     } catch (err: any) {
-      setError(err instanceof Error ? err.message : "Erro ao processar o link. Verifique e tente novamente.");
+      setError(
+        err?.name === "AbortError"
+          ? "A consulta demorou demasiado tempo. Verifica o link e tenta novamente."
+          : err instanceof Error
+            ? err.message
+            : "Erro ao processar o link. Verifique e tente novamente."
+      );
     } finally {
+      window.clearTimeout(timeout);
       setLoading(false);
     }
   }, []);
@@ -124,10 +134,12 @@ function ImportarContent() {
   // Lê parâmetro url da rota se vier do Hero
   useEffect(() => {
     const initialUrl = searchParams.get("url");
-    if (initialUrl && !url) {
+    if (!initialUrl || url) return;
+    const timer = window.setTimeout(() => {
       setUrl(initialUrl);
       void resolveUrl(initialUrl);
-    }
+    }, 0);
+    return () => window.clearTimeout(timer);
   }, [searchParams, url, resolveUrl]);
 
   const handleSubmit = (e: React.FormEvent) => {

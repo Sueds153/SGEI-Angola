@@ -28,7 +28,7 @@ if (isBuildTime) {
     CREATE TABLE customer_profiles (id INTEGER PRIMARY KEY, user_id INTEGER, name TEXT, whatsapp TEXT, created_at TEXT);
     CREATE TABLE products (id INTEGER PRIMARY KEY, external_product_id TEXT, source_url TEXT, source TEXT, name TEXT, slug TEXT, description TEXT, category_id INTEGER, original_price REAL, currency TEXT, availability TEXT, status TEXT, sku TEXT, default_image TEXT, weight_grams INTEGER, rating REAL, review_count INTEGER DEFAULT 0, last_price_check_at TEXT, created_at TEXT, updated_at TEXT);
     CREATE TABLE categories (id INTEGER PRIMARY KEY, name TEXT, slug TEXT, description TEXT, icon TEXT, created_at TEXT);
-    CREATE TABLE orders (id INTEGER PRIMARY KEY, reference TEXT, customer_id INTEGER, customer_name TEXT, customer_email TEXT, customer_phone TEXT, customer_whatsapp TEXT, status TEXT, payment_status TEXT, payment_method TEXT, subtotal_cents INTEGER, service_fee_cents INTEGER, logistics_fee_cents INTEGER, delivery_fee_cents INTEGER, total_cents INTEGER, currency TEXT, exchange_rate_used REAL, margin_status TEXT, estimated_cost_cents INTEGER, actual_cost_cents INTEGER, notes TEXT, internal_notes TEXT, payment_proof_url TEXT, payment_expires_at TEXT, paid_at TEXT, created_at TEXT, updated_at TEXT);
+    CREATE TABLE orders (id INTEGER PRIMARY KEY, reference TEXT, customer_id INTEGER, customer_name TEXT, customer_email TEXT, customer_phone TEXT, customer_whatsapp TEXT, status TEXT, payment_status TEXT, payment_method TEXT, subtotal_cents INTEGER, service_fee_cents INTEGER, logistics_fee_cents INTEGER, customs_fee_cents INTEGER NOT NULL DEFAULT 0, delivery_fee_cents INTEGER, total_cents INTEGER, currency TEXT, exchange_rate_used REAL, margin_status TEXT, estimated_cost_cents INTEGER, actual_cost_cents INTEGER, notes TEXT, internal_notes TEXT, payment_proof_url TEXT, payment_expires_at TEXT, paid_at TEXT, created_at TEXT, updated_at TEXT);
   `);
   db = drizzle(mockDb, { schema }) as unknown as AppDatabase;
   console.log("[DB] Using mock in-memory database for build");
@@ -40,6 +40,31 @@ if (isBuildTime) {
   const dbPath = join(projectRoot, "local.db");
 
   const sqlite = new Database(dbPath);
+  const orderColumns = sqlite.prepare("PRAGMA table_info(orders)").all() as { name: string }[];
+  if (orderColumns.length > 0 && !orderColumns.some((column) => column.name === "customs_fee_cents")) {
+    sqlite.exec("ALTER TABLE orders ADD COLUMN customs_fee_cents INTEGER NOT NULL DEFAULT 0");
+  }
+  // Keep the local SQLite fallback compatible with public community reads.
+  // Production uses the PostgreSQL migration under drizzle/pg.
+  sqlite.exec(`
+    CREATE TABLE IF NOT EXISTS community_posts (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      user_id INTEGER,
+      order_reference TEXT NOT NULL,
+      platform TEXT NOT NULL,
+      category TEXT,
+      content TEXT NOT NULL,
+      product_info TEXT,
+      location TEXT,
+      status TEXT DEFAULT 'PENDING_REVIEW',
+      verified INTEGER DEFAULT 0,
+      verified_at TEXT,
+      approved_at TEXT,
+      admin_notes TEXT,
+      created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+    );
+  `);
   db = drizzle(sqlite, { schema }) as unknown as AppDatabase;
   console.log("[DB] Using SQLite for development at:", dbPath);
 } else if (databaseUrl) {

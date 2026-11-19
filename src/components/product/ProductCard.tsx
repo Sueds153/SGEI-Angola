@@ -83,7 +83,7 @@ export function ProductCard({ product, compact }: ProductCardProps) {
   return (
     <Link
       href={`/produto/${product.slug}`}
-      className="group block focus:outline-none"
+      className="group block"
     >
       <div className={cn("relative bg-ink-100 rounded-[20px] overflow-hidden aspect-[3/4] sm:aspect-[4/5]", compact && "aspect-[3/4] sm:aspect-[4/5]")}>
         {image && !imageError ? (
@@ -104,7 +104,7 @@ export function ProductCard({ product, compact }: ProductCardProps) {
 
         {/* Badge de origem */}
         <div className="absolute top-1.5 left-1.5 flex gap-1 z-10">
-          <span className={`${sourceInfo.color} text-[9px] sm:text-[10px] font-semibold tracking-wide px-2 py-0.5 rounded-full backdrop-blur-sm flex items-center gap-1 shadow-sm`}>
+          <span className={`${sourceInfo.color} text-[11px] font-semibold tracking-wide px-2 py-0.5 rounded-full backdrop-blur-sm flex items-center gap-1 shadow-sm`}>
             <SourceIcon className="h-3 w-3" />
             {sourceInfo.label}
           </span>
@@ -113,7 +113,7 @@ export function ProductCard({ product, compact }: ProductCardProps) {
         {/* Badge adicional (Bateria iPhone, Fornecedor Verificado, Entrega Grátis) */}
         {(safeProduct.badge || safeProduct.batteryHealth || safeProduct.freeShipping) && (
           <div className="absolute top-1.5 right-1.5 flex gap-1 z-10 max-w-[60%]">
-            <span className="bg-ink-950/85 text-white text-[9px] sm:text-[9.5px] font-medium tracking-tight px-2 py-0.5 rounded-full backdrop-blur-sm truncate shadow-sm border border-white/10">
+            <span className="bg-ink-950/85 text-white text-[11px] font-medium tracking-tight px-2 py-0.5 rounded-full backdrop-blur-sm truncate shadow-sm border border-white/10">
               {safeProduct.badge || (safeProduct.batteryHealth ? `Bateria ${safeProduct.batteryHealth}` : "Entrega Rápida")}
             </span>
           </div>
@@ -124,8 +124,8 @@ export function ProductCard({ product, compact }: ProductCardProps) {
             <span className="text-sm font-medium text-ink-900">Sem stock</span>
           </div>
         )}
-        <div className="absolute bottom-1.5 right-1.5 h-9 w-9 rounded-full bg-white/95 backdrop-blur grid place-items-center opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-1 group-hover:translate-y-0 shadow-sm">
-          <ShoppingBag className="h-4 w-4 text-ink-900" />
+        <div className="absolute bottom-2 right-2 rounded-lg bg-white/95 px-2.5 py-1.5 text-[11px] font-semibold text-ink-900 shadow-sm">
+          Ver produto
         </div>
       </div>
       <div className="px-0.5 pt-2.5 sm:pt-3">
@@ -140,7 +140,7 @@ export function ProductCard({ product, compact }: ProductCardProps) {
               />
             ))}
             {colors.length > 3 && (
-              <span className="text-[10px] sm:text-[11px] text-ink-500 self-center ml-0.5">
+              <span className="text-[11px] text-ink-600 self-center ml-0.5">
                 +{colors.length - 3}
               </span>
             )}
@@ -160,7 +160,7 @@ export function ProductCard({ product, compact }: ProductCardProps) {
             <div className="text-[13px] sm:text-sm font-semibold text-primary-600">Sob consulta</div>
           )}
           {(safeProduct.variants?.length || 0) > 1 && (
-            <span className="text-[10px] sm:text-[11px] text-ink-400 whitespace-nowrap">
+            <span className="text-[11px] text-ink-600 whitespace-nowrap">
               {safeProduct.variants.length} opções
             </span>
           )}

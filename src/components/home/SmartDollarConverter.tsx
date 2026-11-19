@@ -61,7 +61,7 @@ export function SmartDollarConverter() {
               setCurrency("USD");
               setInputValue(15);
             }}
-            className={`px-3 py-1.5 rounded-xl text-xs font-extrabold transition cursor-pointer flex items-center gap-1 ${
+            className={`min-h-11 px-3 py-2 rounded-xl text-xs font-extrabold transition cursor-pointer flex items-center gap-1 ${
               currency === "USD"
                 ? "bg-brand-600 text-white shadow-sm"
                 : "text-ink-600 hover:text-ink-900"
@@ -75,7 +75,7 @@ export function SmartDollarConverter() {
               setCurrency("EUR");
               setInputValue(50);
             }}
-            className={`px-3 py-1.5 rounded-xl text-xs font-extrabold transition cursor-pointer flex items-center gap-1 ${
+            className={`min-h-11 px-3 py-2 rounded-xl text-xs font-extrabold transition cursor-pointer flex items-center gap-1 ${
               currency === "EUR"
                 ? "bg-brand-600 text-white shadow-sm"
                 : "text-ink-600 hover:text-ink-900"
@@ -89,7 +89,7 @@ export function SmartDollarConverter() {
       <div className="space-y-4">
         {/* Campo de Entrada */}
         <div>
-          <label className="block text-xs font-bold uppercase tracking-wider text-ink-700 mb-1.5">
+          <label htmlFor="price-converter-input" className="block text-xs font-bold uppercase tracking-wider text-ink-700 mb-1.5">
             Digita o preço do artigo em {currency === "USD" ? "Dólares ($)" : "Euros (€)"}:
           </label>
           <div className="relative">
@@ -97,6 +97,7 @@ export function SmartDollarConverter() {
               {currency === "USD" ? "$" : "€"}
             </span>
             <input
+              id="price-converter-input"
               type="number"
               min="1"
               max="2000"
@@ -119,7 +120,7 @@ export function SmartDollarConverter() {
                 key={p.val}
                 type="button"
                 onClick={() => setInputValue(p.val)}
-                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer ${
+                className={`min-h-11 px-3 py-2 rounded-xl text-xs font-bold transition cursor-pointer ${
                   inputValue === p.val
                     ? "bg-brand-600 text-white shadow-sm"
                     : "bg-ink-100 text-ink-700 hover:bg-ink-200"

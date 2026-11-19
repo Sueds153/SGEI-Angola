@@ -8,7 +8,7 @@ import type {
   SelectHTMLAttributes,
   ReactNode,
 } from "react";
-import { forwardRef } from "react";
+import { forwardRef, useId } from "react";
 import {
   XCircle,
   CheckCircle2,
@@ -58,7 +58,8 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
   { label, error, hint, className, id, ...props },
   ref
 ) {
-  const inputId = id || props.name;
+  const generatedId = useId();
+  const inputId = id || props.name || generatedId;
   return (
     <div className="w-full">
       {label && (

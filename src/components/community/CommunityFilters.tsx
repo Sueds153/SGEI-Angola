@@ -47,6 +47,7 @@ export function CommunityFilters({ onFilter, onSearch }: CommunityFiltersProps) 
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-ink-400" />
           <input
             type="text"
+            aria-label="Pesquisar conversas da comunidade"
             placeholder="Buscar por cliente, produto, cidade..."
             value={searchQuery}
             onChange={(e) => handleSearch(e.target.value)}
@@ -66,6 +67,7 @@ export function CommunityFilters({ onFilter, onSearch }: CommunityFiltersProps) 
 
           {searchQuery && (
             <button
+            aria-expanded={showAdvanced}
               onClick={() => {
                 setSearchQuery('');
                 onSearch('');
@@ -81,8 +83,9 @@ export function CommunityFilters({ onFilter, onSearch }: CommunityFiltersProps) 
         {showAdvanced && (
           <div className="grid grid-cols-1 md:grid-cols-4 gap-3 pt-3 border-t border-ink-200">
             <div>
-              <label className="text-xs text-ink-600 block mb-1">Plataforma</label>
+            <label htmlFor="community-platform" className="text-xs text-ink-600 block mb-1">Plataforma</label>
               <select
+                id="community-platform"
                 value={platform}
                 onChange={(e) => setPlatform(e.target.value)}
                 className="w-full px-3 py-2 border border-ink-300 rounded-lg text-sm"
@@ -97,8 +100,9 @@ export function CommunityFilters({ onFilter, onSearch }: CommunityFiltersProps) 
             </div>
 
             <div>
-              <label className="text-xs text-ink-600 block mb-1">Categoria</label>
+              <label htmlFor="community-category" className="text-xs text-ink-600 block mb-1">Categoria</label>
               <select
+                id="community-category"
                 value={category}
                 onChange={(e) => setCategory(e.target.value)}
                 className="w-full px-3 py-2 border border-ink-300 rounded-lg text-sm"
@@ -111,8 +115,9 @@ export function CommunityFilters({ onFilter, onSearch }: CommunityFiltersProps) 
             </div>
 
             <div>
-              <label className="text-xs text-ink-600 block mb-1">Status</label>
+              <label htmlFor="community-status" className="text-xs text-ink-600 block mb-1">Estado</label>
               <select
+                id="community-status"
                 value={status}
                 onChange={(e) => setStatus(e.target.value)}
                 className="w-full px-3 py-2 border border-ink-300 rounded-lg text-sm"

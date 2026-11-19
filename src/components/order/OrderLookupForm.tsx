@@ -59,9 +59,10 @@ export function OrderLookupForm() {
       <div className="flex gap-2 p-1 rounded-lg bg-ink-100 w-fit">
         <button
           type="button"
+          aria-pressed={mode === "reference"}
           onClick={() => setMode("reference")}
           className={
-            "px-4 py-2 text-sm font-semibold rounded-md transition " +
+            "min-h-11 px-4 py-2 text-sm font-semibold rounded-md transition " +
             (mode === "reference" ? "bg-white shadow-sm text-ink-900" : "text-ink-600")
           }
         >
@@ -69,9 +70,10 @@ export function OrderLookupForm() {
         </button>
         <button
           type="button"
+          aria-pressed={mode === "phone"}
           onClick={() => setMode("phone")}
           className={
-            "px-4 py-2 text-sm font-semibold rounded-md transition " +
+            "min-h-11 px-4 py-2 text-sm font-semibold rounded-md transition " +
             (mode === "phone" ? "bg-white shadow-sm text-ink-900" : "text-ink-600")
           }
         >

@@ -50,9 +50,10 @@ export function AccountForms() {
       <div className="flex gap-1 p-1 rounded-lg bg-ink-100 mb-6">
         <button
           type="button"
+          aria-pressed={mode === "login"}
           onClick={() => setMode("login")}
           className={
-            "flex-1 py-2 text-sm font-semibold rounded-md transition " +
+            "flex-1 min-h-11 py-2 text-sm font-semibold rounded-md transition " +
             (mode === "login" ? "bg-white shadow-sm text-ink-900" : "text-ink-600")
           }
         >
@@ -60,9 +61,10 @@ export function AccountForms() {
         </button>
         <button
           type="button"
+          aria-pressed={mode === "register"}
           onClick={() => setMode("register")}
           className={
-            "flex-1 py-2 text-sm font-semibold rounded-md transition " +
+            "flex-1 min-h-11 py-2 text-sm font-semibold rounded-md transition " +
             (mode === "register" ? "bg-white shadow-sm text-ink-900" : "text-ink-600")
           }
         >

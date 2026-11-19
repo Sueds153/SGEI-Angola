@@ -71,16 +71,17 @@ export default function FeaturedProducts({ featuredProducts }: FeaturedProductsP
         </div>
 
         {/* Abas Horizontais com Scroll no Mobile */}
-        <div className="flex items-center gap-2 overflow-x-auto pb-2 mb-5 no-scrollbar -mx-4 px-4 sm:mx-0 sm:px-0">
+        <div role="group" aria-label="Filtrar produtos por loja" className="flex items-center gap-2 overflow-x-auto pb-2 mb-5 no-scrollbar -mx-4 px-4 sm:mx-0 sm:px-0">
           {tabs.map((tab) => {
             const isActive = activeTab === tab.id;
             return (
               <button
                 key={tab.id}
                 type="button"
+                aria-pressed={isActive}
                 onClick={() => setActiveTab(tab.id)}
                 className={cn(
-                  "px-3.5 py-2 rounded-full text-xs font-semibold whitespace-nowrap transition-all flex items-center gap-1.5 shrink-0 active:scale-95 cursor-pointer",
+                  "min-h-11 px-3.5 py-2 rounded-full text-xs font-semibold whitespace-nowrap transition-all flex items-center gap-1.5 shrink-0 active:scale-95 cursor-pointer",
                   isActive
                     ? "bg-ink-950 text-white shadow-sm"
                     : "bg-ink-100 text-ink-700 hover:bg-ink-200"
@@ -91,6 +92,10 @@ export default function FeaturedProducts({ featuredProducts }: FeaturedProductsP
             );
           })}
         </div>
+
+        <p className="sr-only" role="status" aria-live="polite">
+          {displayList.length} produtos apresentados
+        </p>
 
         {/* Grelha de Produtos: 2 colunas no Mobile, 4 no Desktop */}
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4 lg:gap-6">

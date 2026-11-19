@@ -62,9 +62,9 @@ export default function CarrinhoPage() {
         </div>
 
         {items.length === 0 ? (
-          <div className="bg-white rounded-3xl border border-ink-200 p-12 text-center shadow-sm space-y-4">
-            <div className="w-20 h-20 rounded-3xl bg-ink-100 text-ink-400 grid place-items-center mx-auto">
-              <ShoppingBag className="w-10 h-10" />
+          <div className="bg-white rounded-3xl border border-ink-200 p-6 sm:p-12 text-center shadow-sm space-y-3 sm:space-y-4">
+            <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-3xl bg-ink-100 text-ink-400 grid place-items-center mx-auto">
+              <ShoppingBag className="w-8 h-8 sm:w-10 sm:h-10" />
             </div>
             <h2 className="text-xl font-bold text-ink-900">A tua mala coletiva está vazia</h2>
             <p className="text-sm text-ink-500 max-w-md mx-auto">
@@ -86,7 +86,7 @@ export default function CarrinhoPage() {
                   key={item.id}
                   className="p-4 sm:p-5 rounded-2xl border border-ink-200 bg-white shadow-sm flex gap-4 items-center"
                 >
-                  <div className="w-20 h-20 rounded-xl bg-ink-100 shrink-0 overflow-hidden border border-ink-100">
+                  <div className="relative w-20 h-20 rounded-xl bg-ink-100 shrink-0 overflow-hidden border border-ink-100">
                     {item.image ? (
                       <ResponsiveImage
                         src={item.image}
@@ -109,8 +109,8 @@ export default function CarrinhoPage() {
                       </h3>
                       <button
                         onClick={() => removeItem(item.id)}
-                        className="text-ink-400 hover:text-red-600 p-1 transition"
-                        title="Remover"
+                        className="h-11 w-11 grid place-items-center text-ink-500 hover:text-red-600 transition"
+                        aria-label={`Remover ${item.title} do carrinho`}
                       >
                         <Trash2 className="w-4 h-4" />
                       </button>
@@ -118,11 +118,14 @@ export default function CarrinhoPage() {
 
                     <p className="text-xs text-brand-700 font-semibold mt-0.5">{item.platform}</p>
 
-                    <div className="mt-3 flex items-center justify-between">
+                    <div className="mt-3 flex flex-wrap items-center justify-between gap-2">
                       <div className="flex items-center border border-ink-200 rounded-lg overflow-hidden bg-ink-50">
                         <button
+                          type="button"
+                          disabled={item.quantity <= 1}
                           onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                          className="px-2.5 py-1 text-ink-600 hover:bg-ink-200 transition"
+                          className="h-11 w-11 grid place-items-center text-ink-700 hover:bg-ink-200 disabled:cursor-not-allowed disabled:opacity-40 transition"
+                          aria-label={`Diminuir quantidade de ${item.title}`}
                         >
                           <Minus className="w-3.5 h-3.5" />
                         </button>
@@ -130,8 +133,10 @@ export default function CarrinhoPage() {
                           {item.quantity}
                         </span>
                         <button
+                          type="button"
                           onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                          className="px-2.5 py-1 text-ink-600 hover:bg-ink-200 transition"
+                          className="h-11 w-11 grid place-items-center text-ink-700 hover:bg-ink-200 transition"
+                          aria-label={`Aumentar quantidade de ${item.title}`}
                         >
                           <Plus className="w-3.5 h-3.5" />
                         </button>
@@ -195,7 +200,7 @@ export default function CarrinhoPage() {
                   Continuar para confirmação <ArrowRight className="w-4 h-4" />
                 </button>
 
-                <div className="p-3 rounded-xl bg-ink-50 text-[11px] text-ink-500 text-center space-y-1">
+                <div className="p-3 rounded-xl bg-ink-50 text-xs text-ink-600 text-center space-y-1">
                   <p className="font-semibold text-ink-800">Pagamento simples em Angola</p>
                   <p>Multicaixa Express (929 423 278) ou Referência (Entidade: 10116 / Ref: 929 423 278)</p>
                 </div>

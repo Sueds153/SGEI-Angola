@@ -119,6 +119,7 @@ export default function RastrearPage() {
           <div className="relative max-w-md mx-auto">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-ink-400" />
             <input
+              aria-label="Referência do pedido para rastreio"
               type="text"
               value={reference}
               onChange={(e) => setReference(e.target.value.toUpperCase())}

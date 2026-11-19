@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import {
@@ -20,6 +20,7 @@ import {
 import { cn } from "@/lib/utils";
 import { Logo } from "@/components/brand/Logo";
 import { useCart } from "@/context/CartContext";
+import { useModalAccessibility } from "@/hooks/useModalAccessibility";
 
 const navItems = [
   { href: "/produtos", label: "Produtos", icon: Grid3x3 },
@@ -32,11 +33,22 @@ const navItems = [
 export function Header() {
   const pathname = usePathname();
   const router = useRouter();
-  const { itemCount, setIsOpen } = useCart();
+  const { itemCount, isOpen: cartOpen, setIsOpen } = useCart();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [searchValue, setSearchValue] = useState("");
   const [searchOpen, setSearchOpen] = useState(false);
+  const mobileNavigationRef = useRef<HTMLDivElement>(null);
+  const mobileCloseButtonRef = useRef<HTMLButtonElement>(null);
+  const searchButtonRef = useRef<HTMLButtonElement>(null);
+  const searchInputRef = useRef<HTMLInputElement>(null);
+
+  useModalAccessibility({
+    isOpen: mobileOpen,
+    onClose: () => setMobileOpen(false),
+    dialogRef: mobileNavigationRef,
+    initialFocusRef: mobileCloseButtonRef,
+  });
 
   useEffect(() => {
     function onScroll() {
@@ -54,6 +66,20 @@ export function Header() {
     }, 0);
     return () => window.clearTimeout(resetNavigation);
   }, [pathname]);
+
+  useEffect(() => {
+    if (!searchOpen) return;
+
+    searchInputRef.current?.focus();
+    function closeOnEscape(event: KeyboardEvent) {
+      if (event.key !== "Escape") return;
+      setSearchOpen(false);
+      searchButtonRef.current?.focus();
+    }
+
+    document.addEventListener("keydown", closeOnEscape);
+    return () => document.removeEventListener("keydown", closeOnEscape);
+  }, [searchOpen]);
 
   const isAdmin = pathname.startsWith("/admin");
   if (isAdmin) return null;
@@ -106,18 +132,30 @@ export function Header() {
             {/* Ações */}
             <div className="flex items-center gap-1">
               <button
+                ref={searchButtonRef}
                 onClick={() => setSearchOpen((v) => !v)}
-                className="h-10 w-10 sm:h-11 sm:w-11 grid place-items-center rounded-full text-ink-700 hover:bg-ink-100 transition"
+                type="button"
+                className="h-11 w-11 grid place-items-center rounded-full text-ink-700 hover:bg-ink-100 transition"
                 aria-label="Pesquisar"
+                aria-expanded={searchOpen}
+                aria-controls={searchOpen ? "site-search-panel" : undefined}
               >
                 <Search className="h-[18px] w-[18px]" />
               </button>
 
               {/* Botão Mala Coletiva / Carrinho com Frete Grátis */}
               <button
+                type="button"
                 onClick={() => setIsOpen(true)}
-                className="relative h-10 w-10 sm:h-11 sm:w-11 grid place-items-center rounded-full text-ink-700 hover:bg-ink-100 transition"
-                aria-label="Mala Coletiva / Carrinho"
+                className="relative h-11 w-11 grid place-items-center rounded-full text-ink-700 hover:bg-ink-100 transition"
+                aria-label={
+                  itemCount === 0
+                    ? "Abrir carrinho vazio"
+                    : `Abrir carrinho com ${itemCount} ${itemCount === 1 ? "artigo" : "artigos"}`
+                }
+                aria-haspopup="dialog"
+                aria-expanded={cartOpen}
+                aria-controls={cartOpen ? "cart-drawer" : undefined}
               >
                 <ShoppingBag className="h-[20px] w-[20px] text-ink-800" />
                 {itemCount > 0 && (
@@ -157,11 +195,12 @@ export function Header() {
                 Simular Preço
               </Link>
               <button
+                type="button"
                 onClick={() => setMobileOpen((v) => !v)}
                 className="md:hidden h-11 w-11 grid place-items-center rounded-full text-ink-700 hover:bg-ink-100"
                 aria-label="Menu"
                 aria-expanded={mobileOpen}
-                aria-controls="mobile-navigation"
+                aria-controls={mobileOpen ? "mobile-navigation" : undefined}
               >
                 {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
               </button>
@@ -171,13 +210,14 @@ export function Header() {
 
         {/* Painel pesquisa */}
         {searchOpen && (
-          <div className="border-t border-black/5 bg-white/90 backdrop-blur-xl animate-slide-down">
+          <div id="site-search-panel" className="border-t border-black/5 bg-white/90 backdrop-blur-xl animate-slide-down">
             <div className="mx-auto max-w-[1200px] px-5 sm:px-8 py-4">
-              <form onSubmit={onSearch} className="flex items-center gap-3">
+              <form role="search" onSubmit={onSearch} className="flex items-center gap-3">
                 <Search className="h-5 w-5 text-ink-400" />
                 <input
-                  autoFocus
+                  ref={searchInputRef}
                   type="search"
+                  aria-label="Pesquisar produtos"
                   value={searchValue}
                   onChange={(e) => setSearchValue(e.target.value)}
                   placeholder="Procurar vestido, ténis, acessórios…"
@@ -185,8 +225,12 @@ export function Header() {
                 />
                 <button
                   type="button"
-                  onClick={() => setSearchOpen(false)}
+                  onClick={() => {
+                    setSearchOpen(false);
+                    searchButtonRef.current?.focus();
+                  }}
                   className="text-sm text-ink-500 hover:text-ink-900"
+                  aria-label="Fechar pesquisa"
                 >
                   Cancelar
                 </button>
@@ -198,22 +242,35 @@ export function Header() {
 
       {/* Menu mobile */}
       {mobileOpen && (
-        <div id="mobile-navigation" className="fixed inset-0 z-[60] bg-white md:hidden animate-fade-in">
+        <div
+          ref={mobileNavigationRef}
+          id="mobile-navigation"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="mobile-navigation-title"
+          tabIndex={-1}
+          className="fixed inset-0 z-[60] bg-white md:hidden animate-fade-in"
+        >
           <div className="flex h-14 items-center justify-between px-5 border-b border-ink-200">
             <Logo size="sm" />
             <button
+              ref={mobileCloseButtonRef}
+              type="button"
               onClick={() => setMobileOpen(false)}
-              className="h-9 w-9 grid place-items-center rounded-full hover:bg-ink-100"
+              className="h-11 w-11 grid place-items-center rounded-full hover:bg-ink-100"
+              aria-label="Fechar menu"
             >
               <X className="h-5 w-5" />
             </button>
           </div>
-          <nav className="px-5 py-6 flex flex-col gap-1">
-            <form onSubmit={onSearch} className="mb-4">
+          <h2 id="mobile-navigation-title" className="sr-only">Menu de navegação</h2>
+          <nav aria-label="Navegação principal no telemóvel" className="px-5 py-6 flex flex-col gap-1">
+            <form role="search" onSubmit={onSearch} className="mb-4">
               <div className="flex items-center gap-2 bg-ink-100 rounded-full px-4 py-2.5">
                 <Search className="h-4 w-4 text-ink-500" />
                 <input
                   type="search"
+                  aria-label="Pesquisar produtos"
                   value={searchValue}
                   onChange={(e) => setSearchValue(e.target.value)}
                   placeholder="Pesquisar…"

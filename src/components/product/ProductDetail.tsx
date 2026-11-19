@@ -144,6 +144,7 @@ export function ProductDetail({ product }: { product: NormalizedProduct }) {
                 <button
                   key={i}
                   onClick={() => setActiveImage(i)}
+                  aria-label={`Mostrar imagem ${i + 1} de ${product.name}`}
                   className={cn(
                     "relative aspect-square rounded-xl overflow-hidden bg-ink-100 ring-2 transition",
                     activeImage === i ? "ring-ink-900" : "ring-transparent hover:ring-ink-300"
@@ -165,14 +166,14 @@ export function ProductDetail({ product }: { product: NormalizedProduct }) {
             <>
               <button
                 onClick={prevImage}
-                className="absolute left-4 top-1/2 -translate-y-1/2 h-10 sm:h-11 w-10 sm:w-11 rounded-full bg-white/90 backdrop-blur-sm shadow-sm grid place-items-center hover:bg-white transition"
+                className="absolute left-4 top-1/2 -translate-y-1/2 h-11 w-11 rounded-full bg-white/90 backdrop-blur-sm shadow-sm grid place-items-center hover:bg-white transition"
                 aria-label="Imagem anterior"
               >
                 <ChevronLeft className="h-4 w-4 sm:h-5 sm:w-5 text-ink-900" />
               </button>
               <button
                 onClick={nextImage}
-                className="absolute right-4 top-1/2 -translate-y-1/2 h-10 sm:h-11 w-10 sm:w-11 rounded-full bg-white/90 backdrop-blur-sm shadow-sm grid place-items-center hover:bg-white transition"
+                className="absolute right-4 top-1/2 -translate-y-1/2 h-11 w-11 rounded-full bg-white/90 backdrop-blur-sm shadow-sm grid place-items-center hover:bg-white transition"
                 aria-label="Próxima imagem"
               >
                 <ChevronRight className="h-4 w-4 sm:h-5 sm:w-5 text-ink-900" />
@@ -184,7 +185,7 @@ export function ProductDetail({ product }: { product: NormalizedProduct }) {
           </span>
           <button
             onClick={() => setLiked((v) => !v)}
-            className="absolute top-4 right-4 sm:top-[12px] sm:right-[12px] h-10 sm:h-11 w-10 sm:w-11 rounded-full bg-white/90 backdrop-blur-sm grid place-items-center hover:bg-white transition"
+            className="absolute top-4 right-4 sm:top-[12px] sm:right-[12px] h-11 w-11 rounded-full bg-white/90 backdrop-blur-sm grid place-items-center hover:bg-white transition"
             aria-label="Favorito"
           >
             <Heart className={cn("h-4 w-4 sm:h-5 sm:w-5 transition", liked ? "fill-primary-600 text-primary-600" : "text-ink-700")} />

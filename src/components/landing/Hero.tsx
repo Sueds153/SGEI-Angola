@@ -66,6 +66,9 @@ export default function Hero() {
         {/* Card do Simulador Mobile First */}
         <div className="bg-white rounded-2xl sm:rounded-3xl p-3 sm:p-5 shadow-xl shadow-brand-950/5 border border-brand-100 max-w-2xl mx-auto">
           <form onSubmit={handleSimulate} className="flex flex-col gap-2.5">
+            <label htmlFor="hero-product-url" className="sr-only">
+              Link do produto que pretende importar
+            </label>
             <div className="relative flex items-center bg-ink-50/80 rounded-xl sm:rounded-2xl border border-ink-200 focus-within:border-brand-500 focus-within:ring-2 focus-within:ring-brand-500/10 focus-within:bg-white transition-all">
               <input
                 id="hero-product-url"
@@ -78,7 +81,7 @@ export default function Hero() {
               <button
                 type="button"
                 onClick={handlePaste}
-                className="absolute right-2 px-2.5 py-1.5 rounded-lg bg-white border border-ink-200 text-ink-700 text-xs font-semibold hover:bg-ink-100 flex items-center gap-1 active:scale-95 transition"
+                className="absolute right-2 min-h-11 px-2.5 rounded-lg bg-white border border-ink-200 text-xs font-semibold text-ink-800 hover:bg-ink-100 flex items-center gap-1 active:scale-95 transition"
                 title="Colar da área de transferência"
               >
                 {copied ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Clipboard className="w-3.5 h-3.5 text-ink-500" />}
@@ -116,17 +119,17 @@ export default function Hero() {
           <div className="flex flex-col items-center p-2 rounded-xl bg-ink-50/60 border border-ink-100">
             <CreditCard className="w-4 h-4 text-brand-600 mb-1" />
             <span className="text-[11px] font-bold text-ink-900 leading-tight">Pagamento Local</span>
-            <span className="text-[10px] text-ink-500">Sem cartão Visa</span>
+            <span className="text-[11px] text-ink-600">Sem cartão Visa</span>
           </div>
           <div className="flex flex-col items-center p-2 rounded-xl bg-ink-50/60 border border-ink-100">
             <ShieldCheck className="w-4 h-4 text-emerald-600 mb-1" />
             <span className="text-[11px] font-bold text-ink-900 leading-tight">Valor Confirmado</span>
-            <span className="text-[10px] text-ink-500">Antes de pagar</span>
+            <span className="text-[11px] text-ink-600">Antes de pagar</span>
           </div>
           <div className="flex flex-col items-center p-2 rounded-xl bg-ink-50/60 border border-ink-100">
             <Truck className="w-4 h-4 text-blue-600 mb-1" />
             <span className="text-[11px] font-bold text-ink-900 leading-tight">Entrega em Angola</span>
-            <span className="text-[10px] text-ink-500">Luanda e Províncias</span>
+            <span className="text-[11px] text-ink-600">Luanda e Províncias</span>
           </div>
         </div>
       </div>

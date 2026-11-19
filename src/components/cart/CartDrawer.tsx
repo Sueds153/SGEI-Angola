@@ -1,7 +1,8 @@
 "use client";
 
-import React, { useEffect } from "react";
+import React, { useEffect, useRef } from "react";
 import { useCart } from "@/context/CartContext";
+import { useModalAccessibility } from "@/hooks/useModalAccessibility";
 import {
   X,
   ShoppingBag,
@@ -32,12 +33,21 @@ export function CartDrawer() {
     freightSavedKz,
   } = useCart();
   const { recordEvent } = useAdaptiveIntelligence();
+  const dialogRef = useRef<HTMLDivElement>(null);
+  const closeButtonRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     if (items.length > 0) {
       recordEvent("CART_UPDATE", { count: items.length, totalKz });
     }
   }, [items, totalKz, recordEvent]);
+
+  useModalAccessibility({
+    isOpen,
+    onClose: () => setIsOpen(false),
+    dialogRef,
+    initialFocusRef: closeButtonRef,
+  });
 
   // Relógio de urgência decrescente (ex: 04h 28m 15s)
   if (!isOpen) return null;
@@ -56,7 +66,15 @@ export function CartDrawer() {
       />
 
       <div className="fixed inset-y-0 right-0 max-w-full flex pl-10">
-        <div className="w-screen max-w-md bg-white shadow-2xl flex flex-col">
+        <div
+          ref={dialogRef}
+          id="cart-drawer"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="cart-drawer-title"
+          tabIndex={-1}
+          className="w-screen max-w-md bg-white shadow-2xl flex flex-col"
+        >
           {/* Cabeçalho da Mala Coletiva */}
           <div className="p-4 sm:p-5 border-b border-ink-100 bg-brand-600 text-white flex items-center justify-between">
             <div className="flex items-center gap-2.5">
@@ -64,7 +82,7 @@ export function CartDrawer() {
                 <ShoppingBag className="w-5 h-5 text-emerald-300" />
               </div>
               <div>
-                <h2 className="text-base font-bold flex items-center gap-1.5">
+                <h2 id="cart-drawer-title" className="text-base font-bold flex items-center gap-1.5">
                   Mala Coletiva da Semana
                   <span className="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-emerald-400 text-ink-950">
                     FRETE GRÁTIS
@@ -76,8 +94,10 @@ export function CartDrawer() {
               </div>
             </div>
             <button
+              ref={closeButtonRef}
+              type="button"
               onClick={() => setIsOpen(false)}
-              className="p-1.5 rounded-xl hover:bg-white/10 text-brand-100 hover:text-white transition"
+              className="h-11 w-11 grid place-items-center rounded-xl hover:bg-white/10 text-brand-100 hover:text-white transition"
               aria-label="Fechar carrinho"
             >
               <X className="w-5 h-5" />
@@ -114,7 +134,7 @@ export function CartDrawer() {
                   className="p-3.5 rounded-2xl border border-ink-200 bg-white hover:border-brand-300 transition shadow-sm flex gap-3.5"
                 >
                   {/* Foto do Artigo */}
-                  <div className="w-16 h-16 rounded-xl bg-ink-100 shrink-0 overflow-hidden border border-ink-100">
+                  <div className="relative w-16 h-16 rounded-xl bg-ink-100 shrink-0 overflow-hidden border border-ink-100">
                     {item.image ? (
                       <ResponsiveImage
                         src={item.image}
@@ -137,9 +157,10 @@ export function CartDrawer() {
                         {item.title}
                       </h4>
                       <button
+                        type="button"
                         onClick={() => removeItem(item.id)}
-                        className="text-ink-400 hover:text-red-500 p-1 transition"
-                        title="Remover"
+                        className="h-11 w-11 grid place-items-center text-ink-500 hover:text-red-600 transition"
+                        aria-label={`Remover ${item.title} do carrinho`}
                       >
                         <Trash2 className="w-3.5 h-3.5" />
                       </button>
@@ -151,12 +172,15 @@ export function CartDrawer() {
                       {item.variantColor && <span>· Cor: {item.variantColor}</span>}
                     </div>
 
-                    <div className="mt-2 flex items-center justify-between">
+                    <div className="mt-2 flex flex-wrap items-center justify-between gap-2">
                       {/* Controles de Quantidade */}
                       <div className="flex items-center border border-ink-200 rounded-lg overflow-hidden bg-ink-50">
                         <button
+                          type="button"
+                          disabled={item.quantity <= 1}
                           onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                          className="px-2 py-1 text-ink-600 hover:bg-ink-200 transition"
+                          className="h-11 w-11 grid place-items-center text-ink-700 hover:bg-ink-200 disabled:cursor-not-allowed disabled:opacity-40 transition"
+                          aria-label={`Diminuir quantidade de ${item.title}`}
                         >
                           <Minus className="w-3 h-3" />
                         </button>
@@ -164,8 +188,10 @@ export function CartDrawer() {
                           {item.quantity}
                         </span>
                         <button
+                          type="button"
                           onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                          className="px-2 py-1 text-ink-600 hover:bg-ink-200 transition"
+                          className="h-11 w-11 grid place-items-center text-ink-700 hover:bg-ink-200 transition"
+                          aria-label={`Aumentar quantidade de ${item.title}`}
                         >
                           <Plus className="w-3 h-3" />
                         </button>

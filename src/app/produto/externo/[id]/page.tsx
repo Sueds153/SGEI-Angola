@@ -10,6 +10,20 @@ import { UrlResolverForm } from "@/components/home/UrlResolverForm";
 
 export const dynamic = "force-dynamic";
 
+async function findProductWithinTimeout(provider: Awaited<ReturnType<typeof getActiveProvider>>, id: string) {
+  let timeoutId: ReturnType<typeof setTimeout> | undefined;
+  try {
+    return await Promise.race([
+      provider.getProductByExternalId(id),
+      new Promise<null>((resolve) => {
+        timeoutId = setTimeout(() => resolve(null), 8_000);
+      }),
+    ]);
+  } finally {
+    if (timeoutId) clearTimeout(timeoutId);
+  }
+}
+
 export default async function ExternalProductPage({
   params,
   searchParams,
@@ -20,7 +34,7 @@ export default async function ExternalProductPage({
   const { id } = await params;
   const sp = await searchParams;
   const provider = await getActiveProvider();
-  const product = await provider.getProductByExternalId(id);
+  const product = await findProductWithinTimeout(provider, id);
 
   if (product) {
     return (

@@ -1,12 +1,14 @@
 import { NextResponse } from "next/server";
 import { db } from "@/db";
-import { communityPosts, products, orders } from "@/db/schema";
+import { communityPosts } from "@/db/schema";
 import { count, eq, gte, isNotNull, sql } from "drizzle-orm";
 
 import { asc } from "drizzle-orm";
 
 export async function GET() {
   try {
+    const databaseUrl = process.env.DATABASE_URL;
+    const usesLocalSqlite = process.env.NODE_ENV !== "production" && (!databaseUrl || databaseUrl.startsWith("file:"));
     // Total de posts
     const totalPostsResult = await db.select({ count: count() }).from(communityPosts);
     const totalPosts = totalPostsResult[0]?.count || 0;
@@ -22,7 +24,7 @@ export async function GET() {
     const verifiedPostsResult = await db
       .select({ count: count() })
       .from(communityPosts)
-      .where(eq(communityPosts.verified, true));
+      .where(usesLocalSqlite ? sql`${communityPosts.verified} = 1` : eq(communityPosts.verified, true));
     const verifiedPosts = verifiedPostsResult[0]?.count || 0;
     
     // Posts pendentes de revisão
@@ -58,6 +60,9 @@ export async function GET() {
     // Engajamento por dia (últimos 30 dias)
     const thirtyDaysAgo = new Date();
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+    const recentPostsCondition = usesLocalSqlite
+      ? sql`${communityPosts.createdAt} >= ${thirtyDaysAgo.toISOString()}`
+      : gte(communityPosts.createdAt, thirtyDaysAgo);
     
     const engagementByDay = await db
       .select({
@@ -65,7 +70,7 @@ export async function GET() {
         posts: count(communityPosts.id),
       })
       .from(communityPosts)
-      .where(gte(communityPosts.createdAt, thirtyDaysAgo))
+      .where(recentPostsCondition)
       .groupBy(sql`DATE(${communityPosts.createdAt})`)
       .orderBy(asc(sql`DATE(${communityPosts.createdAt})`));
     

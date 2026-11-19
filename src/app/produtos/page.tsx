@@ -25,6 +25,8 @@ const CATEGORIES = [
 
 export default function ProdutosPage() {
   const [products, setProducts] = useState<any[]>([]);
+  const [total, setTotal] = useState(0);
+  const [offset, setOffset] = useState(0);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [platform, setPlatform] = useState("");
@@ -36,7 +38,9 @@ export default function ProdutosPage() {
   const fetchProducts = useCallback(async (
     pPlatform = "",
     pCategory = "",
-    pSort = "relevance"
+    pSort = "relevance",
+    append = false,
+    nextOffset = 0,
   ) => {
     setLoading(true);
     try {
@@ -44,13 +48,18 @@ export default function ProdutosPage() {
       if (pPlatform) params.set("platform", pPlatform);
       if (pCategory) params.set("category", pCategory);
       if (pSort && pSort !== "relevance") params.set("sort", pSort);
+      params.set("limit", "20");
+      params.set("offset", String(nextOffset));
 
       const response = await fetch(`/api/products?${params.toString()}`);
       if (response.ok) {
         const data = await response.json();
-        setProducts(data.products || []);
+        setProducts((current) => append ? [...current, ...(data.products || [])] : (data.products || []));
+        setTotal(data.total || 0);
+        setOffset(nextOffset + (data.products?.length || 0));
       } else {
-        setProducts([]);
+        if (!append) setProducts([]);
+        setTotal(0);
       }
     } catch (error) {
       console.error("Erro ao buscar produtos:", error);
@@ -75,8 +84,8 @@ export default function ProdutosPage() {
     }
   };
 
-  const handleFilterChange = () => {
-    fetchProducts(platform, category, sort);
+  const applyFilters = (nextPlatform: string, nextCategory: string, nextSort: string) => {
+    fetchProducts(nextPlatform, nextCategory, nextSort);
   };
 
   return (
@@ -88,6 +97,7 @@ export default function ProdutosPage() {
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-ink-400" />
             <input
               type="search"
+              aria-label="Pesquisar produtos no catálogo"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Procurar produtos... (vestido, iPhone, ténis...)"
@@ -99,6 +109,7 @@ export default function ProdutosPage() {
 
       <main className="py-8">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-ink-950 mb-5">Produtos para importar</h1>
           {/* Filters Bar */}
           <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 mb-8">
             <div className="flex flex-wrap items-center gap-3">
@@ -107,8 +118,8 @@ export default function ProdutosPage() {
                 {PLATFORMS.map((p) => (
                   <button
                     key={p.value}
-                    onClick={() => { setPlatform(p.value); handleFilterChange(); }}
-                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium whitespace-nowrap transition ${
+                    onClick={() => { setPlatform(p.value); applyFilters(p.value, category, sort); }}
+                    className={`flex min-h-11 items-center gap-1.5 px-3 py-2 rounded-full text-sm font-medium whitespace-nowrap transition ${
                       platform === p.value
                         ? "bg-brand-600 text-white"
                         : "bg-white text-ink-600 hover:bg-ink-50 border border-ink-200"
@@ -127,7 +138,7 @@ export default function ProdutosPage() {
               <select
                 id="sort"
                 value={sort}
-                onChange={(e) => { setSort(e.target.value); handleFilterChange(); }}
+                onChange={(e) => { setSort(e.target.value); applyFilters(platform, category, e.target.value); }}
                 className="px-3 py-2 border border-ink-300 rounded-xl text-sm text-ink-900 focus:ring-2 focus:ring-brand-500 focus:border-transparent"
               >
                 <option value="relevance">Relevância</option>
@@ -147,7 +158,7 @@ export default function ProdutosPage() {
                   <select
                     id="category"
                     value={category}
-                    onChange={(e) => { setCategory(e.target.value); handleFilterChange(); }}
+                    onChange={(e) => { setCategory(e.target.value); applyFilters(platform, e.target.value, sort); }}
                     className="w-full px-3 py-2 border border-ink-300 rounded-xl text-sm text-ink-900 focus:ring-2 focus:ring-brand-500 focus:border-transparent"
                   >
                     {CATEGORIES.map((c) => (
@@ -157,8 +168,8 @@ export default function ProdutosPage() {
                 </div>
                 <div className="flex items-end">
                   <button
-                    onClick={() => { setCategory(""); setPlatform(""); handleFilterChange(); }}
-                    className="px-4 py-2 text-sm text-brand-600 font-medium hover:text-brand-700"
+                    onClick={() => { setCategory(""); setPlatform(""); applyFilters("", "", sort); }}
+                    className="min-h-11 px-4 py-2 text-sm text-brand-600 font-medium hover:text-brand-700"
                   >
                     Limpar filtros
                   </button>
@@ -172,11 +183,11 @@ export default function ProdutosPage() {
             <p className="text-ink-600">
               {loading 
                 ? "A carregar..." 
-                : `${products.length} produto${products.length !== 1 ? "s" : ""} encontrado${products.length !== 1 ? "s" : ""}`}
+                : `${total} produto${total !== 1 ? "s" : ""} encontrado${total !== 1 ? "s" : ""}`}
             </p>
             <button
               onClick={() => setShowFilters(!showFilters)}
-              className="flex items-center gap-1.5 px-3 py-2 border border-ink-300 rounded-xl text-sm font-medium text-ink-700 hover:bg-ink-50 transition"
+              className="flex min-h-11 items-center gap-1.5 px-3 py-2 border border-ink-300 rounded-xl text-sm font-medium text-ink-700 hover:bg-ink-50 transition"
             >
               <Filter className="w-4 h-4" />
               Filtros
@@ -205,7 +216,7 @@ export default function ProdutosPage() {
               <h3 className="text-xl font-semibold text-ink-900 mb-2">Nenhum produto encontrado</h3>
               <p className="text-ink-500 mb-6">Tente ajustar os filtros ou procurar por outro termo.</p>
               <button
-                onClick={() => { setPlatform(""); setCategory(""); fetchProducts(); }}
+                onClick={() => { setPlatform(""); setCategory(""); applyFilters("", "", sort); }}
                 className="px-6 py-3 bg-brand-600 text-white rounded-xl font-medium hover:bg-brand-700"
               >
                 Ver todos os produtos
@@ -214,9 +225,9 @@ export default function ProdutosPage() {
           )}
 
           {/* Load More */}
-          {products.length >= 20 && !loading && (
+          {offset < total && !loading && (
             <div className="text-center mt-12">
-              <button className="px-8 py-3 border-2 border-brand-600 text-brand-600 font-semibold rounded-xl hover:bg-brand-50 transition">
+              <button onClick={() => fetchProducts(platform, category, sort, true, offset)} className="min-h-11 px-8 py-3 border-2 border-brand-600 text-brand-600 font-semibold rounded-xl hover:bg-brand-50 transition">
                 Carregar mais produtos
               </button>
             </div>
