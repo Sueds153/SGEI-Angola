@@ -134,7 +134,10 @@ export function CartDrawer() {
                   className="p-3.5 rounded-2xl border border-ink-200 bg-white hover:border-brand-300 transition shadow-sm flex gap-3.5"
                 >
                   {/* Foto do Artigo */}
-                  <div className="relative w-16 h-16 rounded-xl bg-ink-100 shrink-0 overflow-hidden border border-ink-100">
+                  <div
+                    className="relative isolate w-16 h-16 rounded-xl bg-ink-100 shrink-0 overflow-hidden border border-ink-100"
+                    style={{ width: 64, height: 64, minWidth: 64, minHeight: 64, flex: "0 0 64px" }}
+                  >
                     {item.image ? (
                       <ResponsiveImage
                         src={item.image}
