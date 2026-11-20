@@ -44,7 +44,7 @@ export function InformalExchangeManager({
   const [usdRate, setUsdRate] = useState<number>(initialUsd);
   const [eurRate, setEurRate] = useState<number>(initialEur || Math.round(initialUsd * 1.09));
   const [cnyRate, setCnyRate] = useState<number>(initialCny || Math.round(initialUsd / 7.2));
-  const [bufferPct, setBufferPct] = useState<number>(initialBuffer || 3);
+  const [bufferPct, setBufferPct] = useState<number>(initialBuffer);
   const [exchangeMode, setExchangeMode] = useState<string>(initialMode || "INFORMAL_MANUAL");
   const [notes, setNotes] = useState<string>("");
 

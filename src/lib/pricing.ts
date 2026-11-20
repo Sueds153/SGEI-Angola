@@ -52,56 +52,61 @@ export async function loadPricingConfig(): Promise<PricingConfig> {
   try {
     const rows = await db.select().from(pricingConfigs);
     const cfg = { ...DEFAULTS };
+    const configuredNumber = (value: string, fallback: number) => {
+      if (!value.trim()) return fallback;
+      const parsed = Number(value);
+      return Number.isFinite(parsed) ? parsed : fallback;
+    };
     for (const row of rows) {
       const val = row.value;
       switch (row.key) {
         case "exchangeRateUsdToAoa":
-          cfg.exchangeRateUsdToAoa = Number(val) || DEFAULTS.exchangeRateUsdToAoa;
+          cfg.exchangeRateUsdToAoa = configuredNumber(val, DEFAULTS.exchangeRateUsdToAoa);
           break;
         case "exchangeRateEurToAoa":
-          cfg.exchangeRateEurToAoa = Number(val) || DEFAULTS.exchangeRateEurToAoa;
+          cfg.exchangeRateEurToAoa = configuredNumber(val, DEFAULTS.exchangeRateEurToAoa);
           break;
         case "exchangeRateCnyToAoa":
-          cfg.exchangeRateCnyToAoa = Number(val) || DEFAULTS.exchangeRateCnyToAoa;
+          cfg.exchangeRateCnyToAoa = configuredNumber(val, DEFAULTS.exchangeRateCnyToAoa);
           break;
         case "exchangeMode":
           cfg.exchangeMode = (val as "INFORMAL_MANUAL" | "OFFICIAL_AUTO") || DEFAULTS.exchangeMode;
           break;
         case "currencyBufferPct":
-          cfg.currencyBufferPct = Number(val) || DEFAULTS.currencyBufferPct;
+          cfg.currencyBufferPct = configuredNumber(val, DEFAULTS.currencyBufferPct);
           break;
         case "serviceFeePct":
-          cfg.serviceFeePct = Number(val) || DEFAULTS.serviceFeePct;
+          cfg.serviceFeePct = configuredNumber(val, DEFAULTS.serviceFeePct);
           break;
         case "serviceFeeMinCents":
-          cfg.serviceFeeMinCents = Number(val) || DEFAULTS.serviceFeeMinCents;
+          cfg.serviceFeeMinCents = configuredNumber(val, DEFAULTS.serviceFeeMinCents);
           break;
         case "logisticsBaseCents":
-          cfg.logisticsBaseCents = Number(val) || DEFAULTS.logisticsBaseCents;
+          cfg.logisticsBaseCents = configuredNumber(val, DEFAULTS.logisticsBaseCents);
           break;
         case "logisticsPerGramCents":
-          cfg.logisticsPerGramCents = Number(val) || DEFAULTS.logisticsPerGramCents;
+          cfg.logisticsPerGramCents = configuredNumber(val, DEFAULTS.logisticsPerGramCents);
           break;
         case "localDeliveryCents":
-          cfg.localDeliveryCents = Number(val) || DEFAULTS.localDeliveryCents;
+          cfg.localDeliveryCents = configuredNumber(val, DEFAULTS.localDeliveryCents);
           break;
         case "customsFeePct":
-          cfg.customsFeePct = Number(val) || DEFAULTS.customsFeePct;
+          cfg.customsFeePct = configuredNumber(val, DEFAULTS.customsFeePct);
           break;
         case "customsFeeMinCents":
-          cfg.customsFeeMinCents = Number(val) || DEFAULTS.customsFeeMinCents;
+          cfg.customsFeeMinCents = configuredNumber(val, DEFAULTS.customsFeeMinCents);
           break;
         case "minimumMarginPct":
-          cfg.minimumMarginPct = Number(val) || DEFAULTS.minimumMarginPct;
+          cfg.minimumMarginPct = configuredNumber(val, DEFAULTS.minimumMarginPct);
           break;
         case "warningMarginPct":
-          cfg.warningMarginPct = Number(val) || DEFAULTS.warningMarginPct;
+          cfg.warningMarginPct = configuredNumber(val, DEFAULTS.warningMarginPct);
           break;
         case "roundToNearestCents":
-          cfg.roundToNearestCents = Number(val) || DEFAULTS.roundToNearestCents;
+          cfg.roundToNearestCents = configuredNumber(val, DEFAULTS.roundToNearestCents);
           break;
         case "estimatedCostPct":
-          cfg.estimatedCostPct = Number(val) || DEFAULTS.estimatedCostPct;
+          cfg.estimatedCostPct = configuredNumber(val, DEFAULTS.estimatedCostPct);
           break;
         case "deliveryByProvince":
           try {
@@ -111,6 +116,14 @@ export async function loadPricingConfig(): Promise<PricingConfig> {
           }
           break;
       }
+    }
+    // No modo manual, o painel apresenta o valor com o buffer como taxa efetiva.
+    // Aplicá-lo aqui mantém simulador, catálogo, resolução de links e pedidos iguais.
+    if (cfg.exchangeMode === "INFORMAL_MANUAL" && cfg.currencyBufferPct !== 0) {
+      const multiplier = 1 + cfg.currencyBufferPct / 100;
+      cfg.exchangeRateUsdToAoa = Math.round(cfg.exchangeRateUsdToAoa * multiplier);
+      cfg.exchangeRateEurToAoa = Math.round(cfg.exchangeRateEurToAoa * multiplier);
+      cfg.exchangeRateCnyToAoa = Math.round(cfg.exchangeRateCnyToAoa * multiplier);
     }
     return cfg;
   } catch {

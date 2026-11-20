@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import {
@@ -28,12 +28,11 @@ import type { NormalizedProduct } from "@/lib/types";
 import {
   clientCalculatePrice,
   formatCents,
-  getPricingConfig,
-  type ClientPricingConfig,
   type SupportedCurrency,
 } from "@/lib/pricing-client";
 import { cn } from "@/lib/utils";
 import { formatForeign } from "@/lib/money";
+import { usePricingConfig } from "@/hooks/usePricingConfig";
 
 export function ProductDetail({ product }: { product: NormalizedProduct }) {
   const router = useRouter();
@@ -45,13 +44,9 @@ export function ProductDetail({ product }: { product: NormalizedProduct }) {
   );
   const [quantity, setQuantity] = useState(1);
   const [activeImage, setActiveImage] = useState(0);
-  const [priceCfg, setPriceCfg] = useState<ClientPricingConfig | null>(null);
+  const priceCfg = usePricingConfig();
   const [adding, setAdding] = useState(false);
   const [liked, setLiked] = useState(false);
-
-  useEffect(() => {
-    getPricingConfig().then(setPriceCfg);
-  }, []);
 
   const variantsForColor = useMemo(() => {
     if (!selectedColor) return product.variants;

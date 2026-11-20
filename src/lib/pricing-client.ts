@@ -23,18 +23,32 @@ export interface ClientPricingConfig {
 }
 
 let cachedConfig: ClientPricingConfig | null = null;
+let cacheExpiresAt = 0;
 let cachePromise: Promise<ClientPricingConfig> | null = null;
+const CONFIG_CACHE_TTL_MS = 30_000;
 
 export async function getPricingConfig(): Promise<ClientPricingConfig> {
-  if (cachedConfig) return cachedConfig;
+  if (cachedConfig && Date.now() < cacheExpiresAt) return cachedConfig;
   if (cachePromise) return cachePromise;
-  cachePromise = fetch("/api/pricing/config", { next: { revalidate: 300 } })
-    .then((r) => r.json())
+  cachePromise = fetch("/api/pricing/config", { cache: "no-store" })
+    .then((r) => {
+      if (!r.ok) throw new Error("Não foi possível carregar a configuração de preços");
+      return r.json();
+    })
     .then((data) => {
       cachedConfig = data;
+      cacheExpiresAt = Date.now() + CONFIG_CACHE_TTL_MS;
       return data;
+    })
+    .finally(() => {
+      cachePromise = null;
     });
   return cachePromise;
+}
+
+export function refreshPricingConfig(): Promise<ClientPricingConfig> {
+  cacheExpiresAt = 0;
+  return getPricingConfig();
 }
 
 function roundToNearest(cents: number, nearest: number): number {

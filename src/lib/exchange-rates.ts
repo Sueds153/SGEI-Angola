@@ -155,24 +155,22 @@ export async function updateExchangeRatesInDb(): Promise<boolean> {
 }
 
 export async function getExchangeRates(): Promise<{ USD_TO_AOA: number; EUR_TO_AOA: number; CNY_TO_AOA: number; updatedAt: Date }> {
-  // Verifica cache primeiro
-  if (cachedRates && Date.now() - lastFetchTime < CACHE_TTL) {
-    return cachedRates;
-  }
-
   try {
     const config = await loadPricingConfig();
     
     // Se modo INFORMAL_MANUAL, usa SEMPRE a taxa do admin (não tenta APIs externas)
     if (config.exchangeMode === "INFORMAL_MANUAL") {
-      cachedRates = {
+      return {
         USD_TO_AOA: config.exchangeRateUsdToAoa,
         EUR_TO_AOA: config.exchangeRateEurToAoa,
         CNY_TO_AOA: config.exchangeRateCnyToAoa,
         updatedAt: new Date(),
       };
-      lastFetchTime = Date.now();
-      console.log('[ExchangeRates] Modo INFORMAL_MANUAL — usando taxas do painel admin');
+    }
+
+    // Cache só para o modo automático. No modo manual, cada instância da
+    // aplicação tem de reflectir imediatamente os valores guardados pelo admin.
+    if (cachedRates && Date.now() - lastFetchTime < CACHE_TTL) {
       return cachedRates;
     }
 

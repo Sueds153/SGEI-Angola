@@ -6,7 +6,14 @@ export const dynamic = "force-dynamic";
 
 export async function GET() {
   const cfg = await loadPricingConfig();
-  const liveRates = await getExchangeRates();
+  const liveRates = cfg.exchangeMode === "INFORMAL_MANUAL"
+    ? {
+        USD_TO_AOA: cfg.exchangeRateUsdToAoa,
+        EUR_TO_AOA: cfg.exchangeRateEurToAoa,
+        CNY_TO_AOA: cfg.exchangeRateCnyToAoa,
+        updatedAt: new Date(),
+      }
+    : await getExchangeRates();
 
   // Retorna taxas reais (com fallback para config do admin)
   return NextResponse.json({
@@ -25,5 +32,7 @@ export async function GET() {
     customsFeeMinCents: cfg.customsFeeMinCents,
     roundToNearestCents: cfg.roundToNearestCents,
     deliveryByProvince: cfg.deliveryByProvince || {},
+  }, {
+    headers: { "Cache-Control": "no-store, max-age=0" },
   });
 }

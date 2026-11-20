@@ -6,7 +6,7 @@ import { Link as LinkIcon, Loader2, ArrowRight, AlertCircle, CheckCircle2, Tag, 
 import { Button } from "@/components/ui/Button";
 import { cn } from "@/lib/utils";
 import { isValidHttpUrl } from "@/lib/utils";
-import { clientCalculatePrice, formatCents, getPricingConfig } from "@/lib/pricing-client";
+import { clientCalculatePrice, formatCents, refreshPricingConfig } from "@/lib/pricing-client";
 import { extractProductIdFromSheinUrl } from "@/lib/utils";
 
 type Variant = "light" | "dark" | "hero" | "hero-dark";
@@ -81,7 +81,7 @@ export function UrlResolverForm({ variant = "light" }: { variant?: Variant }) {
       const data = await res.json();
 
       if ((data.status === "found" || data.success) && (data.product || data.title)) {
-        const cfg = await getPricingConfig();
+        const cfg = await refreshPricingConfig();
         // Suporta resposta plana (title, price, images) e resposta aninhada (product.*)
         const productName = data.product?.name || data.title;
         const productPrice = data.product?.originalPriceUsd ?? data.price;

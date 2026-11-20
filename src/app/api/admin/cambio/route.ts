@@ -38,7 +38,7 @@ export async function GET() {
     usdRate: Number(cfg.exchangeRateUsdToAoa) || 920,
     eurRate: Number(cfg.exchangeRateEurToAoa) || 1050,
     cnyRate: Number(cfg.exchangeRateCnyToAoa) || 130,
-    currencyBufferPct: Number(cfg.currencyBufferPct) || 3,
+    currencyBufferPct: Number.isFinite(Number(cfg.currencyBufferPct)) ? Number(cfg.currencyBufferPct) : 3,
     exchangeMode: cfg.exchangeMode || "INFORMAL_MANUAL",
     updatedAt: cfg.exchangeRatesUpdatedAt || new Date().toISOString(),
     history,

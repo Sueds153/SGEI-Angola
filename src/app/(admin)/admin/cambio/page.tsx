@@ -29,7 +29,7 @@ export default async function AdminCambioPage() {
       initialUsd={Number(cfg.exchangeRateUsdToAoa) || 920}
       initialEur={Number(cfg.exchangeRateEurToAoa) || 1050}
       initialCny={Number(cfg.exchangeRateCnyToAoa) || 130}
-      initialBuffer={Number(cfg.currencyBufferPct) || 3}
+      initialBuffer={Number.isFinite(Number(cfg.currencyBufferPct)) ? Number(cfg.currencyBufferPct) : 3}
       initialMode={cfg.exchangeMode || "INFORMAL_MANUAL"}
       updatedAt={cfg.exchangeRatesUpdatedAt || new Date().toISOString()}
       historyLogs={history}

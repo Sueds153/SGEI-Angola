@@ -21,6 +21,9 @@ import Link from "next/link";
 import { useCart } from "@/context/CartContext";
 import { ResponsiveImage } from "@/components/ui/ResponsiveImage";
 import { formatKzAmount, formatForeign as formatForeignMoney } from "@/lib/money";
+import { clientCalculatePrice, convertToAoaCents } from "@/lib/pricing-client";
+import type { SupportedCurrency } from "@/lib/pricing-client";
+import { usePricingConfig } from "@/hooks/usePricingConfig";
 
 interface SimulationResult {
   success: boolean;
@@ -298,26 +301,42 @@ function SimulationResultCard({
   onNewSimulation: () => void;
 }) {
   const { addItem } = useCart();
+  const pricingConfig = usePricingConfig();
   const [customPrice, setCustomPrice] = useState<number>(result.price || 15);
 
   const activePrice = result.price && result.price > 0 ? result.price : customPrice;
   const currency = result.currency || (result.platform === "Vinted" ? "EUR" : "USD");
-  const exchangeRate = result.exchangeRate || 920;
+  const exchangeRate = currency === "EUR"
+    ? pricingConfig?.exchangeRateEurToAoa
+    : pricingConfig?.exchangeRateUsdToAoa;
   const isVinted = result.platform === "Vinted" || result.hasBuyerProtection;
 
   // Lógica da Taxa de Proteção do Comprador Vinted:
   // Fórmula oficial Vinted: 0,70 € + 5% do preço do artigo anunciado
   const buyerProtectionEur = isVinted ? Number((0.70 + activePrice * 0.05).toFixed(2)) : 0;
-  const buyerProtectionKz = isVinted ? Math.round(buyerProtectionEur * exchangeRate) : 0;
   const effectivePurchasePrice = isVinted ? Number((activePrice + buyerProtectionEur).toFixed(2)) : activePrice;
 
-  // Cálculo cambial transparente em Kwanzas sobre o custo real de compra
-  const baseArticleKz = Math.round(activePrice * exchangeRate);
-  const totalPurchaseKz = Math.round(effectivePurchasePrice * exchangeRate);
-  const serviceFeeKz = Math.max(1500, Math.round(totalPurchaseKz * 0.12));
-  const logisticsFeeKz = 2500;
-  const deliveryFeeKz = 1000;
-  const totalAOA = totalPurchaseKz + serviceFeeKz + logisticsFeeKz + deliveryFeeKz;
+  const currencyCode = currency as SupportedCurrency;
+  const baseArticleKz = pricingConfig
+    ? convertToAoaCents(activePrice, currencyCode, pricingConfig) / 100
+    : Math.round(activePrice * (exchangeRate || result.exchangeRate || 920));
+  const totalPurchaseKz = pricingConfig
+    ? convertToAoaCents(effectivePurchasePrice, currencyCode, pricingConfig) / 100
+    : Math.round(effectivePurchasePrice * (exchangeRate || result.exchangeRate || 920));
+  const pricingBreakdown = pricingConfig
+    ? clientCalculatePrice({ productPrice: effectivePurchasePrice, productCurrency: currencyCode }, pricingConfig)
+    : null;
+  const serviceFeeKz = pricingBreakdown
+    ? pricingBreakdown.serviceFeeCents / 100
+    : Math.max(1500, Math.round(totalPurchaseKz * 0.12));
+  const logisticsFeeKz = pricingBreakdown
+    ? (pricingBreakdown.logisticsFeeCents + pricingBreakdown.customsFeeCents) / 100
+    : 2500;
+  const deliveryFeeKz = pricingBreakdown ? pricingBreakdown.deliveryFeeCents / 100 : 1000;
+  const buyerProtectionKz = isVinted ? totalPurchaseKz - baseArticleKz : 0;
+  const totalAOA = pricingBreakdown
+    ? pricingBreakdown.totalCents / 100
+    : totalPurchaseKz + serviceFeeKz + logisticsFeeKz + deliveryFeeKz;
 
   const formatAOA = (val: number) => formatKzAmount(val);
   const formatForeign = (val: number, cur: string) => formatForeignMoney(val, cur);

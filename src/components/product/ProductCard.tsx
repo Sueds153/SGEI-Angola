@@ -4,10 +4,11 @@ import Link from "next/link";
 import Image from "next/image";
 import { ShoppingBag, Tag } from "lucide-react";
 import type { NormalizedProduct } from "@/lib/types";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Skeleton } from "@/components/ui";
 import { cn } from "@/lib/utils";
-import { clientCalculatePrice, formatCents, getPricingConfig } from "@/lib/pricing-client";
+import { clientCalculatePrice, formatCents } from "@/lib/pricing-client";
+import { usePricingConfig } from "@/hooks/usePricingConfig";
 
 interface ProductCardProps {
   product: NormalizedProduct;
@@ -15,9 +16,8 @@ interface ProductCardProps {
 }
 
 export function ProductCard({ product, compact }: ProductCardProps) {
-  const [totalCents, setTotalCents] = useState<number | null>(null);
-  const [loading, setLoading] = useState(true);
   const [imageError, setImageError] = useState(false);
+  const cfg = usePricingConfig();
 
   // Ensure product has required fields
   const safeProduct = {
@@ -31,37 +31,18 @@ export function ProductCard({ product, compact }: ProductCardProps) {
   const currency = (safeProduct as any).originalCurrency || safeProduct.currency || "USD";
   const weightGrams = safeProduct.weightGrams;
 
-  useEffect(() => {
-    let alive = true;
-    (async () => {
-      // Usa originalPriceUsd (que agora contém o preço na moeda original) e currency
-      if (price == null) {
-        if (alive) {
-          setLoading(false);
-          setTotalCents(null);
-        }
-        return;
-      }
-      try {
-        const cfg = await getPricingConfig();
-        const res = clientCalculatePrice(
-          { 
-            productPrice: price, 
-            productCurrency: currency as "USD" | "EUR" | "CNY" | "AOA",
-            quantity: 1, 
-            weightGrams
-          },
-          cfg
-        );
-        if (alive) setTotalCents(res.totalCents);
-      } catch {
-        if (alive) setTotalCents(null);
-      } finally {
-        if (alive) setLoading(false);
-      }
-    })();
-    return () => { alive = false; };
-  }, [price, currency, weightGrams]);
+  const loading = price != null && cfg == null;
+  const totalCents = price == null || !cfg
+    ? null
+    : clientCalculatePrice(
+      {
+        productPrice: price,
+        productCurrency: currency as "USD" | "EUR" | "CNY" | "AOA",
+        quantity: 1,
+        weightGrams,
+      },
+      cfg
+    ).totalCents;
 
   const image = safeProduct.defaultImage || safeProduct.images?.[0];
   const colors = Array.from(

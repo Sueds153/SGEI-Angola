@@ -1,6 +1,8 @@
 "use client";
 
-import React, { createContext, useContext, useState, useEffect } from "react";
+import React, { createContext, useContext, useMemo, useState, useEffect } from "react";
+import { clientCalculatePrice } from "@/lib/pricing-client";
+import { usePricingConfig } from "@/hooks/usePricingConfig";
 
 export interface CartItem {
   id: string; // ID único (timestamp ou hash)
@@ -38,6 +40,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   const [items, setItems] = useState<CartItem[]>([]);
   const [isOpen, setIsOpen] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
+  const pricingConfig = usePricingConfig();
 
   // Carrega do localStorage no cliente
   useEffect(() => {
@@ -56,16 +59,32 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     return () => window.clearTimeout(loadCart);
   }, []);
 
+  const pricedItems = useMemo(() => {
+    if (!pricingConfig) return items;
+    return items.map((item) => {
+      const pricing = clientCalculatePrice(
+        {
+          productPrice: item.priceUsd || 0,
+          productCurrency: (item.originalCurrency || "USD") as "USD" | "EUR" | "CNY" | "AOA",
+          quantity: 1,
+        },
+        pricingConfig
+      );
+      const priceKz = pricing.totalCents / 100;
+      return priceKz === item.priceKz ? item : { ...item, priceKz };
+    });
+  }, [items, pricingConfig]);
+
   // Salva no localStorage sempre que mudar
   useEffect(() => {
     if (isLoaded) {
       try {
-        localStorage.setItem("importeasy_cart", JSON.stringify(items));
+        localStorage.setItem("importeasy_cart", JSON.stringify(pricedItems));
       } catch (e) {
         console.error("Erro ao salvar carrinho:", e);
       }
     }
-  }, [items, isLoaded]);
+  }, [pricedItems, isLoaded]);
 
   const addItem = (item: Omit<CartItem, "id">) => {
     const newItem: CartItem = {
@@ -95,15 +114,15 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     setItems([]);
   };
 
-  const totalKz = items.reduce((acc, i) => acc + i.priceKz * i.quantity, 0);
-  const totalUsd = items.reduce((acc, i) => acc + (i.priceUsd || 0) * i.quantity, 0);
-  const itemCount = items.reduce((acc, i) => acc + i.quantity, 0);
+  const totalKz = pricedItems.reduce((acc, i) => acc + i.priceKz * i.quantity, 0);
+  const totalUsd = pricedItems.reduce((acc, i) => acc + (i.priceUsd || 0) * i.quantity, 0);
+  const itemCount = pricedItems.reduce((acc, i) => acc + i.quantity, 0);
   const freightSavedKz = itemCount > 0 ? FREIGHT_PER_ORDER_SAVED_KZ : 0;
 
   return (
     <CartContext.Provider
       value={{
-        items,
+        items: pricedItems,
         addItem,
         removeItem,
         updateQuantity,

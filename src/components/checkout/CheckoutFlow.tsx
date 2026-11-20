@@ -23,17 +23,15 @@ import type { NormalizedProduct, NormalizedVariant, PaymentMethod } from "@/lib/
 import {
   clientCalculatePrice,
   formatCents,
-  getPricingConfig,
-  type ClientPricingConfig,
   type SupportedCurrency,
 } from "@/lib/pricing-client";
 import { PROVINCES_OF_ANGOLA, PAYMENT_METHOD_LABELS } from "@/lib/types";
 import { formatNumber, formatKzAmount } from "@/lib/money";
 import Link from "next/link";
-import { useEffect } from "react";
 import { PaymentProofUpload } from "@/components/order/PaymentProofUpload";
 import { useCart } from "@/context/CartContext";
 import { useAdaptiveIntelligence } from "@/context/AdaptiveIntelligenceContext";
+import { usePricingConfig } from "@/hooks/usePricingConfig";
 
 type Step = 1 | 2 | 3 | 4;
 
@@ -59,7 +57,7 @@ export function CheckoutFlow({ prefill }: { prefill: Prefill | null }) {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [createdRef, setCreatedRef] = useState<string | null>(null);
-  const [cfg, setCfg] = useState<ClientPricingConfig | null>(null);
+  const cfg = usePricingConfig();
 
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -79,10 +77,6 @@ export function CheckoutFlow({ prefill }: { prefill: Prefill | null }) {
   const [productCurrency, setProductCurrency] = useState<string>("USD");
 
   const isCartCheckout = prefill?.type !== "product" && cartItems.length > 0;
-
-  useEffect(() => {
-    getPricingConfig().then(setCfg);
-  }, []);
 
   const catalogPricing = useMemo(() => {
     if (!cfg || !prefill || prefill.type !== "product") return null;
