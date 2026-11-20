@@ -103,5 +103,16 @@ export function extractProductId(url: string): { platform: string; id: string } 
  */
 export function isSupportedPlatform(url: string): string | null {
   const result = extractProductId(url);
-  return result?.platform || null;
+  if (result?.platform) return result.platform;
+
+  // Links de partilha da app SHEIN guardam o ID do artigo no deeplink da
+  // página, não no URL visível. Reconhecemos o domínio para o resolver poder
+  // ler esse ID antes de decidir se a loja é suportada.
+  try {
+    if (new URL(url).hostname.toLowerCase() === "onelink.shein.com") return "shein";
+  } catch {
+    // URL inválido: mantém o resultado como não suportado.
+  }
+
+  return null;
 }

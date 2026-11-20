@@ -63,6 +63,12 @@ export interface RobustResolveResult {
   vintedTotalPrice?: number;
 }
 
+interface SheinShareLinkDetails {
+  productId: string;
+  title: string;
+  image: string | null;
+}
+
 // Cache de resoluções falhadas para evitar retry loops
 const failedResolutionCache = new Map<string, { timestamp: number; error: string; attempts: number }>();
 const FAILED_CACHE_TTL = 1000 * 60 * 15; // 15 min
@@ -95,6 +101,99 @@ function getCachedFailure(url: string): { error: string; attempts: number } | nu
   }
   if (cached) failedResolutionCache.delete(url);
   return null;
+}
+
+function decodeHtmlText(value: string): string {
+  return value
+    .replace(/&amp;/g, "&")
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;|&apos;/g, "'")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/&#(\d+);/g, (_match, code: string) => String.fromCodePoint(Number(code)))
+    .replace(/&#x([\da-f]+);/gi, (_match, code: string) => String.fromCodePoint(parseInt(code, 16)))
+    .trim();
+}
+
+function getMetaContent(html: string, property: string): string | null {
+  const metaTags = html.match(/<meta\b[^>]*>/gi) || [];
+  for (const tag of metaTags) {
+    const propertyMatch = tag.match(/\b(?:property|name)=["']([^"']+)["']/i);
+    if (propertyMatch?.[1]?.toLowerCase() !== property.toLowerCase()) continue;
+    const content = tag.match(/\bcontent=["']([^"']*)["']/i)?.[1];
+    if (content) return decodeHtmlText(content);
+  }
+  return null;
+}
+
+/** Lê a página de partilha da SHEIN, onde a app embute o ID no deeplink. */
+async function resolveSheinShareLink(url: string): Promise<SheinShareLinkDetails | null> {
+  let parsedUrl: URL;
+  try {
+    parsedUrl = new URL(url);
+  } catch {
+    return null;
+  }
+
+  // Não fazemos fetch a URLs arbitrários nem seguimos redirects do link curto.
+  if (parsedUrl.protocol !== "https:" || parsedUrl.hostname.toLowerCase() !== "onelink.shein.com") {
+    return null;
+  }
+
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 8000);
+  try {
+    const response = await fetch(parsedUrl, {
+      headers: {
+        "User-Agent": getRandomUserAgent(),
+        Accept: "text/html,application/xhtml+xml",
+      },
+      redirect: "error",
+      signal: controller.signal,
+    });
+    if (!response.ok) return null;
+
+    const html = await response.text();
+    const deeplinkTag = (html.match(/<input\b(?=[^>]*\bid=["']deeplink["'])[^>]*>/i) || [])[0];
+    const deeplink = deeplinkTag?.match(/\bvalue=["']([^"']+)["']/i)?.[1];
+    const encodedData = deeplink?.match(/[?&]data=([^&]+)/i)?.[1];
+    if (!encodedData) return null;
+
+    let payload: unknown;
+    try {
+      payload = JSON.parse(decodeURIComponent(encodedData));
+    } catch {
+      return null;
+    }
+    const productId = (payload as { goods_id?: unknown } | null)?.goods_id;
+    if (typeof productId !== "string" || !/^\d{6,}$/.test(productId)) return null;
+
+    const rawTitle = getMetaContent(html, "og:title") ||
+      decodeHtmlText(html.match(/<title[^>]*>([\s\S]*?)<\/title>/i)?.[1] || "");
+    const title = rawTitle.replace(/\s*[-|–]\s*SHEIN.*$/i, "").trim();
+
+    const rawImage = getMetaContent(html, "og:image");
+    let image: string | null = null;
+    if (rawImage) {
+      try {
+        const imageUrl = new URL(rawImage.startsWith("//") ? `https:${rawImage}` : rawImage);
+        if ((imageUrl.protocol === "https:" || imageUrl.protocol === "http:") &&
+          (imageUrl.hostname === "ltwebstatic.com" || imageUrl.hostname.endsWith(".ltwebstatic.com"))) {
+          imageUrl.protocol = "https:";
+          image = imageUrl.toString();
+        }
+      } catch {
+        image = null;
+      }
+    }
+
+    return { productId, title, image };
+  } catch (error) {
+    console.warn("[RobustResolver] SHEIN share link could not be resolved:", error instanceof Error ? error.message : "Unknown error");
+    return null;
+  } finally {
+    clearTimeout(timeout);
+  }
 }
 
 function recordFailure(url: string, error: string): void {
@@ -517,6 +616,36 @@ export async function robustResolveProductUrl(rawInput: string): Promise<RobustR
       errorCode: "MAX_RETRIES_EXCEEDED",
       requiresManualReview: true,
       reviewReason: `Exceeded ${MAX_RETRIES_PER_URL} retries`,
+    };
+  }
+
+  // Links one-link da app SHEIN não incluem o ID no URL visível. O ID, título
+  // e imagem vêm da página HTTPS oficial da partilha; sem preço nessa página,
+  // pedimos o valor manualmente em vez de rejeitar o link ou inventar um preço.
+  const shareLinkStartedAt = Date.now();
+  const sheinShareDetails = await resolveSheinShareLink(url);
+  if (sheinShareDetails) {
+    const catalogLookupUrl = new URL(url);
+    catalogLookupUrl.searchParams.set("goods_sn", sheinShareDetails.productId);
+    const catalogResult = await tryInternalCatalog(catalogLookupUrl.toString());
+    if (catalogResult) {
+      return { ...catalogResult, sourceUrl: url };
+    }
+
+    const manualResult = createManualPriceFallback(
+      url,
+      "SHEIN",
+      "A página de partilha não disponibiliza o preço do artigo.",
+      [{ method: "shein_share_link", success: true, durationMs: Date.now() - shareLinkStartedAt }]
+    );
+    return {
+      ...manualResult,
+      productId: sheinShareDetails.productId,
+      externalId: sheinShareDetails.productId,
+      title: sheinShareDetails.title || manualResult.title,
+      images: sheinShareDetails.image ? [sheinShareDetails.image] : [],
+      defaultImage: sheinShareDetails.image || undefined,
+      error: "Artigo SHEIN identificado. A partilha não contém o preço; indique o valor que vê na loja.",
     };
   }
   
