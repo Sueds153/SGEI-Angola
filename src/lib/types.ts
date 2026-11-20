@@ -46,6 +46,8 @@ export interface NormalizedProduct {
   verifiedSupplier?: boolean | null;
   freeShipping?: boolean | null;
   batteryHealth?: string | null;
+  /** Data de publicação confirmada pela loja de origem; não é a data de recolha. */
+  publishedAt?: Date | string | null;
 }
 
 export interface NormalizedVariant {

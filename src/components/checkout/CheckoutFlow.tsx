@@ -633,7 +633,9 @@ function Step3(props: any) {
 
       <div className="mt-5 rounded-2xl bg-ink-50 px-4 py-3 text-[13px] text-ink-700 flex gap-2">
         <AlertTriangle className="h-4 w-4 text-warning-600 flex-shrink-0 mt-0.5" />
-        Ao confirmar, o pedido fica registado com referência única. O pagamento só será confirmado pela nossa equipa.
+        <span>
+          Antes de confirmar, verifica na loja de origem o artigo, a cor/tamanho, a disponibilidade e o preço actual. Ao confirmar, o pedido fica registado com referência única; o pagamento só será confirmado pela nossa equipa.
+        </span>
       </div>
 
       <div className="mt-6 flex flex-col-reverse sm:flex-row justify-between gap-2">
