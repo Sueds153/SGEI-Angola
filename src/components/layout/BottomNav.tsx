@@ -65,7 +65,7 @@ export function BottomNav() {
                 href={item.href}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex flex-col items-center justify-center min-h-12 w-full border-t-2 border-transparent py-1 px-1 text-ink-500 hover:text-ink-900 transition-colors"
+                className="active:scale-[0.98] flex flex-col items-center justify-center min-h-12 w-full border-t-2 border-transparent py-1 px-1 text-ink-500 hover:text-ink-900 transition-[color,transform] duration-150"
               >
                 <Icon className="w-5 h-5 text-ink-600" />
                 <span className="text-[10px] font-medium mt-1 text-ink-600">
@@ -80,7 +80,7 @@ export function BottomNav() {
               key={item.label}
               href={item.href}
               className={cn(
-                "flex flex-col items-center justify-center min-h-12 w-full border-t-2 py-1 px-1 transition-colors",
+                "active:scale-[0.98] flex flex-col items-center justify-center min-h-12 w-full border-t-2 py-1 px-1 transition-[color,transform] duration-150",
                 item.active
                   ? "border-brand-600 text-brand-700"
                   : item.highlight

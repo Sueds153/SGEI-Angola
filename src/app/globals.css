@@ -205,11 +205,38 @@ h1, h2, h3, h4, h5, h6 {
   from { transform: translateX(60px); opacity: 0; }
   to { transform: translateX(0); opacity: 1; }
 }
+@keyframes interface-enter {
+  from { opacity: 0; transform: translateY(12px); filter: blur(3px); }
+  to { opacity: 1; transform: translateY(0); filter: blur(0); }
+}
+@keyframes result-enter {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes drawer-enter {
+  from { opacity: 0; transform: translateX(24px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+@keyframes journey-step-enter {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
 
 .animate-fade-in { animation: fadeIn 0.4s var(--ease-out) both; }
 .animate-slide-up { animation: slideUp 0.6s var(--ease-out) both; }
 .animate-slide-down { animation: slideDown 0.3s var(--ease-out) both; }
 .animate-scale-in { animation: scaleIn 0.3s var(--ease-out) both; }
+.motion-enter { animation: interface-enter 560ms cubic-bezier(0.22, 1, 0.36, 1) both; }
+.motion-enter-1 { animation-delay: 70ms; }
+.motion-enter-2 { animation-delay: 150ms; }
+.motion-enter-3 { animation-delay: 230ms; }
+.animate-result-enter { animation: result-enter 320ms cubic-bezier(0.22, 1, 0.36, 1) both; }
+.animate-cart-overlay { animation: fadeIn 180ms ease-out both; }
+.animate-cart-drawer { animation: drawer-enter 280ms cubic-bezier(0.32, 0.72, 0, 1) both; }
+.journey-sequence.is-visible .journey-step { animation: journey-step-enter 420ms cubic-bezier(0.22, 1, 0.36, 1) both; }
+.journey-sequence.is-visible .journey-step:nth-child(2) { animation-delay: 90ms; }
+.journey-sequence.is-visible .journey-step:nth-child(3) { animation-delay: 180ms; }
+.product-image-enter { animation: result-enter 180ms ease-out both; }
 
 .skeleton {
   background: linear-gradient(
@@ -493,6 +520,9 @@ p { overflow-wrap: break-word; }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: 0.01ms !important;
+    animation-delay: 0.01ms !important;
+    animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
+  html { scroll-behavior: auto !important; }
 }

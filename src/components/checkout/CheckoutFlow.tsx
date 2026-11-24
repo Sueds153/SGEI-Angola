@@ -484,7 +484,7 @@ function Step1(props: any) {
       <div className="mt-8 flex flex-col-reverse sm:flex-row sm:justify-between gap-2">
         <Button variant="secondary" size="lg" onClick={props.onBack} className="sm:w-auto w-full">Voltar</Button>
         <Button size="lg" onClick={props.onNext} className="sm:w-auto w-full">
-          Continuar <ChevronRight className="h-4 w-4" />
+          Continuar para entrega <ChevronRight className="h-4 w-4" />
         </Button>
       </div>
     </div>
@@ -514,7 +514,7 @@ function Step2(props: any) {
       <div className="mt-8 flex flex-col-reverse sm:flex-row justify-between gap-2">
         <Button variant="secondary" size="lg" onClick={props.onBack} className="sm:w-auto w-full">Voltar</Button>
         <Button size="lg" onClick={props.onNext} className="sm:w-auto w-full">
-          Continuar <ChevronRight className="h-4 w-4" />
+          Ver opções de pagamento <ChevronRight className="h-4 w-4" />
         </Button>
       </div>
     </div>
@@ -641,7 +641,7 @@ function Step3(props: any) {
       <div className="mt-6 flex flex-col-reverse sm:flex-row justify-between gap-2">
         <Button variant="secondary" size="lg" onClick={props.onBack} disabled={props.submitting} className="sm:w-auto w-full">Voltar</Button>
         <Button size="lg" onClick={props.onSubmit} loading={props.submitting} disabled={!props.canSubmit} className="sm:w-auto w-full">
-          {props.submitting ? "A criar…" : "Confirmar pedido"}
+          {props.submitting ? "A criar…" : "Registar pedido"}
         </Button>
       </div>
     </div>

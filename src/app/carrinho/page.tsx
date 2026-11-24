@@ -168,11 +168,11 @@ export default function CarrinhoPage() {
                   onClick={handleAdvanceToCheckout}
                   className="w-full py-4 px-4 rounded-lg bg-brand-600 hover:bg-brand-700 text-white font-semibold text-sm flex items-center justify-center gap-2 transition-colors cursor-pointer"
                 >
-                  Continuar para confirmação <ArrowRight className="w-4 h-4" />
+                  Rever pedido e continuar <ArrowRight className="w-4 h-4" />
                 </button>
 
                 <div className="p-3 bg-ink-50 text-xs text-ink-600 space-y-1">
-                  <p className="font-semibold text-ink-800">O valor final será confirmado</p>
+                  <p className="font-semibold text-ink-800">Confirmas o valor final antes de pagar</p>
                   <p>A disponibilidade, os custos de entrega e as condições do pedido são confirmados antes do pagamento.</p>
                 </div>
               </div>

@@ -120,13 +120,14 @@ export function ProductDetail({ product }: { product: NormalizedProduct }) {
         <div className="relative aspect-square md:aspect-[4/5] rounded-[24px] overflow-hidden bg-ink-100">
           {product.images && product.images.length > 0 ? (
             <Image
+              key={product.images[activeImage]}
               src={product.images[activeImage]}
               alt={product.name}
               fill
               sizes="(max-width: 1024px) 100vw, 55vw"
               priority
               unoptimized={!product.images[activeImage].startsWith("/")}
-              className="object-cover"
+              className="object-cover product-image-enter"
             />
           ) : (
             <div className="w-full h-full grid place-items-center text-ink-400">
@@ -351,7 +352,7 @@ export function ProductDetail({ product }: { product: NormalizedProduct }) {
               loading={adding}
             >
               <ShoppingBag className="h-5 w-5" />
-              Fazer pedido
+              Encomendar este artigo
             </Button>
             <a
               href={`https://wa.me/244922058136?text=${encodeURIComponent(
@@ -367,6 +368,9 @@ export function ProductDetail({ product }: { product: NormalizedProduct }) {
               </Button>
             </a>
           </div>
+          <p className="mt-2 text-xs text-ink-600">
+            Revê a variante, a entrega e o valor final antes de confirmares o pedido.
+          </p>
           <div className="mt-8 grid grid-cols-2 gap-4 text-sm">
             <InfoLine icon={<Truck className="h-4 w-4" />} text="Entrega em 15–25 dias úteis" />
             <InfoLine icon={<Shield className="h-4 w-4" />} text="Pagamento seguro em Kwanzas" />

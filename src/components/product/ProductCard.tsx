@@ -62,7 +62,7 @@ export function ProductCard({ product, compact }: ProductCardProps) {
   return (
     <Link
       href={`/produto/${product.slug}`}
-      className="group block"
+      className="group block transition-transform duration-150 active:scale-[0.99]"
     >
       <div className={cn("relative bg-ink-100 rounded-md overflow-hidden aspect-[3/4] sm:aspect-[4/5]", compact && "aspect-[3/4] sm:aspect-[4/5]")}>
         {image && !imageError ? (

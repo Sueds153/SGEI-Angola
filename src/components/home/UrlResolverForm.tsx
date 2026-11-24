@@ -183,8 +183,8 @@ export function UrlResolverForm({ variant = "light" }: { variant?: Variant }) {
               <Loader2 className="h-4 w-4 animate-spin" />
             ) : (
               <>
-                <span className="hidden sm:inline">Calcular</span>
-                <span className="sm:hidden">Ir</span>
+                <span className="hidden sm:inline">Ver estimativa</span>
+                <span className="sm:hidden">Ver preço</span>
                 <ArrowRight className="h-4 w-4 hidden sm:inline" />
               </>
             )}
@@ -343,7 +343,7 @@ export function UrlResolverForm({ variant = "light" }: { variant?: Variant }) {
               )}
               <div className="mt-3">
                 <Button size="sm" variant="primary" onClick={goToProduct} type="button">
-                  Ver produto
+                  Ver artigo e preço
                 </Button>
               </div>
             </div>

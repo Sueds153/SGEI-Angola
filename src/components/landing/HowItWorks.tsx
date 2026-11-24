@@ -2,6 +2,7 @@
 
 import { ArrowRight } from "lucide-react";
 import Link from "next/link";
+import { useEffect, useRef, useState } from "react";
 
 const steps = [
   {
@@ -22,6 +23,25 @@ const steps = [
 ];
 
 export default function HowItWorks() {
+  const stepsRef = useRef<HTMLOListElement>(null);
+  const [stepsVisible, setStepsVisible] = useState(false);
+
+  useEffect(() => {
+    const element = stepsRef.current;
+    if (!element) return;
+    if (!("IntersectionObserver" in window)) return;
+
+    const observer = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting) {
+        setStepsVisible(true);
+        observer.disconnect();
+      }
+    }, { threshold: 0.25 });
+
+    observer.observe(element);
+    return () => observer.disconnect();
+  }, []);
+
   return (
     <section className="py-12 sm:py-16 bg-white border-t border-ink-100" aria-labelledby="how-it-works-title">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -35,13 +55,16 @@ export default function HowItWorks() {
           </p>
         </div>
 
-        {/* 3 Passos em Cartões Limpos */}
-        <ol className="grid grid-cols-1 md:grid-cols-3 gap-0 border-y border-ink-200">
+        {/* A sequência só se anima quando entra no campo de visão */}
+        <ol
+          ref={stepsRef}
+          className={`journey-sequence grid grid-cols-1 md:grid-cols-3 gap-0 border-y border-ink-200${stepsVisible ? " is-visible" : ""}`}
+        >
           {steps.map((step) => {
             return (
               <li
                 key={step.number}
-                className="py-5 sm:py-6 md:px-6 first:md:pl-0 md:border-l md:border-ink-200 first:border-0 flex items-start gap-4 sm:gap-5"
+                className="journey-step py-5 sm:py-6 md:px-6 first:md:pl-0 md:border-l md:border-ink-200 first:border-0 flex items-start gap-4 sm:gap-5"
               >
                 <div className="text-2xl sm:text-3xl font-light tracking-tight text-brand-600 shrink-0 tabular-nums">
                   0{step.number}

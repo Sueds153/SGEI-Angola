@@ -55,7 +55,7 @@ export function CartDrawer() {
   };
 
   return (
-    <div className="fixed inset-0 z-50 overflow-hidden animate-fade-in">
+    <div className="fixed inset-0 z-50 overflow-hidden animate-cart-overlay">
       {/* Backdrop escuro */}
       <div
         className="absolute inset-0 bg-ink-950/60 backdrop-blur-sm transition-opacity"
@@ -70,7 +70,7 @@ export function CartDrawer() {
           aria-modal="true"
           aria-labelledby="cart-drawer-title"
           tabIndex={-1}
-          className="w-screen max-w-md bg-white shadow-2xl flex flex-col"
+          className="w-screen max-w-md bg-white shadow-2xl flex flex-col animate-cart-drawer"
         >
           <div className="p-4 sm:p-5 border-b border-ink-200 bg-white text-ink-900 flex items-center justify-between">
             <div className="flex items-center gap-2.5">
@@ -208,7 +208,7 @@ export function CartDrawer() {
               <div className="flex items-baseline justify-between pt-1">
                 <div>
                   <span className="text-sm text-ink-700 font-semibold">Estimativa dos artigos</span>
-                  <p className="text-xs text-ink-500 mt-1">Entrega e condições confirmadas antes do pagamento</p>
+                  <p className="text-xs text-ink-500 mt-1">Confirmas entrega e valor final antes de pagar</p>
                 </div>
                 <span className="text-xl font-semibold text-ink-950 tabular-nums">
                   {formatKzAmount(totalKz)}
@@ -221,7 +221,7 @@ export function CartDrawer() {
                   onClick={handleCheckout}
                   className="w-full py-3.5 px-4 rounded-lg bg-brand-600 hover:bg-brand-700 text-white font-semibold text-sm flex items-center justify-center gap-2 transition-colors cursor-pointer"
                 >
-                  Continuar para confirmação <ArrowRight className="w-4 h-4" />
+                  Rever pedido e continuar <ArrowRight className="w-4 h-4" />
                 </button>
 
                 <div className="flex gap-2">

@@ -46,19 +46,19 @@ export default function Hero() {
     <section className="relative bg-white pt-8 pb-10 sm:pt-14 sm:pb-16 border-b border-ink-100">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Título Principal — Direto e Humano */}
-        <div className="max-w-3xl mb-7 sm:mb-9">
-          <p className="text-xs font-semibold tracking-[0.14em] uppercase text-ink-500 mb-3">Importação simples para Angola</p>
-          <h1 className="text-[2.35rem] sm:text-6xl font-semibold text-ink-950 tracking-[-0.045em] leading-[1.02] mb-4 text-balance">
-            O que encontras lá fora,
-            <span className="block text-brand-600">recebes em Angola.</span>
+        <div className="max-w-3xl mb-6 sm:mb-9">
+          <p className="text-xs font-semibold tracking-[0.14em] uppercase text-ink-500 mb-3 motion-enter motion-enter-1">Importação simples para Angola</p>
+          <h1 className="text-[2rem] sm:text-6xl font-semibold text-ink-950 tracking-[-0.04em] leading-[1.05] mb-3 sm:mb-4 text-balance motion-enter motion-enter-2">
+            Compra lá fora.
+            <span className="block text-brand-600">Recebe em Angola.</span>
           </h1>
-          <p className="text-sm sm:text-base text-ink-600 max-w-2xl leading-relaxed">
+          <p className="text-sm sm:text-base text-ink-600 max-w-2xl leading-relaxed motion-enter motion-enter-3">
             Sem cartão internacional. Paga em Kwanzas por Multicaixa Express ou referência bancária e nós tratamos de comprar, desalfandegar e entregar.
           </p>
         </div>
 
         {/* Card do Simulador Mobile First */}
-        <div className="bg-white rounded-xl p-3 sm:p-5 border border-ink-200 max-w-3xl">
+        <div className="bg-white rounded-xl p-3 sm:p-5 border border-ink-200 max-w-3xl motion-enter motion-enter-3">
           <form onSubmit={handleSimulate} className="flex flex-col gap-2.5">
             <label htmlFor="hero-product-url" className="sr-only">
               Link do produto que pretende importar
@@ -79,17 +79,20 @@ export default function Hero() {
                 title="Colar da área de transferência"
               >
                 {copied ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Clipboard className="w-3.5 h-3.5 text-ink-500" />}
-                <span>{copied ? "Colado!" : "Colar"}</span>
+                <span aria-live="polite" aria-atomic="true">{copied ? "Copiado" : "Colar"}</span>
               </button>
             </div>
 
             <button
               type="submit"
-              className="w-full py-3.5 px-6 rounded-lg bg-brand-600 hover:bg-brand-700 active:bg-brand-800 text-white font-semibold text-sm sm:text-base flex items-center justify-center gap-2 transition-colors cursor-pointer"
+                className="w-full py-3.5 px-6 rounded-lg bg-brand-600 hover:bg-brand-700 active:bg-brand-800 active:scale-[0.99] text-white font-semibold text-sm sm:text-base flex items-center justify-center gap-2 transition-[background-color,transform] duration-150 cursor-pointer"
             >
-              <span>Simular Preço em Kwanzas</span>
+              <span>Ver estimativa em Kz</span>
               <ArrowRight className="w-4 h-4" />
             </button>
+            <p className="text-center text-xs text-ink-600">
+              Confirmas o valor final e as condições antes de pagar.
+            </p>
           </form>
 
           {/* Lojas disponíveis */}
