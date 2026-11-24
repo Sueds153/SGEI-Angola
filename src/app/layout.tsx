@@ -7,7 +7,6 @@ import { Footer } from "@/components/layout/Footer";
 import { BottomNav } from "@/components/layout/BottomNav";
 import { CartProvider } from "@/context/CartContext";
 import { CartDrawer } from "@/components/cart/CartDrawer";
-import { FloatingWhatsApp } from "@/components/common/FloatingWhatsApp";
 import { AdaptiveIntelligenceProvider } from "@/context/AdaptiveIntelligenceContext";
 
 export const metadata: Metadata = {
@@ -57,7 +56,6 @@ export default function RootLayout({ children }: { children: ReactNode }) {
               <Footer />
               <CartDrawer />
               <BottomNav />
-              <FloatingWhatsApp />
             </Sentry.ErrorBoundary>
           </CartProvider>
         </AdaptiveIntelligenceProvider>

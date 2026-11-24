@@ -2,9 +2,8 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { MessageCircle, Mail, MapPin, Phone, Send, Shield, Truck, CreditCard } from "lucide-react";
+import { MessageCircle, Mail, MapPin, Phone } from "lucide-react";
 import { Logo } from "@/components/brand/Logo";
-import { Marquee } from "@/components/motion";
 
 export function Footer() {
   const pathname = usePathname();
@@ -12,31 +11,12 @@ export function Footer() {
 
   return (
     <footer className="mt-24 bg-ink-950 text-ink-300">
-      {/* Marquee */}
-      <div className="border-b border-ink-800 py-6 overflow-hidden">
-        <Marquee duration={35}>
-          {Array.from({ length: 8 }).map((_, i) => (
-            <div
-              key={i}
-              className="text-white/60 text-lg md:text-2xl font-medium tracking-tight flex items-center gap-10"
-            >
-              <span>ImportEasy — Sua ponte para o mundo</span>
-              <span className="text-brand-500">◆</span>
-              <span>Shein • AliExpress • Vinted para Angola</span>
-              <span className="text-brand-500">◆</span>
-              <span>Pague em Kz • Entrega na porta</span>
-              <span className="text-brand-500">◆</span>
-            </div>
-          ))}
-        </Marquee>
-      </div>
-
-      <div className="mx-auto max-w-[1200px] px-5 sm:px-8 pt-20 pb-10">
+      <div className="mx-auto max-w-[1200px] px-5 sm:px-8 pt-14 pb-8">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-10">
           <div className="col-span-2 md:col-span-1">
             <Logo variant="light" size="md" showTagline />
             <p className="mt-5 text-sm leading-relaxed text-ink-400 max-w-xs">
-              Importamos da Shein, AliExpress e Vinted para Angola. Preços em Kwanzas, sem cartão internacional, entrega na sua porta.
+              Ajudamos a comprar em lojas internacionais, com pagamento em Kwanzas e entrega em Angola.
             </p>
             <div className="mt-6 flex items-center gap-2">
               <a
@@ -95,20 +75,6 @@ export function Footer() {
                 <span>Luanda, Angola</span>
               </li>
             </ul>
-          </div>
-        </div>
-
-        {/* Trust badges */}
-        <div className="mt-12 pt-8 border-t border-ink-800">
-          <div className="flex flex-wrap items-center justify-center gap-6 md:gap-10 mb-8">
-            <div className="flex items-center gap-2 text-sm text-ink-400">
-              <Shield className="w-5 h-5 text-brand-500" />
-              <span>Sem surpresas na alfândega</span>
-            </div>
-            <div className="flex items-center gap-2 text-sm text-ink-400">
-              <Truck className="w-5 h-5 text-brand-500" />
-              <span>Entrega em Luanda e províncias</span>
-            </div>
           </div>
         </div>
 

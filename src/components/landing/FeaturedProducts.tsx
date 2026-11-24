@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { ProductCard, ProductCardSkeleton } from "@/components/product/ProductCard";
-import { ArrowRight, Flame, Shirt, Smartphone, Zap } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 
@@ -42,10 +42,10 @@ export default function FeaturedProducts({ featuredProducts }: FeaturedProductsP
     : allProducts.slice(0, 8);
 
   const tabs = [
-    { id: "ALL", label: "Destaques Principais", icon: Flame },
-    { id: "SHEIN", label: "SHEIN Moda", icon: Shirt },
-    { id: "ALIEXPRESS", label: "AliExpress Tech", icon: Zap },
-    { id: "VINTED", label: "iPhones Vinted", icon: Smartphone },
+    { id: "ALL", label: "Todos" },
+    { id: "SHEIN", label: "SHEIN" },
+    { id: "ALIEXPRESS", label: "AliExpress" },
+    { id: "VINTED", label: "Vinted" },
   ] as const;
 
   return (
@@ -54,11 +54,8 @@ export default function FeaturedProducts({ featuredProducts }: FeaturedProductsP
         {/* Cabeçalho da Seção */}
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3 mb-5">
           <div>
-            <span className="text-xs font-bold text-brand-600 uppercase tracking-wider">
-              Catálogo Pronto
-            </span>
-            <h2 id="featured-title" className="text-2xl sm:text-3xl font-extrabold text-ink-950 tracking-tight">
-              Os mais pedidos em Angola
+            <h2 id="featured-title" className="text-2xl sm:text-3xl font-semibold text-ink-950 tracking-tight">
+              Produtos em destaque
             </h2>
           </div>
           <Link
@@ -81,10 +78,10 @@ export default function FeaturedProducts({ featuredProducts }: FeaturedProductsP
                 aria-pressed={isActive}
                 onClick={() => setActiveTab(tab.id)}
                 className={cn(
-                  "min-h-11 px-3.5 py-2 rounded-full text-xs font-semibold whitespace-nowrap transition-all flex items-center gap-1.5 shrink-0 active:scale-95 cursor-pointer",
+                  "min-h-11 px-3 py-2 border-b-2 text-sm font-medium whitespace-nowrap transition-colors shrink-0 cursor-pointer",
                   isActive
-                    ? "bg-ink-950 text-white shadow-sm"
-                    : "bg-ink-100 text-ink-700 hover:bg-ink-200"
+                    ? "border-brand-600 text-brand-700"
+                    : "border-transparent text-ink-600 hover:text-ink-950"
                 )}
               >
                 <span>{tab.label}</span>
@@ -110,7 +107,7 @@ export default function FeaturedProducts({ featuredProducts }: FeaturedProductsP
         <div className="mt-8 text-center sm:hidden">
           <Link
             href="/produtos"
-            className="w-full py-3 px-5 rounded-xl bg-ink-100 text-ink-900 font-bold text-xs inline-flex items-center justify-center gap-1.5 active:bg-ink-200 transition"
+            className="w-full py-3 px-5 border border-ink-300 text-ink-900 font-semibold text-sm inline-flex items-center justify-center gap-1.5 hover:bg-ink-50 transition-colors"
           >
             <span>Explorar mais produtos</span>
             <ArrowRight className="w-3.5 h-3.5" />

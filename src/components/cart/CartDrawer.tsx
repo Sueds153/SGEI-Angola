@@ -11,8 +11,6 @@ import {
   ShieldCheck,
   Plus,
   Minus,
-  CheckCircle2,
-  ExternalLink,
 } from "lucide-react";
 import Link from "next/link";
 import { formatKzAmount } from "@/lib/money";
@@ -30,7 +28,6 @@ export function CartDrawer() {
     setIsOpen,
     totalKz,
     itemCount,
-    freightSavedKz,
   } = useCart();
   const { recordEvent } = useAdaptiveIntelligence();
   const dialogRef = useRef<HTMLDivElement>(null);
@@ -75,20 +72,16 @@ export function CartDrawer() {
           tabIndex={-1}
           className="w-screen max-w-md bg-white shadow-2xl flex flex-col"
         >
-          {/* Cabeçalho da Mala Coletiva */}
-          <div className="p-4 sm:p-5 border-b border-ink-100 bg-brand-600 text-white flex items-center justify-between">
+          <div className="p-4 sm:p-5 border-b border-ink-200 bg-white text-ink-900 flex items-center justify-between">
             <div className="flex items-center gap-2.5">
-              <div className="w-9 h-9 rounded-xl bg-white/10 grid place-items-center">
-                <ShoppingBag className="w-5 h-5 text-emerald-300" />
+              <div className="w-9 h-9 bg-ink-100 grid place-items-center">
+                <ShoppingBag className="w-5 h-5 text-ink-700" />
               </div>
               <div>
-                <h2 id="cart-drawer-title" className="text-base font-bold flex items-center gap-1.5">
-                  Mala Coletiva da Semana
-                  <span className="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-emerald-400 text-ink-950">
-                    FRETE GRÁTIS
-                  </span>
+                <h2 id="cart-drawer-title" className="text-base font-semibold">
+                  Carrinho
                 </h2>
-                <p className="text-xs text-brand-100">
+                <p className="text-xs text-ink-600">
                   {itemCount} {itemCount === 1 ? "artigo adicionado" : "artigos adicionados"}
                 </p>
               </div>
@@ -97,15 +90,11 @@ export function CartDrawer() {
               ref={closeButtonRef}
               type="button"
               onClick={() => setIsOpen(false)}
-              className="h-11 w-11 grid place-items-center rounded-xl hover:bg-white/10 text-brand-100 hover:text-white transition"
+              className="h-11 w-11 grid place-items-center hover:bg-ink-100 text-ink-600 hover:text-ink-900 transition-colors"
               aria-label="Fechar carrinho"
             >
               <X className="w-5 h-5" />
             </button>
-          </div>
-
-          <div className="p-3.5 bg-brand-50 border-b border-brand-100 text-xs text-brand-900">
-            Confirma o conteúdo e o valor do pedido com a equipa antes de pagar.
           </div>
 
           {/* Lista de Itens no Carrinho */}
@@ -115,23 +104,23 @@ export function CartDrawer() {
                 <div className="w-16 h-16 rounded-2xl bg-ink-100 text-ink-400 grid place-items-center">
                   <ShoppingBag className="w-8 h-8" />
                 </div>
-                <h3 className="font-bold text-ink-900 text-base">A tua mala coletiva está vazia</h3>
+                <h3 className="font-semibold text-ink-900 text-base">Ainda não tens artigos no carrinho</h3>
                 <p className="text-xs text-ink-500 max-w-xs">
-                  Cola o link de qualquer vestido, ténis ou artigo da SHEIN para juntar à mala e garantir frete grátis na entrega em Angola!
+                  Cola o link de um artigo para veres uma estimativa em Kwanzas.
                 </p>
                 <Link
                   href="/importar"
                   onClick={() => setIsOpen(false)}
                   className="mt-2 inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-brand-600 text-white font-bold text-xs hover:bg-brand-700 transition"
                 >
-                  Colar Link da SHEIN Agora →
+                  Adicionar artigo
                 </Link>
               </div>
             ) : (
               items.map((item) => (
                 <div
                   key={item.id}
-                  className="p-3.5 rounded-2xl border border-ink-200 bg-white hover:border-brand-300 transition shadow-sm flex gap-3.5"
+                  className="p-3.5 border-b border-ink-200 bg-white transition-colors flex gap-3.5"
                 >
                   {/* Foto do Artigo */}
                   <div
@@ -213,30 +202,15 @@ export function CartDrawer() {
             )}
           </div>
 
-          {/* Rodapé: Resumo Financeiro & Finalização Papa Feita */}
+          {/* Resumo e confirmação do pedido */}
           {items.length > 0 && (
-            <div className="p-4 sm:p-5 border-t border-ink-200 bg-ink-50 space-y-3">
-              {/* Vantagem da Mala Coletiva em Destaque */}
-              <div className="p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-xs text-emerald-900 space-y-1">
-                <div className="flex justify-between font-semibold">
-                  <span>Frete Internacional Aéreo:</span>
-                  <span className="line-through text-ink-400">4.500 Kz</span>
-                </div>
-                <div className="flex justify-between font-extrabold text-emerald-800">
-                  <span className="flex items-center gap-1">
-                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" /> Benefício Mala Coletiva:
-                  </span>
-                  <span>100% GRÁTIS</span>
-                </div>
-              </div>
-
-              {/* Total Final */}
+            <div className="p-4 sm:p-5 border-t border-ink-200 bg-white space-y-3">
               <div className="flex items-baseline justify-between pt-1">
                 <div>
-                  <span className="text-xs text-ink-500 font-semibold uppercase">Total a Pagar:</span>
-                  <p className="text-[11px] text-emerald-700 font-medium">Tudo incluído até Luanda</p>
+                  <span className="text-sm text-ink-700 font-semibold">Estimativa dos artigos</span>
+                  <p className="text-xs text-ink-500 mt-1">Entrega e condições confirmadas antes do pagamento</p>
                 </div>
-                <span className="text-2xl font-extrabold text-brand-700 tabular-nums">
+                <span className="text-xl font-semibold text-ink-950 tabular-nums">
                   {formatKzAmount(totalKz)}
                 </span>
               </div>
@@ -245,9 +219,9 @@ export function CartDrawer() {
               <div className="space-y-2 pt-1">
                 <button
                   onClick={handleCheckout}
-                  className="w-full py-3.5 px-4 rounded-xl bg-brand-600 hover:bg-brand-700 text-white font-bold text-sm flex items-center justify-center gap-2 shadow-lg shadow-brand-500/25 active:scale-[0.99] transition cursor-pointer"
+                  className="w-full py-3.5 px-4 rounded-lg bg-brand-600 hover:bg-brand-700 text-white font-semibold text-sm flex items-center justify-center gap-2 transition-colors cursor-pointer"
                 >
-                  Garantir Vaga e Pagar Agora <ArrowRight className="w-4 h-4" />
+                  Continuar para confirmação <ArrowRight className="w-4 h-4" />
                 </button>
 
                 <div className="flex gap-2">

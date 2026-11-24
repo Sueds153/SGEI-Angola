@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { ShoppingBag, Tag } from "lucide-react";
+import { ShoppingBag } from "lucide-react";
 import type { NormalizedProduct } from "@/lib/types";
 import { useState } from "react";
 import { Skeleton } from "@/components/ui";
@@ -50,23 +50,21 @@ export function ProductCard({ product, compact }: ProductCardProps) {
   ) as string[];
   
   // Badge de origem
-  const sourceLabels: Record<string, { label: string; icon: any; color: string }> = {
-    SHEIN: { label: "Shein", icon: Tag, color: "bg-pink-100 text-pink-700" },
-    ALIEXPRESS: { label: "AliExpress", icon: Tag, color: "bg-orange-100 text-orange-700" },
-    VINTED: { label: "Vinted", icon: Tag, color: "bg-brand-100 text-brand-700" },
-    MOCK: { label: "Shein", icon: Tag, color: "bg-pink-100 text-pink-700" },
-    ADMIN: { label: "Catálogo", icon: Tag, color: "bg-green-100 text-green-700" },
+  const sourceLabels: Record<string, string> = {
+    SHEIN: "SHEIN",
+    ALIEXPRESS: "AliExpress",
+    VINTED: "Vinted",
+    MOCK: "SHEIN",
+    ADMIN: "Catálogo ImportEasy",
   };
-  
-  const sourceInfo = sourceLabels[safeProduct.source] || { label: safeProduct.source, icon: Tag, color: "bg-gray-100 text-gray-700" };
-  const SourceIcon = sourceInfo.icon;
+  const sourceLabel = sourceLabels[safeProduct.source] || safeProduct.source;
 
   return (
     <Link
       href={`/produto/${product.slug}`}
       className="group block"
     >
-      <div className={cn("relative bg-ink-100 rounded-[20px] overflow-hidden aspect-[3/4] sm:aspect-[4/5]", compact && "aspect-[3/4] sm:aspect-[4/5]")}>
+      <div className={cn("relative bg-ink-100 rounded-md overflow-hidden aspect-[3/4] sm:aspect-[4/5]", compact && "aspect-[3/4] sm:aspect-[4/5]")}>
         {image && !imageError ? (
           <Image
             src={image}
@@ -75,7 +73,7 @@ export function ProductCard({ product, compact }: ProductCardProps) {
             sizes="(max-width: 640px) 46vw, (max-width: 1024px) 30vw, 23vw"
             unoptimized={!image.startsWith("/")}
             onError={() => setImageError(true)}
-            className="object-cover group-hover:scale-105 transition-transform duration-500 ease-out"
+            className="object-cover group-hover:scale-[1.02] transition-transform duration-300 ease-out"
           />
         ) : (
           <div className="w-full h-full grid place-items-center text-ink-300">
@@ -84,17 +82,16 @@ export function ProductCard({ product, compact }: ProductCardProps) {
         )}
 
         {/* Badge de origem */}
-        <div className="absolute top-1.5 left-1.5 flex gap-1 z-10">
-          <span className={`${sourceInfo.color} text-[11px] font-semibold tracking-wide px-2 py-0.5 rounded-full backdrop-blur-sm flex items-center gap-1 shadow-sm`}>
-            <SourceIcon className="h-3 w-3" />
-            {sourceInfo.label}
+        <div className="absolute top-2 left-2 z-10">
+          <span className="bg-white/95 text-ink-800 text-[10px] font-semibold tracking-wide px-2 py-1 backdrop-blur-sm">
+            {sourceLabel}
           </span>
         </div>
 
         {/* Badge adicional (Bateria iPhone, Fornecedor Verificado, Entrega Grátis) */}
         {(safeProduct.badge || safeProduct.batteryHealth || safeProduct.freeShipping) && (
           <div className="absolute top-1.5 right-1.5 flex gap-1 z-10 max-w-[60%]">
-            <span className="bg-ink-950/85 text-white text-[11px] font-medium tracking-tight px-2 py-0.5 rounded-full backdrop-blur-sm truncate shadow-sm border border-white/10">
+            <span className="bg-ink-950/85 text-white text-[10px] font-medium tracking-tight px-2 py-1 backdrop-blur-sm truncate">
               {safeProduct.badge || (safeProduct.batteryHealth ? `Bateria ${safeProduct.batteryHealth}` : "Entrega Rápida")}
             </span>
           </div>
@@ -105,8 +102,8 @@ export function ProductCard({ product, compact }: ProductCardProps) {
             <span className="text-sm font-medium text-ink-900">Sem stock</span>
           </div>
         )}
-        <div className="absolute bottom-2 right-2 rounded-lg bg-white/95 px-2.5 py-1.5 text-[11px] font-semibold text-ink-900 shadow-sm">
-          Ver produto
+        <div className="absolute bottom-2 right-2 bg-white/95 px-2 py-1 text-[10px] font-medium text-ink-900">
+          Ver artigo
         </div>
       </div>
       <div className="px-0.5 pt-2.5 sm:pt-3">

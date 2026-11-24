@@ -2,9 +2,7 @@ import { getFeaturedProducts } from "@/lib/actions/products";
 import Hero from "@/components/landing/Hero";
 import FeaturedProducts from "@/components/landing/FeaturedProducts";
 import HowItWorks from "@/components/landing/HowItWorks";
-import { SmartDollarConverter } from "@/components/home/SmartDollarConverter";
-import Link from "next/link";
-import { ArrowRight, MessageCircle, ShieldCheck, CreditCard, Truck, CheckCircle2 } from "lucide-react";
+import { ShieldCheck, CreditCard } from "lucide-react";
 
 export default async function HomePage() {
   const featured = await getFeaturedProducts(16);
@@ -20,114 +18,46 @@ export default async function HomePage() {
       {/* 3. COMO FUNCIONA (3 passos simples) */}
       <HowItWorks />
 
-      {/* 4. CONVERSOR RÁPIDO DÓLAR/EURO -> KWANZA */}
-      <section className="py-8 sm:py-14 bg-brand-50/30 border-y border-brand-100/60 px-4">
-        <SmartDollarConverter />
-      </section>
-
-      {/* 5. SEGURANÇA E PAGAMENTO EM ANGOLA (Human Senior Trust) */}
+      {/* 4. Pagamento e confirmação do pedido */}
       <TrustSection />
-
-      {/* 6. CTA FINAL RÁPIDO */}
-      <FinalCTA />
     </>
   );
 }
 
 function TrustSection() {
   return (
-    <section className="py-10 sm:py-16 bg-white" aria-labelledby="trust-title">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6">
-        <div className="text-center mb-8">
-          <span className="text-xs font-bold text-emerald-600 uppercase tracking-wider">
-            100% Seguro em Angola
-          </span>
-          <h2 id="trust-title" className="text-2xl sm:text-3xl font-extrabold text-ink-950 tracking-tight mt-1">
-            Paga com tranquilidade em Kwanzas
+    <section className="py-12 sm:py-16 bg-ink-50 border-y border-ink-200" aria-labelledby="trust-title">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="max-w-2xl mb-8">
+          <p className="text-xs font-semibold tracking-[0.14em] uppercase text-ink-500 mb-2">Pagamento e confirmação</p>
+          <h2 id="trust-title" className="text-2xl sm:text-3xl font-semibold text-ink-950 tracking-tight mt-1">
+            Primeiro confirmas. Depois pagas.
           </h2>
-          <p className="text-xs sm:text-sm text-ink-600 max-w-md mx-auto mt-1.5">
-            Sem necessidade de cartões Visa ou Mastercard internacionais. Usamos os canais oficiais do sistema bancário angolano.
+          <p className="text-sm text-ink-600 max-w-xl mt-2 leading-relaxed">
+            Envia o artigo para receberes uma estimativa. A equipa confirma disponibilidade, custos e condições antes de qualquer pagamento.
           </p>
         </div>
 
-        {/* Garantias de Pagamento (sem dados sensíveis) */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 sm:gap-4 mb-8">
-          <div className="p-4 sm:p-5 rounded-2xl bg-ink-50 border border-ink-200">
-            <div className="flex items-center gap-2 mb-2">
-              <div className="w-8 h-8 rounded-lg bg-brand-100 text-brand-600 grid place-items-center">
-                <CreditCard className="w-4 h-4" />
-              </div>
-              <h3 className="font-bold text-ink-900 text-sm">Pagamento Local</h3>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-0 border-y border-ink-300">
+          <div className="py-5 sm:pr-8 sm:border-r border-ink-300">
+            <div className="flex items-center gap-2 mb-2 text-ink-900">
+              <CreditCard aria-hidden="true" className="w-4 h-4 text-brand-600" />
+              <h3 className="font-semibold text-sm">Pagamento em Kwanzas</h3>
             </div>
-            <p className="text-xs text-ink-600">
-              Paga em Kwanzas por Multicaixa Express ou referência bancária. Os dados de pagamento são mostrados apenas quando o cliente inicia o checkout.
+            <p className="text-sm text-ink-600 leading-relaxed">
+              Multicaixa Express ou referência bancária, conforme as opções apresentadas durante o pedido.
             </p>
           </div>
 
-          <div className="p-4 sm:p-5 rounded-2xl bg-ink-50 border border-ink-200">
-            <div className="flex items-center gap-2 mb-2">
-              <div className="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-600 grid place-items-center">
-                <ShieldCheck className="w-4 h-4" />
-              </div>
-              <h3 className="font-bold text-ink-900 text-sm">Sem Cartão Internacional</h3>
+          <div className="py-5 sm:pl-8 border-t sm:border-t-0 border-ink-300">
+            <div className="flex items-center gap-2 mb-2 text-ink-900">
+              <ShieldCheck aria-hidden="true" className="w-4 h-4 text-brand-600" />
+              <h3 className="font-semibold text-sm">Sem cartão internacional</h3>
             </div>
-            <p className="text-xs text-ink-600">
-              Não precisa de cartão Visa ou Mastercard. Usamos os canais oficiais do sistema bancário angolano.
+            <p className="text-sm text-ink-600 leading-relaxed">
+              A confirmação do valor e das condições é feita antes de pagares.
             </p>
           </div>
-        </div>
-
-        {/* Garantias em Linha */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 text-center text-xs text-ink-700">
-          <div className="p-3 bg-brand-50/50 rounded-xl border border-brand-100">
-            <span className="font-extrabold block text-brand-700 text-sm sm:text-base">100%</span>
-            <span>Sem Taxas Ocultas</span>
-          </div>
-          <div className="p-3 bg-brand-50/50 rounded-xl border border-brand-100">
-            <span className="font-extrabold block text-brand-700 text-sm sm:text-base">Luanda</span>
-            <span>Entrega ao Domicílio</span>
-          </div>
-          <div className="p-3 bg-brand-50/50 rounded-xl border border-brand-100">
-            <span className="font-extrabold block text-brand-700 text-sm sm:text-base">18 Províncias</span>
-            <span>Envio Rápido</span>
-          </div>
-          <div className="p-3 bg-brand-50/50 rounded-xl border border-brand-100">
-            <span className="font-extrabold block text-brand-700 text-sm sm:text-base">WhatsApp</span>
-            <span>Suporte em Português</span>
-          </div>
-        </div>
-      </div>
-    </section>
-  );
-}
-
-function FinalCTA() {
-  return (
-    <section className="py-10 sm:py-14 bg-gradient-to-br from-brand-700 via-brand-600 to-brand-800 text-white" aria-labelledby="cta-title">
-      <div className="max-w-3xl mx-auto px-4 sm:px-6 text-center">
-        <h2 id="cta-title" className="text-2xl sm:text-3xl font-extrabold mb-2.5 tracking-tight">
-          Pronto para encomendar da SHEIN?
-        </h2>
-        <p className="text-brand-100 text-xs sm:text-sm mb-6 max-w-lg mx-auto leading-relaxed">
-          Cola o link da peça que viste na SHEIN ou AliExpress. Vê o valor em Kwanzas na hora e fala com a nossa equipa.
-        </p>
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-2.5">
-          <Link
-            href="/importar"
-            className="w-full sm:w-auto px-6 py-3.5 bg-white text-brand-700 font-bold rounded-xl hover:bg-brand-50 active:scale-95 transition flex items-center justify-center gap-2 text-sm shadow-md"
-          >
-            <span>Simular Preço Agora</span>
-            <ArrowRight className="w-4 h-4" />
-          </Link>
-          <a
-            href="https://wa.me/244922058136?text=Ol%C3%A1%20ImportEasy!%20Gostaria%20de%20ajuda%20para%20fazer%20uma%20encomenda."
-            target="_blank"
-            rel="noopener noreferrer"
-            className="w-full sm:w-auto px-6 py-3.5 bg-brand-800/80 hover:bg-brand-900 border border-brand-400/40 text-white font-bold rounded-xl active:scale-95 transition flex items-center justify-center gap-2 text-sm"
-          >
-            <MessageCircle className="w-4 h-4 text-emerald-400" />
-            <span>Falar no WhatsApp</span>
-          </a>
         </div>
       </div>
     </section>
