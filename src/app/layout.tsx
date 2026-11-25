@@ -8,6 +8,7 @@ import { BottomNav } from "@/components/layout/BottomNav";
 import { CartProvider } from "@/context/CartContext";
 import { CartDrawer } from "@/components/cart/CartDrawer";
 import { AdaptiveIntelligenceProvider } from "@/context/AdaptiveIntelligenceContext";
+import { FacebookPixel } from "@/components/analytics/FacebookPixel";
 
 export const metadata: Metadata = {
   title: {
@@ -43,6 +44,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         <AdaptiveIntelligenceProvider>
           <CartProvider>
             <Sentry.ErrorBoundary fallback={<p>Algo deu errado. Tente recarregar a página.</p>}>
+              <FacebookPixel />
               <a
                 href="#main-content"
                 className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-lg focus:bg-brand-700 focus:px-4 focus:py-3 focus:text-white focus:shadow-lg"

@@ -1,8 +1,9 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
+import { trackViewContent, trackInitiateCheckout } from "@/components/analytics/FacebookPixel";
 import {
   ChevronLeft,
   ChevronRight,
@@ -47,6 +48,13 @@ export function ProductDetail({ product }: { product: NormalizedProduct }) {
   const priceCfg = usePricingConfig();
   const [adding, setAdding] = useState(false);
   const [liked, setLiked] = useState(false);
+
+  // Track ViewContent when product loads
+  useEffect(() => {
+    if (product.originalPriceUsd != null) {
+      trackViewContent(product.originalPriceUsd, productCurrency, product.slug, product.name);
+    }
+  }, [product.slug]);
 
   const variantsForColor = useMemo(() => {
     if (!selectedColor) return product.variants;
@@ -105,6 +113,12 @@ export function ProductDetail({ product }: { product: NormalizedProduct }) {
     params.set("productSlug", product.slug);
     if (selectedVariant) params.set("variantId", selectedVariant.id);
     params.set("qty", String(quantity));
+    // Track InitiateCheckout before navigation
+    trackInitiateCheckout(
+      product.originalPriceUsd || 0,
+      productCurrency,
+      [product.slug],
+    );
     router.push(`/checkout?${params.toString()}`);
   }
 

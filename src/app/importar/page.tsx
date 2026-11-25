@@ -20,6 +20,7 @@ import {
 import Link from "next/link";
 import { useCart } from "@/context/CartContext";
 import { ResponsiveImage } from "@/components/ui/ResponsiveImage";
+import { trackAddToCart, trackViewContent, trackSearch } from "@/components/analytics/FacebookPixel";
 import { formatKzAmount, formatForeign as formatForeignMoney } from "@/lib/money";
 import { clientCalculatePrice, convertToAoaCents } from "@/lib/pricing-client";
 import type { SupportedCurrency } from "@/lib/pricing-client";
@@ -230,12 +231,13 @@ function ImportarContent() {
             <button
               type="submit"
               disabled={loading || !url.trim()}
-              className="w-full py-3.5 px-6 rounded-xl sm:rounded-2xl bg-brand-600 hover:bg-brand-700 active:bg-brand-800 disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold text-sm sm:text-base flex items-center justify-center gap-2 shadow-sm transition active:scale-[0.99] cursor-pointer"
+              aria-busy={loading}
+              className="relative w-full overflow-hidden py-3.5 px-6 rounded-xl sm:rounded-2xl bg-brand-600 hover:bg-brand-700 active:bg-brand-800 active:scale-[0.99] disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold text-sm sm:text-base flex items-center justify-center gap-2 shadow-sm transition-[background-color,transform,opacity] duration-150 cursor-pointer"
             >
               {loading ? (
                 <>
                   <Loader2 className="w-4 h-4 animate-spin" />
-                  <span>A analisar link e calcular preço em Kwanzas...</span>
+                  <span aria-live="polite">A analisar o artigo e calcular o preço em Kwanzas…</span>
                 </>
               ) : (
                 <>
@@ -262,7 +264,7 @@ function ImportarContent() {
 
         {/* Card do Resultado da Simulação */}
         {result && (
-          <div className="mb-8 animate-fade-in">
+          <div className="mb-8 animate-result-enter">
             <SimulationResultCard
               result={result}
               onNewSimulation={handleNewSimulation}
@@ -358,16 +360,23 @@ function SimulationResultCard({
       sourceUrl: result.sourceUrl,
       quantity: 1,
     });
+    // Track AddToCart after successful add to cart
+    trackAddToCart(
+      Math.round(totalAOA * 100) / 100,
+      currency === "USD" ? "USD" : "AOA",
+      bestImage || result.sourceUrl,
+      result.title
+    );
   };
 
   return (
-    <div className="bg-white rounded-2xl sm:rounded-3xl border-2 border-brand-200 shadow-xl overflow-hidden">
+    <div className="bg-white rounded-2xl sm:rounded-3xl border border-ink-200 shadow-lg overflow-hidden">
       {/* Topo do Card */}
       <div className="bg-brand-600 text-white p-4 sm:p-5 flex items-center justify-between">
         <div className="flex items-center gap-2.5">
           <CheckCircle2 className="w-5 h-5 text-emerald-300 shrink-0" />
           <div>
-            <h2 className="text-base sm:text-lg font-bold leading-tight">Simulação Concluída</h2>
+            <h2 aria-live="polite" className="text-base sm:text-lg font-bold leading-tight">Simulação Concluída</h2>
             <p className="text-brand-100 text-xs">Loja: {result.platform}</p>
           </div>
         </div>

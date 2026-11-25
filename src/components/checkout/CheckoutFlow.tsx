@@ -19,6 +19,7 @@ import {
 import { Button } from "@/components/ui/Button";
 import { Input, Select, Textarea, Alert, Card } from "@/components/ui";
 import { ResponsiveImage } from "@/components/ui/ResponsiveImage";
+import { trackPurchase } from "@/components/analytics/FacebookPixel";
 import type { NormalizedProduct, NormalizedVariant, PaymentMethod } from "@/lib/types";
 import {
   clientCalculatePrice,
@@ -217,6 +218,15 @@ export function CheckoutFlow({ prefill }: { prefill: Prefill | null }) {
         clearCart();
       }
       recordEvent("ORDER_CREATED", { reference: data.order.reference });
+      // Track Purchase event to Facebook Pixel
+      const contentIds = orderItems.map((oi: any) => oi.productName).filter(Boolean);
+      trackPurchase(
+        pricing ? pricing.totalCents / 100 : 0,
+        "AOA",
+        data.order.reference,
+        contentIds,
+        contentIds.length
+      );
       setCreatedRef(data.order.reference);
       setStep(4);
     } catch {
