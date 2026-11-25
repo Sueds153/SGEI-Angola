@@ -22,7 +22,7 @@ export function CategoryGrid({ variant = "default" }: { variant?: "default" | "c
           <Reveal key={c.slug} delay={idx * 40} amount={14} direction="up">
             <Link
               href={`/categoria/${c.slug}`}
-              className="group block rounded-2xl bg-white ring-1 ring-ink-200/60 p-3 sm:p-4 md:p-5 text-center hover:ring-ink-900 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300"
+              className="category-card group block rounded-2xl bg-white ring-1 ring-ink-200/60 p-3 sm:p-4 md:p-5 text-center hover:ring-ink-900 hover:shadow-lg"
             >
               <div className="h-10 w-10 sm:h-12 sm:w-12 mx-auto rounded-xl sm:rounded-2xl bg-ink-900 text-white grid place-items-center group-hover:bg-primary-600 transition">
                 <Icon className="h-4 w-4 sm:h-5 sm:w-5" />

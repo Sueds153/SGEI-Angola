@@ -2,135 +2,88 @@ import { Container } from "@/components/ui";
 import { Button } from "@/components/ui/Button";
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Reveal, WordReveal } from "@/components/motion";
-import { Num, Asterisk, Stamp, Squiggle } from "@/components/brand/Mark";
 import { ArrowRight } from "lucide-react";
 
 export const metadata: Metadata = {
   title: "Como funciona",
-  description: "Descubra como é fácil importar da Shein, AliExpress e Vinted através da ImportEasy.",
+  description: "Descobre como pedir produtos da SHEIN, AliExpress e Vinted para Angola.",
 };
 
 const steps = [
   {
-    n: "01",
-    kicker: "Encontra",
-    title: "Escolha o produto.",
-    body: "Navegue no site ou app da Shein, AliExpress ou Vinted. Quando encontrar o artigo pretendido, basta copiar o link da página.",
+    number: "01",
+    title: "Escolhe o artigo",
+    body: "Encontra o que procuras na SHEIN, AliExpress ou Vinted e copia o link do artigo.",
   },
   {
-    n: "02",
-    kicker: "Simula",
-    title: "Cole no simulador.",
-    body: "Cole o link no nosso simulador de importação ou selecione um dos produtos em destaque no nosso catálogo de sugestões.",
+    number: "02",
+    title: "Envia o link",
+    body: "Cola o link no simulador para receberes uma estimativa em kwanzas.",
   },
   {
-    n: "03",
-    kicker: "Preço & Pagamento",
-    title: "Pague em Kwanzas.",
-    body: "Apresentamos uma estimativa em Kz. A equipa confirma produto, disponibilidade, custos e valor total; depois pode aceitar e pagar pelos métodos indicados no pedido.",
+    number: "03",
+    title: "Revê o valor e decide",
+    body: "Confirmamos o artigo, a disponibilidade e o valor total. Só avanças se concordares com as condições e o pagamento.",
   },
   {
-    n: "04",
-    kicker: "Recebe",
-    title: "Nós tratamos de tudo.",
-    body: "Compramos ao fornecedor internacional, tratamos do envio aéreo, desalfandegamento e entregamos na sua morada em Luanda ou províncias.",
+    number: "04",
+    title: "Recebe em Angola",
+    body: "Depois da confirmação e do pagamento, tratamos da compra e do envio para a tua morada, conforme a cobertura disponível.",
   },
 ];
 
 export default function ComoFuncionaPage() {
   return (
     <>
-      <section className="pt-14 md:pt-24 pb-10 md:pb-20">
+      <section className="py-10 sm:py-14 md:py-20">
         <Container>
-          <Reveal>
-            <div className="flex items-center gap-3 mb-8">
-              <Stamp className="border-ink-900 text-ink-900">How-to</Stamp>
-              <span className="font-mono text-[11px] uppercase tracking-[0.2em] text-ink-500">
-                4 passos
-              </span>
-            </div>
-          </Reveal>
-
-          <WordReveal
-            as="h1"
-            text="Como funciona."
-            className="apple-headline text-ink-900"
-            stagger={45}
-          />
-
-          <Reveal delay={500}>
-            <p className="apple-subhead mt-6 text-ink-600 max-w-xl">
-              Tu escolhes. Nós tratamos do resto. Sem cartão internacional, sem stress com alfândega.
-            </p>
-          </Reveal>
+          <h1 className="max-w-3xl text-3xl sm:text-4xl md:text-5xl font-semibold tracking-tight leading-tight text-ink-950">
+            Como funciona a importação
+          </h1>
+          <p className="mt-4 max-w-2xl text-base sm:text-lg leading-relaxed text-ink-600">
+            Envia-nos o link. Confirmamos o artigo e o valor total antes de pagares.
+          </p>
         </Container>
       </section>
 
-      <section className="pb-24 md:pb-32">
+      <section className="pb-12 sm:pb-16" aria-label="Etapas da importação">
         <Container>
-          <div className="space-y-0 md:space-y-0">
-            {steps.map((s, i) => (
-              <Reveal key={i} amount={40} blur>
-                <div className="grid md:grid-cols-12 gap-6 md:gap-10 py-12 md:py-16 border-t border-ink-200 first:border-t-0">
-                  <div className="md:col-span-3">
-                    <Num n={s.n} className="text-ink-900/10" />
-                  </div>
-                  <div className="md:col-span-7">
-                    <div className="flex items-center gap-4 mb-4">
-                      <span className="font-mono text-[10px] uppercase tracking-[0.22em] text-primary-600">
-                        {s.kicker}
-                      </span>
-                      {i < steps.length - 1 && <span className="h-px flex-1 bg-ink-200" />}
-                    </div>
-                    <h2 className="text-3xl md:text-5xl font-semibold tracking-[-0.03em] text-ink-900 leading-[1.05]">
-                      {s.title}
-                    </h2>
-                    <p className="mt-5 text-[17px] text-ink-600 leading-relaxed max-w-2xl">{s.body}</p>
-                  </div>
-                  <div className="md:col-span-2 flex md:justify-end items-start">
-                    <Asterisk className="text-ink-200" size={32} />
-                  </div>
+          <ol className="border-t border-ink-200">
+            {steps.map((step) => (
+              <li
+                key={step.number}
+                className="grid grid-cols-[2.5rem_minmax(0,1fr)] sm:grid-cols-[3.5rem_minmax(0,1fr)] gap-x-3 sm:gap-x-6 border-b border-ink-200 py-6 sm:py-8"
+              >
+                <span className="pt-1 text-sm font-semibold tabular-nums text-brand-700" aria-hidden="true">
+                  {step.number}
+                </span>
+                <div>
+                  <h2 className="text-xl sm:text-2xl font-semibold leading-snug text-ink-950">
+                    {step.title}
+                  </h2>
+                  <p className="mt-2 max-w-2xl text-sm sm:text-base leading-relaxed text-ink-600">
+                    {step.body}
+                  </p>
                 </div>
-              </Reveal>
+              </li>
             ))}
-          </div>
+          </ol>
         </Container>
       </section>
 
-      <section className="pb-24 md:pb-32">
+      <section className="pb-14 sm:pb-20">
         <Container>
-          <Reveal blur amount={20}>
-            <div className="relative rounded-[32px] md:rounded-[48px] bg-black text-white p-10 md:p-20 overflow-hidden">
-              <div className="absolute top-10 right-10 text-white/30"><Asterisk size={48} /></div>
-              <div className="absolute bottom-10 left-10 text-white/30 rotate-[-8deg]">
-                <Stamp className="border-white/40 text-white/70 text-[9px]">ImportEasy · AO</Stamp>
-              </div>
-              <p className="font-mono text-[11px] uppercase tracking-[0.2em] text-white/60">
-                Pronto para começar?
-              </p>
-              <h2 className="text-4xl md:text-6xl font-semibold tracking-[-0.03em] mt-6 leading-[1.02] max-w-3xl">
-                Cole um link.
-                <br />
-                <span className="italic font-serif font-light">Nós fazemos o resto.</span>
-              </h2>
-              <div className="mt-10 flex flex-col sm:flex-row items-start sm:items-center gap-4">
-                <Link href="/">
-                  <Button variant="primary" size="lg" className="bg-white text-black hover:bg-ink-100">
-                    Ir para o início <ArrowRight className="h-4 w-4" />
-                  </Button>
-                </Link>
-                <Link href="/produtos">
-                  <Button variant="ghost" className="text-white hover:bg-white/10" size="lg">
-                    Ver produtos em destaque
-                  </Button>
-                </Link>
-              </div>
-              <div className="mt-10">
-                <Squiggle className="text-white/30 w-32 h-8" />
-              </div>
+          <div className="flex flex-col items-start justify-between gap-4 border-t border-ink-200 pt-7 sm:flex-row sm:items-center">
+            <div>
+              <h2 className="text-xl font-semibold text-ink-950">Já encontraste o artigo?</h2>
+              <p className="mt-1 text-sm text-ink-600">Cola o link e consulta a estimativa em kwanzas.</p>
             </div>
-          </Reveal>
+            <Link href="/importar">
+              <Button size="lg">
+                Simular importação <ArrowRight className="h-4 w-4" />
+              </Button>
+            </Link>
+          </div>
         </Container>
       </section>
     </>

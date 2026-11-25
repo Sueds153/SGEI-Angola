@@ -62,7 +62,7 @@ export function ProductCard({ product, compact }: ProductCardProps) {
   return (
     <Link
       href={`/produto/${product.slug}`}
-      className="group block transition-transform duration-150 active:scale-[0.99]"
+      className="product-card-link group block transition-transform duration-150 active:scale-[0.99]"
     >
       <div className={cn("relative bg-ink-100 rounded-md overflow-hidden aspect-[3/4] sm:aspect-[4/5]", compact && "aspect-[3/4] sm:aspect-[4/5]")}>
         {image && !imageError ? (
@@ -73,7 +73,7 @@ export function ProductCard({ product, compact }: ProductCardProps) {
             sizes="(max-width: 640px) 46vw, (max-width: 1024px) 30vw, 23vw"
             unoptimized={!image.startsWith("/")}
             onError={() => setImageError(true)}
-            className="object-cover group-hover:scale-[1.02] transition-transform duration-300 ease-out"
+            className="product-card-image object-cover"
           />
         ) : (
           <div className="w-full h-full grid place-items-center text-ink-300">

@@ -89,7 +89,7 @@ export default function HowItWorks() {
             className="inline-flex items-center justify-center gap-2 py-3 border-b border-brand-600 text-brand-700 font-semibold text-sm hover:text-brand-800 transition-colors"
           >
             <span>Experimentar com um link agora</span>
-            <ArrowRight className="w-4 h-4" />
+            <ArrowRight className="cta-arrow w-4 h-4" />
           </Link>
         </div>
       </div>

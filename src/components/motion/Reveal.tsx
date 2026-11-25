@@ -34,9 +34,9 @@ export function Reveal({
   as: Tag = "div",
   className,
   delay = 0,
-  duration = 700,
+  duration = 440,
   direction = "up",
-  amount = 22,
+  amount = 16,
   blur = false,
   once = true,
   style,
@@ -99,9 +99,9 @@ export function Reveal({
         ...style,
         transform: offset,
         opacity: visible ? 1 : 0,
-        filter: blur && !visible ? "blur(10px)" : "blur(0)",
+        filter: blur && !visible ? "blur(4px)" : "blur(0)",
         transition: `transform ${duration}ms cubic-bezier(0.22, 1, 0.36, 1) ${delay}ms, opacity ${duration}ms cubic-bezier(0.22, 1, 0.36, 1) ${delay}ms, filter ${duration + 200}ms cubic-bezier(0.22, 1, 0.36, 1) ${delay}ms`,
-        willChange: "transform, opacity, filter",
+        willChange: visible ? undefined : "transform, opacity",
       }}
     >
       {children}

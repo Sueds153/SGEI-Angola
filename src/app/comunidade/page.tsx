@@ -22,16 +22,6 @@ const PLATFORM_COLORS: Record<string, string> = {
   IMPORTEASY: "bg-green-100 text-green-700",
 };
 
-// Imagens de fundo locais
-const bgImages = [
-  "/images/comm-bg-01.jpg",
-  "/images/comm-bg-02.jpg",
-  "/images/comm-bg-03.jpg",
-  "/images/comm-bg-04.jpg",
-];
-
-
-
 export default function ComunidadePage() {
   const [conversations, setConversations] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -121,126 +111,77 @@ export default function ComunidadePage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-ink-50 via-white to-amber-50 relative overflow-hidden">
-      {/* Background decorativo com acessórios */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none" aria-hidden="true">
-        <div className="absolute top-20 left-5 w-32 h-32 opacity-5" style={{ backgroundImage: `url("${bgImages[0]}")` }} />
-        <div className="absolute top-40 right-10 w-24 h-24 opacity-5 rotate-12" style={{ backgroundImage: `url("${bgImages[1]}")` }} /> 
-        <div className="absolute bottom-40 left-10 w-28 h-28 opacity-5 -rotate-6" style={{ backgroundImage: `url("${bgImages[2]}")` }} />
-        <div className="absolute bottom-20 right-5 w-32 h-32 opacity-5" style={{ backgroundImage: `url("${bgImages[3]}")` }} />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] opacity-[0.02] rounded-full bg-brand-600" />
-      </div>
-
-      <main className="relative py-8 lg:py-12 pb-32">
+    <div className="min-h-screen bg-white">
+      <main className="py-10 sm:py-12 pb-28">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          {/* Hero */}
-          <div className="text-center mb-10 relative">
-            <div className="flex flex-wrap items-center justify-center gap-3 mb-4">
-              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-brand-100 text-brand-700 text-sm font-medium">
-                <TrendingUp className="w-4 h-4" />
-                <span>Comunidade ImportEasy</span>
-              </div>
-            </div>
-            <h1 className="text-3xl sm:text-4xl font-bold text-ink-900 mb-3">
-              Comunidade <span className="text-brand-600">ImportEasy</span>
+          <div className="mb-8 max-w-2xl">
+            <h1 className="text-3xl sm:text-4xl font-semibold tracking-tight text-ink-950">
+              Partilhas da comunidade
             </h1>
-            <p className="text-lg text-ink-600 max-w-2xl mx-auto">
-              Consulte as partilhas de outros clientes e acompanhe experiências de importação em Angola.
+            <p className="mt-3 text-base leading-relaxed text-ink-600">
+              Consulta experiências de importação partilhadas por clientes em Angola.
             </p>
           </div>
 
-          {/* Stats */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-            <StatCard icon={MessageSquare} value={stats.totalPosts > 0 ? formatNumber(stats.totalPosts) : "—"} label="Publicações" />
-            <StatCard icon={CheckCircle2} value={stats.approvedPosts > 0 ? formatNumber(stats.approvedPosts) : "—"} label="Aprovadas" />
-            <StatCard icon={Shield} value={stats.verifiedPosts > 0 ? formatNumber(stats.verifiedPosts) : "—"} label="Verificadas" />
-            <StatCard icon={Clock} value={stats.pendingPosts > 0 ? formatNumber(stats.pendingPosts) : "—"} label="Em análise" />
-          </div>
+          {stats.totalPosts > 0 && (
+            <p className="mb-6 border-y border-ink-200 py-3 text-sm text-ink-600">
+              {formatNumber(stats.totalPosts)} partilhas
+              {stats.approvedPosts > 0 && ` · ${formatNumber(stats.approvedPosts)} aprovadas`}
+              {stats.verifiedPosts > 0 && ` · ${formatNumber(stats.verifiedPosts)} verificadas`}
+            </p>
+          )}
 
-          <div className="mb-6 rounded-2xl border border-ink-200 bg-white p-4 text-sm text-ink-600">
-            A publicação de mensagens e as reacções ainda não estão disponíveis nesta página.
-          </div>
-
-          {/* Community Filters */}
-          <CommunityFilters 
-            onFilter={handleFilterChange}
-            onSearch={handleSearch}
-          />
+          {conversations.length > 0 && (
+            <>
+              <p className="mb-4 text-sm text-ink-600">
+                As partilhas estão disponíveis para consulta. Ainda não é possível publicar ou reagir.
+              </p>
+              <CommunityFilters onFilter={handleFilterChange} onSearch={handleSearch} />
+            </>
+          )}
 
           {/* Feed */}
-          <div 
-            className="space-y-4"
-            role="feed"
-            aria-label="Conversas da comunidade"
-          >
-            {conversations.map((conv) => (
-              <ConversationCard
-                key={conv.id}
-                conversation={conv}
-              />
-            ))}
-            {conversations.length === 0 && (
-              <div className="text-center py-12 text-ink-500">
-                <MessageSquare className="w-12 h-12 mx-auto mb-4 text-ink-300" />
-                <p>{feedUnavailable ? "Não foi possível carregar as publicações. Tenta novamente mais tarde." : "Ainda não existem publicações nesta comunidade."}</p>
-              </div>
-            )}
-          </div>
+          {loading && conversations.length === 0 ? (
+            <p className="py-8 text-sm text-ink-600" role="status">A carregar partilhas…</p>
+          ) : feedUnavailable ? (
+            <p className="border-y border-ink-200 py-8 text-sm text-ink-700" role="alert">
+              Não foi possível carregar as partilhas. Tenta novamente mais tarde.
+            </p>
+          ) : conversations.length === 0 ? (
+            <div className="border-y border-ink-200 py-8 sm:py-10">
+              <h2 className="text-xl font-semibold text-ink-950">Ainda não há partilhas de clientes</h2>
+              <p className="mt-2 max-w-xl text-sm leading-relaxed text-ink-600">
+                Esta área ainda não recebe publicações. Podes consultar os artigos disponíveis no catálogo.
+              </p>
+              <Link
+                href="/produtos"
+                className="mt-5 inline-flex min-h-11 items-center text-sm font-semibold text-brand-700 underline underline-offset-4 hover:text-brand-800"
+              >
+                Ver catálogo de produtos
+              </Link>
+            </div>
+          ) : (
+            <div className="space-y-4" role="feed" aria-label="Partilhas da comunidade">
+              {conversations.map((conv) => (
+                <ConversationCard key={conv.id} conversation={conv} />
+              ))}
+            </div>
+          )}
 
           {/* Load More */}
-          {hasMore && (
+          {conversations.length > 0 && hasMore && (
             <div className="text-center mt-8">
               <button
                 onClick={loadMore}
                 disabled={loading}
-                className="px-6 py-3 text-brand-600 font-medium hover:text-brand-700 transition flex items-center gap-2 mx-auto disabled:opacity-50"
+                className="min-h-11 px-4 py-2 text-sm text-brand-700 font-medium hover:text-brand-800 transition-colors disabled:opacity-50"
               >
-                {loading ? "Carregando..." : "Carregar mais conversas"}
-                <TrendingUp className="w-4 h-4" />
+                {loading ? "A carregar…" : "Carregar mais partilhas"}
               </button>
             </div>
           )}
-
-          {/* Banner de Conversão de Alto Impacto */}
-          <div className="bg-gradient-to-r from-brand-900 via-brand-800 to-ink-950 rounded-3xl p-6 sm:p-8 text-white flex flex-col md:flex-row items-center justify-between gap-6 mt-12 shadow-xl border border-brand-700/50">
-            <div className="space-y-1 text-center md:text-left">
-              <span className="text-xs font-bold uppercase tracking-wider text-brand-300">
-                Garantia 100% de Entrega · Sem Riscos
-              </span>
-              <h3 className="text-xl sm:text-2xl font-bold">Pronto para importar com segurança?</h3>
-              <p className="text-white/70 text-xs sm:text-sm max-w-xl">
-                Pague em Kwanzas por Multicaixa Express ou referência bancária, submeta o seu comprovativo direto no site e receba o produto na sua morada sem surpresas alfandegárias.
-              </p>
-            </div>
-            <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto shrink-0">
-              <Link
-                href="/importar"
-                className="px-6 py-3.5 bg-brand-500 hover:bg-brand-600 text-white font-bold rounded-xl text-center text-sm transition shadow-lg shadow-brand-500/30"
-              >
-                Simular Preço Agora
-              </Link>
-              <a
-                href="https://wa.me/244922058136?text=Ol%C3%A1%20ImportEasy!%20Estou%20na%20comunidade%20e%20gostaria%20de%20ajuda%20para%20fazer%20uma%20encomenda."
-                target="_blank"
-                rel="noopener noreferrer"
-                className="px-5 py-3.5 bg-white/10 hover:bg-white/20 text-white font-semibold rounded-xl text-center text-sm border border-white/20 transition flex items-center justify-center gap-2"
-              >
-                <MessageSquare className="w-4 h-4 text-emerald-400" /> Apoio (+244 922 058 136)
-              </a>
-            </div>
-          </div>
         </div>
       </main>
-    </div>
-  );
-}
-
-function StatCard({ icon: Icon, value, label }: { icon: React.ComponentType<{ className?: string }>; value: string; label: string }) {
-  return (
-    <div className="bg-white rounded-xl border border-ink-200 p-4 text-center shadow-sm hover:shadow-md transition">
-      <Icon className="w-6 h-6 text-brand-600 mx-auto mb-2" />
-      <div className="text-2xl font-bold text-ink-900">{value}</div>
-      <div className="text-xs text-ink-500">{label}</div>
     </div>
   );
 }

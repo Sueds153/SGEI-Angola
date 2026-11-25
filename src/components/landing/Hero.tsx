@@ -88,7 +88,7 @@ export default function Hero() {
                 className="w-full py-3.5 px-6 rounded-lg bg-brand-600 hover:bg-brand-700 active:bg-brand-800 active:scale-[0.99] text-white font-semibold text-sm sm:text-base flex items-center justify-center gap-2 transition-[background-color,transform] duration-150 cursor-pointer"
             >
               <span>Ver estimativa em Kz</span>
-              <ArrowRight className="w-4 h-4" />
+              <ArrowRight className="cta-arrow w-4 h-4" />
             </button>
             <p className="text-center text-xs text-ink-600">
               Confirmas o valor final e as condições antes de pagar.

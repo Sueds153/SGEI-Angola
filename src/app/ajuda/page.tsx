@@ -2,68 +2,50 @@ import { Container } from "@/components/ui";
 import { Button } from "@/components/ui/Button";
 import { MessageCircle } from "lucide-react";
 import type { Metadata } from "next";
-import Link from "next/link";
-import { Reveal, WordReveal } from "@/components/motion";
-import { Num, Stamp, Asterisk } from "@/components/brand/Mark";
 import { FaqList } from "@/components/help/FaqList";
 
 export const metadata: Metadata = {
   title: "Ajuda / FAQ",
-  description: "Perguntas frequentes sobre como funciona a ImportEasy.",
+  description: "Respostas às perguntas mais frequentes sobre pedidos, pagamentos e entregas.",
 };
 
 export default function AjudaPage() {
   return (
     <>
-      <section className="pt-14 md:pt-24 pb-10 md:pb-16">
+      <section className="py-10 sm:py-14 md:py-20">
         <Container>
-          <Reveal>
-            <Stamp className="border-ink-900 text-ink-900 mb-8">FAQ</Stamp>
-          </Reveal>
-          <WordReveal
-            as="h1"
-            text="Perguntas? Temos respostas."
-            className="apple-headline text-ink-900 max-w-3xl"
-            stagger={45}
-          />
-          <Reveal delay={500}>
-            <p className="apple-subhead mt-6 text-ink-600 max-w-xl">
-              Se a tua pergunta não estiver aqui, fala connosco no WhatsApp — respondemos em horário local.
-            </p>
-          </Reveal>
+          <h1 className="max-w-3xl text-3xl sm:text-4xl md:text-5xl font-semibold tracking-tight leading-tight text-ink-950">
+            Perguntas frequentes
+          </h1>
+          <p className="mt-4 max-w-2xl text-base sm:text-lg leading-relaxed text-ink-600">
+            Encontra respostas sobre pedidos, pagamentos e entregas. Se precisares, a equipa atende-te no WhatsApp durante o horário de Luanda.
+          </p>
         </Container>
       </section>
 
-      <section className="pb-20 md:pb-28">
+      <section className="pb-12 sm:pb-16" aria-label="Perguntas e respostas">
         <Container>
           <FaqList />
         </Container>
       </section>
 
-      <section className="pb-24 md:pb-32">
+      <section className="pb-14 sm:pb-20">
         <Container>
-          <Reveal blur amount={24}>
-            <div className="relative rounded-[32px] md:rounded-[48px] bg-black text-white p-10 md:p-16 overflow-hidden">
-              <div className="absolute top-8 right-8 text-white/30"><Asterisk size={40} /></div>
-              <h2 className="text-3xl md:text-5xl font-semibold tracking-[-0.03em] leading-[1.05] max-w-2xl">
-                Ainda com dúvidas? <span className="italic font-serif font-light">Fala connosco.</span>
-              </h2>
-              <p className="mt-5 text-white/60 text-lg max-w-lg">
-                Atendimento humano em português, em horário de Luanda.
-              </p>
-              <div className="mt-8">
-                <a
-                  href="https://wa.me/244922058136?text=Ol%C3%A1%20ImportEasy!%20Gostaria%20de%20tirar%20uma%20d%C3%BAvida."
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  <Button size="lg" className="bg-white text-black hover:bg-ink-100">
-                    <MessageCircle className="h-4 w-4" /> Chamar no WhatsApp
-                  </Button>
-                </a>
-              </div>
+          <div className="flex flex-col items-start justify-between gap-4 border-t border-ink-200 pt-7 sm:flex-row sm:items-center">
+            <div>
+              <h2 className="text-xl font-semibold text-ink-950">Ainda precisas de ajuda?</h2>
+              <p className="mt-1 text-sm text-ink-600">Fala com a equipa de apoio em português.</p>
             </div>
-          </Reveal>
+            <a
+              href="https://wa.me/244922058136?text=Ol%C3%A1%20ImportEasy!%20Gostaria%20de%20tirar%20uma%20d%C3%BAvida."
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <Button size="lg">
+                <MessageCircle className="h-4 w-4" /> Falar no WhatsApp
+              </Button>
+            </a>
+          </div>
         </Container>
       </section>
     </>

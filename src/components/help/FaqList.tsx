@@ -1,9 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { Reveal } from "@/components/motion";
 import { cn } from "@/lib/utils";
-import { Plus, X } from "lucide-react";
+import { ChevronDown } from "lucide-react";
 
 const FAQS = [
   {
@@ -60,50 +59,41 @@ export function FaqList() {
       {FAQS.map((f, i) => {
         const isOpen = open === i;
         return (
-          <Reveal key={i} delay={i * 40} amount={14}>
+          <div key={i}>
             <button
+              id={`faq-question-${i}`}
               onClick={() => setOpen(isOpen ? null : i)}
-              className="w-full py-6 md:py-8 flex items-start gap-6 text-left group"
+              className="group flex min-h-16 w-full items-center justify-between gap-4 py-5 text-left"
               aria-expanded={isOpen}
+              aria-controls={`faq-answer-${i}`}
             >
               <span
                 className={cn(
-                  "font-mono text-[11px] uppercase tracking-[0.2em] pt-1 transition-colors",
-                  isOpen ? "text-primary-600" : "text-ink-400"
+                  "text-base sm:text-lg font-medium leading-snug transition-colors",
+                  isOpen ? "text-ink-950" : "text-ink-700 group-hover:text-ink-950"
                 )}
               >
-                {String(i + 1).padStart(2, "0")}
+                {f.q}
               </span>
-              <div className="flex-1 min-w-0">
-                <h3
-                  className={cn(
-                    "text-lg md:text-2xl font-semibold tracking-tight leading-tight transition-colors",
-                    isOpen ? "text-ink-900" : "text-ink-700 group-hover:text-ink-900"
-                  )}
-                >
-                  {f.q}
-                </h3>
-                <div
-                  className={cn(
-                    "grid transition-all duration-500",
-                    isOpen ? "grid-rows-[1fr] opacity-100 mt-4" : "grid-rows-[0fr] opacity-0"
-                  )}
-                >
-                  <p className="overflow-hidden text-[15px] md:text-base text-ink-600 leading-relaxed">
-                    {f.a}
-                  </p>
-                </div>
-              </div>
-              <span
+              <ChevronDown
+                aria-hidden="true"
                 className={cn(
-                  "h-8 w-8 rounded-full grid place-items-center flex-shrink-0 transition-colors",
-                  isOpen ? "bg-ink-900 text-white" : "bg-ink-100 text-ink-700 group-hover:bg-ink-200"
+                  "h-5 w-5 shrink-0 text-ink-500 transition-transform duration-200",
+                  isOpen && "rotate-180"
                 )}
-              >
-                {isOpen ? <X className="h-4 w-4" /> : <Plus className="h-4 w-4" />}
-              </span>
+              />
             </button>
-          </Reveal>
+            <div
+              id={`faq-answer-${i}`}
+              role="region"
+              aria-labelledby={`faq-question-${i}`}
+              aria-hidden={!isOpen}
+              hidden={!isOpen}
+              className="max-w-3xl pb-5 pr-8 text-sm sm:text-base leading-relaxed text-ink-600"
+            >
+              {f.a}
+            </div>
+          </div>
         );
       })}
     </div>
