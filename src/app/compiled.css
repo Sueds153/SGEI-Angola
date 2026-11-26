@@ -1386,6 +1386,9 @@
   .overflow-x-auto {
     overflow-x: auto;
   }
+  .overflow-x-hidden {
+    overflow-x: hidden;
+  }
   .overflow-y-auto {
     overflow-y: auto;
   }
@@ -3239,6 +3242,22 @@
   .peer-disabled\:opacity-70 {
     &:is(:where(.peer):disabled ~ *) {
       opacity: 70%;
+    }
+  }
+  .selection\:bg-brand-600 {
+    & *::selection {
+      background-color: var(--color-brand-600);
+    }
+    &::selection {
+      background-color: var(--color-brand-600);
+    }
+  }
+  .selection\:text-white {
+    & *::selection {
+      color: var(--color-white);
+    }
+    &::selection {
+      color: var(--color-white);
     }
   }
   .file\:border-0 {
@@ -5144,8 +5163,6 @@
 html {
   scroll-behavior: smooth;
   -webkit-text-size-adjust: 100%;
-}
-html {
   overflow-x: clip;
 }
 body {
@@ -5155,6 +5172,7 @@ body {
   font-feature-settings: "ss01", "cv11";
   letter-spacing: -0.011em;
   overflow-x: clip;
+  -webkit-overflow-scrolling: touch;
 }
 a {
   text-decoration: none;
@@ -5163,8 +5181,21 @@ a {
   outline: 3px solid var(--color-brand-500);
   outline-offset: 3px;
 }
-button, a {
+button, a, input, select, textarea {
   -webkit-tap-highlight-color: transparent;
+}
+@media screen and (max-width: 640px) {
+  input:not([type="checkbox"]):not([type="radio"]),
+  select,
+  textarea {
+    font-size: 16px !important;
+  }
+}
+.safe-area-bottom {
+  padding-bottom: max(0.5rem, env(safe-area-inset-bottom));
+}
+.safe-area-top {
+  padding-top: max(0.5rem, env(safe-area-inset-top));
 }
 ::-webkit-scrollbar {
   width: 10px;

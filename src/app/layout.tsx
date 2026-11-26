@@ -29,18 +29,28 @@ export const metadata: Metadata = {
     index: true,
     follow: true,
   },
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "ImportEasy",
+  },
+  formatDetection: {
+    telephone: false,
+  },
 };
 
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
-  themeColor: "#000000",
+  maximumScale: 5,
+  viewportFit: "cover",
+  themeColor: "#ffffff",
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="pt-AO">
-      <body className="min-h-screen flex flex-col bg-white text-ink-900 antialiased">
+      <body className="min-h-screen flex flex-col bg-white text-ink-900 antialiased overflow-x-hidden selection:bg-brand-600 selection:text-white">
         <AdaptiveIntelligenceProvider>
           <CartProvider>
             <Sentry.ErrorBoundary fallback={<p>Algo deu errado. Tente recarregar a página.</p>}>
