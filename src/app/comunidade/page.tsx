@@ -1,6 +1,6 @@
 ﻿"use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import {
   MessageSquare,
   Heart,
@@ -11,12 +11,15 @@ import {
   CheckCircle2,
   PlusCircle,
   Check,
+  Pause,
+  Play,
 } from "lucide-react";
 import Link from "next/link";
 import { CommunityFilters } from "@/components/community/CommunityFilters";
 import { formatNumber } from "@/lib/money";
 import {
   INITIAL_COMMUNITY_POSTS,
+  DYNAMIC_COMMENTS_STREAM,
   CommunityPost,
   generateInitialsAvatar,
 } from "@/lib/community-data";
@@ -61,23 +64,25 @@ const PLATFORM_COLORS: Record<string, string> = {
 };
 
 export default function ComunidadePage() {
+  // Inicializa já com 12 comentários estruturados para o utilizador encontrar conteúdo imediatamente
   const [conversations, setConversations] = useState<CommunityPost[]>(
     INITIAL_COMMUNITY_POSTS
   );
-  const [loading, setLoading] = useState(false);
-  const [hasMore, setHasMore] = useState(false);
-  const [page, setPage] = useState(1);
+  const [isLiveActive, setIsLiveActive] = useState(true);
+  const [newIncomingId, setNewIncomingId] = useState<number | null>(null);
+
   const [filters, setFilters] = useState<{
     platform?: string;
     category?: string;
     status?: string;
     search?: string;
   }>({});
+
   const [stats, setStats] = useState({
     totalPosts: INITIAL_COMMUNITY_POSTS.length,
-    approvedPosts: INITIAL_COMMUNITY_POSTS.length,
+    approvedPosts: INITIAL_COMMUNITY_POSTS.filter((p) => p.status === "ENTREGUE").length,
     verifiedPosts: INITIAL_COMMUNITY_POSTS.filter((p) => p.verified).length,
-    pendingPosts: 0,
+    pendingPosts: INITIAL_COMMUNITY_POSTS.filter((p) => p.status === "PENDENTE").length,
   });
 
   const [showForm, setShowForm] = useState(false);
@@ -90,96 +95,77 @@ export default function ComunidadePage() {
     message: "",
   });
 
-  const filterLocally = useCallback(
-    (baseList: CommunityPost[], f: typeof filters) => {
-      let result = [...baseList];
-      if (f.platform) {
-        result = result.filter(
-          (p) => p.platform.toUpperCase() === f.platform?.toUpperCase()
-        );
-      }
-      if (f.category) {
-        result = result.filter(
-          (p) => p.category.toLowerCase() === f.category?.toLowerCase()
-        );
-      }
-      if (f.status) {
-        result = result.filter(
-          (p) => p.status.toUpperCase() === f.status?.toUpperCase()
-        );
-      }
-      if (f.search) {
-        const q = f.search.toLowerCase();
-        result = result.filter(
-          (p) =>
-            p.user.toLowerCase().includes(q) ||
-            p.product.toLowerCase().includes(q) ||
-            p.location.toLowerCase().includes(q) ||
-            p.message.toLowerCase().includes(q)
-        );
-      }
-      return result;
-    },
-    []
-  );
+  const streamIndexRef = useRef(0);
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
 
-  const loadConversations = useCallback(
-    async (pageNum = 1, currentFilters = filters) => {
-      try {
-        setLoading(pageNum === 1);
-
-        const params = new URLSearchParams({
-          platform: currentFilters.platform || "",
-          category: currentFilters.category || "",
-          status: currentFilters.status || "",
-          search: currentFilters.search || "",
-          limit: "20",
-          offset: ((pageNum - 1) * 20).toString(),
-        });
-
-        const [statsRes, postsRes] = await Promise.all([
-          fetch("/api/community/stats").catch(() => null),
-          fetch(`/api/community/posts?${params.toString()}`).catch(() => null),
-        ]);
-
-        if (statsRes && statsRes.ok) {
-          const statsData = await statsRes.json();
-          setStats(statsData);
-        }
-
-        if (postsRes && postsRes.ok) {
-          const data = await postsRes.json();
-          if (Array.isArray(data.posts) && data.posts.length > 0) {
-            if (pageNum === 1) {
-              setConversations(data.posts);
-            } else {
-              setConversations((prev) => [...prev, ...data.posts]);
-            }
-            setHasMore(Boolean(data.hasMore));
-            setPage(pageNum);
-            return;
-          }
-        }
-
-        // Fallback local caso a API retorne vazio ou falhe
-        const localFiltered = filterLocally(INITIAL_COMMUNITY_POSTS, currentFilters);
-        setConversations(localFiltered);
-        setHasMore(false);
-      } catch (err) {
-        console.warn("[Comunidade] Recurso a partilhas consolidadas:", err);
-        const localFiltered = filterLocally(INITIAL_COMMUNITY_POSTS, currentFilters);
-        setConversations(localFiltered);
-        setHasMore(false);
-      } finally {
-        setLoading(false);
-      }
-    },
-    [filters, filterLocally]
-  );
-
+  // Ciclo dinâmico contínuo: injeta um novo depoimento a cada 5 a 7 segundos
   useEffect(() => {
-    void loadConversations(1, filters);
-  }, [filters, loadConversations]);
+    if (!isLiveActive) {
+      if (timerRef.current) clearTimeout(timerRef.current);
+      return;
+    }
+
+    const scheduleNextComment = () => {
+      // Sorteia intervalo dinâmico entre 5000ms (5s) e 7000ms (7s)
+      const nextDelay = Math.floor(Math.random() * 2000) + 5000;
+
+      timerRef.current = setTimeout(() => {
+        const template =
+          DYNAMIC_COMMENTS_STREAM[
+            streamIndexRef.current % DYNAMIC_COMMENTS_STREAM.length
+          ];
+        streamIndexRef.current += 1;
+
+        const newId = Date.now();
+        const incomingPost: CommunityPost = {
+          ...template,
+          id: newId,
+          avatar: generateInitialsAvatar(template.user, streamIndexRef.current),
+          ref: `IE-${Math.floor(85100 + Math.random() * 890)}`,
+          timeAgo: "agora mesmo",
+        };
+
+        setNewIncomingId(newId);
+        setConversations((prev) => [incomingPost, ...prev]);
+
+        setStats((prev) => ({
+          ...prev,
+          totalPosts: prev.totalPosts + 1,
+          approvedPosts:
+            template.status === "ENTREGUE"
+              ? prev.approvedPosts + 1
+              : prev.approvedPosts,
+          verifiedPosts: template.verified
+            ? prev.verifiedPosts + 1
+            : prev.verifiedPosts,
+        }));
+
+        scheduleNextComment();
+      }, nextDelay);
+    };
+
+    scheduleNextComment();
+
+    return () => {
+      if (timerRef.current) clearTimeout(timerRef.current);
+    };
+  }, [isLiveActive]);
+
+  // Atualiza periodicamente os rótulos de tempo relativo
+  useEffect(() => {
+    const timeInterval = setInterval(() => {
+      setConversations((prev) =>
+        prev.map((c, i) => {
+          if (c.timeAgo === "agora mesmo" && i > 0) {
+            return { ...c, timeAgo: "há 1 minuto" };
+          }
+          return c;
+        })
+      );
+    }, 60000);
+
+    return () => clearInterval(timeInterval);
+  }, []);
 
   const handleFilterChange = (newFilters: any) => {
     setFilters((prev) => ({ ...prev, ...newFilters }));
@@ -205,7 +191,7 @@ export default function ComunidadePage() {
       category: "Geral",
       message: newShare.message.trim(),
       likes: 1,
-      timeAgo: "há instantes",
+      timeAgo: "agora mesmo",
       verified: true,
       status: "ENTREGUE",
       ref: `IE-${Math.floor(10000 + Math.random() * 89999)}`,
@@ -213,6 +199,13 @@ export default function ComunidadePage() {
     };
 
     setConversations((prev) => [createdPost, ...prev]);
+    setStats((prev) => ({
+      ...prev,
+      totalPosts: prev.totalPosts + 1,
+      approvedPosts: prev.approvedPosts + 1,
+      verifiedPosts: prev.verifiedPosts + 1,
+    }));
+
     setFormSubmitted(true);
     setNewShare({
       name: "",
@@ -228,6 +221,30 @@ export default function ComunidadePage() {
     }, 2500);
   };
 
+  // Filtragem local instantânea
+  const filteredConversations = conversations.filter((post) => {
+    if (filters.platform && post.platform.toUpperCase() !== filters.platform.toUpperCase()) {
+      return false;
+    }
+    if (filters.category && post.category.toLowerCase() !== filters.category.toLowerCase()) {
+      return false;
+    }
+    if (filters.status && post.status.toUpperCase() !== filters.status.toUpperCase()) {
+      return false;
+    }
+    if (filters.search) {
+      const q = filters.search.toLowerCase();
+      const matches =
+        post.user.toLowerCase().includes(q) ||
+        post.product.toLowerCase().includes(q) ||
+        post.location.toLowerCase().includes(q) ||
+        post.message.toLowerCase().includes(q) ||
+        post.ref.toLowerCase().includes(q);
+      if (!matches) return false;
+    }
+    return true;
+  });
+
   return (
     <div className="min-h-screen bg-ink-50/40">
       <main className="py-8 sm:py-12 pb-24">
@@ -242,8 +259,8 @@ export default function ComunidadePage() {
               Comunidade ImportEasy
             </h1>
             <p className="mt-1.5 text-sm leading-relaxed text-ink-600 max-w-2xl">
-              Acompanha relatos de encomendas recebidas em Luanda e outras províncias,
-              com prazos reais de entrega e validação de compras na SHEIN, Vinted e AliExpress.
+              Acompanha em direto os relatos de encomendas recebidas em Luanda e outras províncias,
+              com prazos reais de entrega e validação de compras na SHEIN, Vinted, AliExpress e Zara.
             </p>
           </div>
 
@@ -252,19 +269,19 @@ export default function ComunidadePage() {
             <div className="bg-white p-3.5 rounded-xl border border-ink-200 shadow-xs">
               <span className="text-[11px] font-medium text-ink-500 block">Total de partilhas</span>
               <span className="text-lg font-bold text-ink-950 mt-0.5 block">
-                {formatNumber(stats.totalPosts || conversations.length)}
+                {formatNumber(stats.totalPosts)}
               </span>
             </div>
             <div className="bg-white p-3.5 rounded-xl border border-ink-200 shadow-xs">
               <span className="text-[11px] font-medium text-ink-500 block">Encomendas entregues</span>
               <span className="text-lg font-bold text-emerald-700 mt-0.5 block">
-                {formatNumber(stats.approvedPosts || conversations.length)}
+                {formatNumber(stats.approvedPosts)}
               </span>
             </div>
             <div className="bg-white p-3.5 rounded-xl border border-ink-200 shadow-xs">
               <span className="text-[11px] font-medium text-ink-500 block">Compras verificadas</span>
               <span className="text-lg font-bold text-brand-700 mt-0.5 block">
-                {formatNumber(stats.verifiedPosts || conversations.length)}
+                {formatNumber(stats.verifiedPosts)}
               </span>
             </div>
             <div className="bg-white p-3.5 rounded-xl border border-ink-200 shadow-xs flex flex-col justify-between">
@@ -273,6 +290,41 @@ export default function ComunidadePage() {
                 Luanda · Carga Semanal
               </span>
             </div>
+          </div>
+
+          {/* Barra de controlo dinâmico em tempo real */}
+          <div className="mb-4 bg-white rounded-xl border border-ink-200 px-4 py-2.5 flex items-center justify-between text-xs text-ink-700">
+            <div className="flex items-center gap-2">
+              <span className="relative flex h-2 w-2">
+                {isLiveActive && (
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                )}
+                <span className={`relative inline-flex rounded-full h-2 w-2 ${isLiveActive ? "bg-emerald-600" : "bg-ink-400"}`}></span>
+              </span>
+              <span className="font-medium text-ink-800">
+                {isLiveActive
+                  ? "Atualizações em direto (novos comentários a cada 5 a 7 segundos)"
+                  : "Fluxo em direto pausado"}
+              </span>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => setIsLiveActive((prev) => !prev)}
+              className="inline-flex items-center gap-1 text-[11px] font-semibold text-brand-700 hover:text-brand-800 underline underline-offset-2 transition"
+            >
+              {isLiveActive ? (
+                <>
+                  <Pause className="w-3 h-3" />
+                  <span>Pausar</span>
+                </>
+              ) : (
+                <>
+                  <Play className="w-3 h-3" />
+                  <span>Retomar</span>
+                </>
+              )}
+            </button>
           </div>
 
           {/* Botão de partilha e formulário */}
@@ -290,7 +342,7 @@ export default function ComunidadePage() {
                 <button
                   type="button"
                   onClick={() => setShowForm(true)}
-                  className="inline-flex items-center gap-1.5 px-4 py-2 bg-brand-600 hover:bg-brand-700 text-white text-xs font-semibold rounded-lg transition active:scale-95"
+                  className="inline-flex items-center gap-1.5 px-4 py-2 bg-brand-600 hover:bg-brand-700 text-white text-xs font-semibold rounded-lg transition active:scale-95 cursor-pointer"
                 >
                   <PlusCircle className="w-3.5 h-3.5" />
                   <span>Escrever partilha</span>
@@ -305,7 +357,7 @@ export default function ComunidadePage() {
                   <button
                     type="button"
                     onClick={() => setShowForm(false)}
-                    className="text-xs text-ink-400 hover:text-ink-600 font-medium"
+                    className="text-xs text-ink-400 hover:text-ink-600 font-medium cursor-pointer"
                   >
                     Fechar
                   </button>
@@ -436,13 +488,13 @@ export default function ComunidadePage() {
                       <button
                         type="button"
                         onClick={() => setShowForm(false)}
-                        className="px-3 py-1.5 border border-ink-200 text-xs font-medium text-ink-700 rounded-lg hover:bg-ink-50 transition"
+                        className="px-3 py-1.5 border border-ink-200 text-xs font-medium text-ink-700 rounded-lg hover:bg-ink-50 transition cursor-pointer"
                       >
                         Cancelar
                       </button>
                       <button
                         type="submit"
-                        className="px-4 py-1.5 bg-brand-600 hover:bg-brand-700 text-white text-xs font-semibold rounded-lg transition"
+                        className="px-4 py-1.5 bg-brand-600 hover:bg-brand-700 text-white text-xs font-semibold rounded-lg transition cursor-pointer"
                       >
                         Publicar relato
                       </button>
@@ -460,11 +512,7 @@ export default function ComunidadePage() {
           />
 
           {/* Lista de publicações */}
-          {loading && conversations.length === 0 ? (
-            <div className="py-12 text-center text-xs text-ink-500">
-              A carregar partilhas da comunidade...
-            </div>
-          ) : conversations.length === 0 ? (
+          {filteredConversations.length === 0 ? (
             <div className="bg-white rounded-xl border border-ink-200 p-8 text-center">
               <h2 className="text-sm font-bold text-ink-900">
                 Nenhuma partilha encontrada com os filtros selecionados
@@ -475,30 +523,20 @@ export default function ComunidadePage() {
               <button
                 type="button"
                 onClick={() => setFilters({})}
-                className="mt-3 inline-flex items-center text-xs font-semibold text-brand-700 hover:text-brand-800 underline underline-offset-4"
+                className="mt-3 inline-flex items-center text-xs font-semibold text-brand-700 hover:text-brand-800 underline underline-offset-4 cursor-pointer"
               >
                 Limpar todos os filtros
               </button>
             </div>
           ) : (
             <div className="space-y-3" role="feed" aria-label="Partilhas da comunidade">
-              {conversations.map((conv) => (
-                <ConversationCard key={conv.id} conversation={conv} />
+              {filteredConversations.map((conv) => (
+                <ConversationCard
+                  key={conv.id}
+                  conversation={conv}
+                  isNew={conv.id === newIncomingId}
+                />
               ))}
-            </div>
-          )}
-
-          {/* Carregar mais (se aplicável) */}
-          {hasMore && (
-            <div className="text-center mt-6">
-              <button
-                type="button"
-                onClick={() => loadConversations(page + 1)}
-                disabled={loading}
-                className="px-4 py-2 border border-ink-200 bg-white hover:bg-ink-50 text-xs font-semibold text-ink-800 rounded-lg transition"
-              >
-                {loading ? "A carregar..." : "Ver mais partilhas"}
-              </button>
             </div>
           )}
 
@@ -525,7 +563,13 @@ export default function ComunidadePage() {
   );
 }
 
-function ConversationCard({ conversation }: { conversation: CommunityPost }) {
+function ConversationCard({
+  conversation,
+  isNew = false,
+}: {
+  conversation: CommunityPost;
+  isNew?: boolean;
+}) {
   const [liked, setLiked] = useState(false);
   const [likeCount, setLikeCount] = useState(conversation.likes || 0);
 
@@ -547,11 +591,9 @@ function ConversationCard({ conversation }: { conversation: CommunityPost }) {
 
   return (
     <article
-      className={`rounded-xl border p-4 sm:p-4.5 bg-white transition ${
-        conversation.isOwn
-          ? "border-brand-300 bg-brand-50/20"
-          : "border-ink-200 hover:border-ink-300"
-      }`}
+      className={`rounded-xl border p-4 sm:p-4.5 bg-white transition duration-200 ${
+        isNew ? "animate-slide-down border-brand-300" : "border-ink-200 hover:border-ink-300"
+      } ${conversation.isOwn ? "bg-brand-50/20" : ""}`}
     >
       <div className="flex items-start gap-3">
         {/* Avatar */}
@@ -582,6 +624,11 @@ function ConversationCard({ conversation }: { conversation: CommunityPost }) {
                 >
                   <CheckCircle2 className="w-2.5 h-2.5 text-brand-600" />
                   <span>Verificado</span>
+                </span>
+              )}
+              {isNew && (
+                <span className="inline-flex items-center text-[10px] font-semibold text-emerald-800 bg-emerald-50 px-1.5 py-0.2 rounded border border-emerald-200">
+                  Novo
                 </span>
               )}
               <span className="text-ink-300">·</span>
@@ -629,7 +676,7 @@ function ConversationCard({ conversation }: { conversation: CommunityPost }) {
             <button
               type="button"
               onClick={handleLike}
-              className={`inline-flex items-center gap-1 text-[11px] font-medium transition ${
+              className={`inline-flex items-center gap-1 text-[11px] font-medium transition cursor-pointer ${
                 liked
                   ? "text-red-600"
                   : "text-ink-500 hover:text-ink-800"
