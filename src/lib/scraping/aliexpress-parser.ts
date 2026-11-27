@@ -16,6 +16,7 @@ export interface AliExpressProduct {
     min: number;
     max: number;
     original: number;
+    currency: string;
   };
   rating: {
     average: number;
@@ -70,31 +71,93 @@ function extractSkuData(html: string): any {
   return null;
 }
 
-function extractPrice(html: string): { min: number; max: number; original: number } {
-  // Tenta extrair de múltiplas fontes
-  const patterns = [
-    /"amount"\s*:\s*"([\d.]+)"/g,
-    /"salePrice"\s*:\s*"([\d.]+)"/g,
-    /"originalPrice"\s*:\s*"([\d.]+)"/g,
-  ];
+function extractPrice(html: string): { min: number; max: number; original: number; currency: string } {
+  let currency = "USD";
 
-  let min = 0, max = 0, original = 0;
-
-  for (const pattern of patterns) {
-    const matches = Array.from(html.matchAll(pattern));
-    if (matches.length > 0) {
-      const values = matches.map(m => parseFloat(m[1])).filter(v => v > 0);
-      min = Math.min(...values);
-      max = Math.max(...values);
+  // 1. Tenta JSON-LD schema.org Product/Offers (mais confiável)
+  const jsonLd = extractJsonLd(html);
+  for (const ld of jsonLd) {
+    if (ld["@type"] === "Product" && ld.offers) {
+      const offers = Array.isArray(ld.offers) ? ld.offers[0] : ld.offers;
+      if (offers.price) {
+        const price = parseFloat(String(offers.price));
+        if (offers.priceCurrency) currency = offers.priceCurrency.toUpperCase();
+        return { min: price, max: price, original: price, currency };
+      }
+      if (offers.lowPrice && offers.highPrice) {
+        const min = parseFloat(String(offers.lowPrice));
+        const max = parseFloat(String(offers.highPrice));
+        if (offers.priceCurrency) currency = offers.priceCurrency.toUpperCase();
+        return { min, max, original: max, currency };
+      }
     }
   }
 
-  if (original === 0 && max > 0) {
-    original = max;
-    min = min || max;
+  // 2. Tenta __NEXT_DATA__ (dados do Next.js)
+  const nextData = extractNextData(html);
+  if (nextData?.props?.pageProps?.product) {
+    const product = nextData.props.pageProps.product;
+    // Estrutura típica: product.price.min, product.price.max, product.price.currency
+    if (product.price) {
+      const min = parseFloat(String(product.price.min || product.price.salePrice || 0));
+      const max = parseFloat(String(product.price.max || product.price.originalPrice || product.price.salePrice || 0));
+      if (product.price.currency) currency = product.price.currency.toUpperCase();
+      if (min > 0 || max > 0) {
+        return { min: min || max, max: max || min, original: max || min, currency };
+      }
+    }
+    // Fallback: campos diretos
+    if (product.salePrice || product.originalPrice) {
+      const min = parseFloat(String(product.salePrice || product.originalPrice || 0));
+      const max = parseFloat(String(product.originalPrice || product.salePrice || 0));
+      if (product.currencyCode) currency = product.currencyCode.toUpperCase();
+      return { min, max, original: max, currency };
+    }
   }
 
-  return { min, max, original: max };
+  // 3. Tenta skuData embutido
+  const skuData = extractSkuData(html);
+  if (skuData?.skuListData?.skuList?.length) {
+    const prices = skuData.skuListData.skuList
+      .map((sku: any) => parseFloat(String(sku.skuPrice || sku.price || 0)))
+      .filter((p: number) => p > 0);
+    if (prices.length > 0) {
+      const min = Math.min(...prices);
+      const max = Math.max(...prices);
+      if (skuData.currencyCode) currency = skuData.currencyCode.toUpperCase();
+      return { min, max, original: max, currency };
+    }
+  }
+
+  // 4. Fallback: regex direcionado apenas para preço de venda (não min/max de todos "amount")
+  // Procura por salePrice, originalPrice, ou preço em formato estruturado
+  const salePriceMatch = html.match(/"salePrice"\s*:\s*"([\d.]+)"/);
+  const originalPriceMatch = html.match(/"originalPrice"\s*:\s*"([\d.]+)"/);
+  const priceMatch = html.match(/"price"\s*:\s*"([\d.]+)"/);
+  const amountMatch = html.match(/"amount"\s*:\s*"([\d.]+)"/);
+
+  let min = 0, max = 0, original = 0;
+
+  if (salePriceMatch) {
+    min = parseFloat(salePriceMatch[1]);
+    if (originalPriceMatch) {
+      max = parseFloat(originalPriceMatch[1]);
+    } else if (priceMatch) {
+      max = parseFloat(priceMatch[1]);
+    } else {
+      max = min;
+    }
+    original = max;
+  } else if (originalPriceMatch) {
+    min = max = original = parseFloat(originalPriceMatch[1]);
+  } else if (priceMatch) {
+    min = max = original = parseFloat(priceMatch[1]);
+  } else if (amountMatch) {
+    // Último recurso: primeiro "amount" encontrado (evita min/max ruidoso)
+    min = max = original = parseFloat(amountMatch[1]);
+  }
+
+  return { min, max, original: max, currency };
 }
 
 function extractImages(html: string): string[] {
@@ -152,9 +215,16 @@ function extractTitle(html: string): string {
 function containsRequestedProduct(html: string, productId: string): boolean {
   const escapedId = productId.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
   const identityPatterns = [
-    new RegExp(`(?:productId|product_id|itemId|item_id|productID|itemID)\\s*[\\"']?\\s*:\\s*[\\"']?${escapedId}(?:[\\"'&,}]|$)`, "i"),
-    new RegExp(`(?:canonical|og:url)[^>]*(?:/item/${escapedId}(?:\\.html)?|[?&](?:productId|itemId)=${escapedId})`, "i"),
+    // IDs explícitos no JSON/JS
+    new RegExp(`(?:productId|product_id|itemId|item_id|productID|itemID|goods_id|goodsId)\\s*[\\"']?\\s*:\\s*[\\"']?${escapedId}(?:[\\"'&,}]|$)`, "i"),
+    // Canonical URL ou og:url contendo o ID
+    new RegExp(`(?:canonical|og:url)[^>]*(?:/item/${escapedId}(?:\\.html)?|[?&](?:productId|itemId|goods_id)=${escapedId})`, "i"),
+    // Link canonical explícito
     new RegExp(`<link[^>]+href=[\\"'][^\\"']*/item/${escapedId}(?:\\.html)?[^\\"']*[\\"'][^>]*rel=[\\"']canonical`, "i"),
+    // Meta property product:retailer_item_id
+    new RegExp(`<meta[^>]+property=["']product:retailer_item_id["'][^>]+content=["']${escapedId}["']`, "i"),
+    // data-product-id ou data-item-id attributes
+    new RegExp(`(?:data-product-id|data-item-id|data-goods-id)=["']${escapedId}["']`, "i"),
   ];
   return identityPatterns.some((pattern) => pattern.test(html));
 }
@@ -174,6 +244,12 @@ export function parseAliExpressHtml(html: string, productId: string): AliExpress
     const title = extractTitle(html);
     const price = extractPrice(html);
     const images = extractImages(html);
+
+    // Validação extra: se o preço parece irrealista (ex: $0.01 ou > $10000), rejeita
+    if (price.min <= 0 || price.min > 10000 || price.max > 10000) {
+      console.warn('[AliExpress Parser] Preço fora de intervalo plausível:', price);
+      return null;
+    }
     
     // Extrai rating e orders
     let ratingAvg = 0;

@@ -251,37 +251,30 @@ export async function resolveAndScrapeUrl(rawInput: string): Promise<ResolvedPro
       }
     }
 
-    // 4. Tentar extração de preço via OpenGraph ou Regex
+    // 4. Tentar extração de preço via OpenGraph ou JSON-LD (sem regexes soltos)
     if (!price) {
       const ogPrice = html.match(/<meta[^>]+property=["'](?:og:price:amount|product:price:amount)["'][^>]+content=["']([^"']+)["']/i) ||
                       html.match(/<meta[^>]+content=["']([^"']+)["'][^>]+property=["'](?:og:price:amount|product:price:amount)["']/i);
       if (ogPrice?.[1]) {
         const parsedP = parseFloat(ogPrice[1].replace(/,/g, "."));
-        if (parsedP > 0) price = parsedP;
+        if (parsedP > 0 && parsedP < 5000) price = parsedP;
+      }
+      const ogCurrency = html.match(/<meta[^>]+property=["'](?:og:price:currency|product:price:currency)["'][^>]+content=["']([^"']+)["']/i) ||
+                         html.match(/<meta[^>]+content=["']([^"']+)["'][^>]+property=["'](?:og:price:currency|product:price:currency)["']/i);
+      if (ogCurrency?.[1]) {
+        const c = ogCurrency[1].toUpperCase().trim();
+        if (c === "EUR" || c === "USD" || c === "CNY") currency = c;
       }
     }
 
-    if (!price) {
-      // Padrões de preço comuns no HTML
-      const pricePatterns = [
-        /"original_price":\{[^}]*"amount":"([^"]+)"/,
-        /"sale_price":\{[^}]*"amount":"([^"]+)"/,
-        /"total_item_price":\{[^}]*"amount":"([^"]+)"/,
-        /"price":\s*([0-9]+(?:\.[0-9]{2})?)/,
-        /"usdPrice":\s*"?([0-9]+\.[0-9]{2})"?/,
-        /\$\s*([0-9]+(?:\.[0-9]{2})?)/,
-        /([0-9]+(?:\.[0-9]{2})?)\s*(?:USD|\$|EUR|€)/i,
-      ];
-      for (const pattern of pricePatterns) {
-        const m = html.match(pattern);
-        if (m?.[1]) {
-          const val = parseFloat(m[1].replace(/,/g, "."));
-          if (val > 0 && val < 5000) {
-            price = val;
-            break;
-          }
-        }
-      }
+    // Fallback: JSON-LD Product offers (já processado acima mas pode ter currency)
+    // Não usamos regexes soltos como /"price":\s*\d/ ou /\$\s*\d/ pois capturam
+    // preços de recomendações, anúncios ou valores irrelevantes.
+    // Se não há preço confiável via JSON-LD/OG, retornamos needs_price.
+
+    // Se ainda não encontrou moeda, deteta por plataforma
+    if (currency === "USD" && (platform.key === "VINTED" || platform.key === "ZARA")) {
+      currency = "EUR";
     }
   }
 
@@ -302,7 +295,9 @@ export async function resolveAndScrapeUrl(rawInput: string): Promise<ResolvedPro
   }
 
   const config = await loadPricingConfig();
-  const rate = currency === "EUR" ? (config.exchangeRateUsdToAoa * 1.08) : config.exchangeRateUsdToAoa;
+  const validCurrency = (currency === "EUR" || currency === "CNY" || currency === "USD") ? currency : "USD";
+  const rate = validCurrency === "EUR" ? config.exchangeRateEurToAoa :
+               validCurrency === "CNY" ? config.exchangeRateCnyToAoa : config.exchangeRateUsdToAoa;
 
   // Lógica de Taxa de Proteção ao Comprador da Vinted (0,70 € + 5% do artigo)
   const isVinted = platform.key === "VINTED";
@@ -326,6 +321,7 @@ export async function resolveAndScrapeUrl(rawInput: string): Promise<ResolvedPro
     const breakdown = calculatePrice(
       {
         productPriceUsd: effectivePurchasePrice,
+        productCurrency: validCurrency,
         quantity: 1,
         weightGrams: 300,
       },

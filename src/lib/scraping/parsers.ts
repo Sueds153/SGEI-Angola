@@ -64,10 +64,19 @@ export function parseVinted(markdown: string): Listing[] {
 }
 
 /**
- * AliExpress: o bloco de cada anúncio traz a galeria de imagens (com o título no
- * texto alternativo), seguida de `### TÍTULO`, do preço em dólares e do link do
+ * AliExpress: o bloco de cada anúncio traz a galeria de imagens (com o
+ * título no texto alternativo), seguida de `### TÍTULO`, do preço em dólares/euros e do link do
  * artigo. Percorremos a galeria e recolhemos tudo o que pertence ao mesmo anúncio
  * dentro de uma janela curta de markdown.
+ *
+ * Formato típico observado no markdown do Jina AI:
+ *   "$24.46$24.46 **$51.00**"  → sale=24.46, list=51.00
+ *   "$1.09$1.09 $12.91$12.91 -91%" → sale=1.09, list=12.91 (new-buyer, rejected)
+ *   "€15.99€15.99 **€29.99**" → sale=15.99, list=29.99 (EUR)
+ *
+ * Extração robusta: captura o par sale/list explícito ($sale$sale $list$list ou €sale€sale €list€list),
+ * falha para o preço bold ($list ou €list) se o par não existir, e rejeita quando
+ * sale < list * 0.25 (promoção de novo comprador não replicável).
  */
 export function parseAliExpress(markdown: string): Listing[] {
   const listings: Listing[] = [];
@@ -85,15 +94,42 @@ export function parseAliExpress(markdown: string): Listing[] {
     if (seen.has(externalId)) continue;
 
     const heading = span.match(/### ([^!\n]{10,400})/)?.[1];
-    const price = toPrice(
-      span.match(/### [\s\S]{0,1500}?(?:\$\s?(\d+(?:[.,]\d{1,2})?))/)?.[1]
-    );
-    // Preços de "novo comprador" (ex.: 1,09 USD sobre 15,19 USD) não são
-    // replicáveis num pedido real; ignoramos essas promoções.
-    const listPrice = toPrice(span.match(/\*\*\$\s?(\d+(?:[.,]\d{1,2})?)\*\*/)?.[1]);
-    if (listPrice > 0 && price > 0 && price < listPrice * 0.25) continue;
     const title = cleanTitle((match[1] || heading || "").split(/\s·\s/)[0]);
     const image = match[2];
+
+    // Tenta extrair par sale/list explícito: $12.34$12.34 $56.78$56.78 ou €12.34€12.34 €56.78€56.78
+    const pairMatch = span.match(/([$€])\s*(\d+(?:[.,]\d{1,2})?)\s*\1\s*(\d+(?:[.,]\d{1,2})?)\s*\1\s*(\d+(?:[.,]\d{1,2})?)\s*\1/);
+    let price = 0;
+    let listPrice = 0;
+    let currency = "USD";
+
+    if (pairMatch) {
+      // Formato: símbolo sale1 sale2 list1 list2 (ex: $1.09$1.09 $12.91$12.91)
+      price = toPrice(pairMatch[2]);
+      listPrice = toPrice(pairMatch[4]);
+      currency = pairMatch[1] === "€" ? "EUR" : "USD";
+    } else {
+      // Fallback 1: preço bold (**$list** ou **€list**) + primeiro preço normal como sale
+      const boldMatch = span.match(/\*\*([$€])\s?(\d+(?:[.,]\d{1,2})?)\*\*/);
+      const firstPriceMatch = span.match(/### [\s\S]{0,1500}?([$€])\s?(\d+(?:[.,]\d{1,2})?)/);
+      if (boldMatch && firstPriceMatch) {
+        price = toPrice(firstPriceMatch[2]);
+        listPrice = toPrice(boldMatch[2]);
+        currency = boldMatch[1] === "€" ? "EUR" : "USD";
+      } else if (boldMatch) {
+        // Fallback 2: apenas preço bold disponível
+        listPrice = toPrice(boldMatch[2]);
+        price = listPrice;
+        currency = boldMatch[1] === "€" ? "EUR" : "USD";
+      } else if (firstPriceMatch) {
+        // Fallback 3: apenas primeiro preço
+        price = toPrice(firstPriceMatch[2]);
+        currency = firstPriceMatch[1] === "€" ? "EUR" : "USD";
+      }
+    }
+
+    // Rejeita preços de "novo comprador" (sale < 25% do listPrice) quando temos ambos
+    if (listPrice > 0 && price > 0 && price < listPrice * 0.25) continue;
 
     if (!title || title.length < 6 || price <= 0) continue;
 
@@ -101,7 +137,7 @@ export function parseAliExpress(markdown: string): Listing[] {
     listings.push({
       title,
       price,
-      currency: "USD",
+      currency,
       image,
       url: `https://www.aliexpress.com/item/${externalId}.html`,
       externalId,

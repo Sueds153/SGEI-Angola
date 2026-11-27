@@ -275,15 +275,29 @@ async function tryInternalCatalog(url: string): Promise<RobustResolveResult | nu
     if (result.status === "found" && result.product) {
       const prod = result.product as any;
       // Catálogo/demo só pode responder quando a plataforma e o ID coincidem.
-      // O provider de administração também pode procurar por URL parcial.
-      if (prod.source?.toLowerCase() !== requested.platform || prod.externalId !== requested.id) {
+      // E nunca intercepta URLs reais com dados de demonstração (externalId DEMO-* ou MOCK)
+      if (
+        prod.source?.toLowerCase() !== requested.platform || 
+        prod.externalId !== requested.id ||
+        String(prod.id).startsWith("demo-") ||
+        String(prod.externalId).startsWith("DEMO-")
+      ) {
         return null;
       }
 
       const config = await loadPricingConfig();
       const price = Number(prod.originalPriceUsd);
       if (!Number.isFinite(price) || price <= 0) return null;
-      const breakdown = calculatePrice({ productPriceUsd: price, quantity: 1, weightGrams: prod.weightGrams }, config);
+      const validCurrency = (prod.currency === "EUR" || prod.currency === "CNY" || prod.currency === "USD") ? prod.currency : "USD";
+      const breakdown = calculatePrice({
+        productPriceUsd: price,
+        productCurrency: validCurrency,
+        quantity: 1,
+        weightGrams: prod.weightGrams,
+      }, config);
+
+      const rate = validCurrency === "EUR" ? config.exchangeRateEurToAoa :
+                   validCurrency === "CNY" ? config.exchangeRateCnyToAoa : config.exchangeRateUsdToAoa;
 
       return {
         success: true,
@@ -299,7 +313,7 @@ async function tryInternalCatalog(url: string): Promise<RobustResolveResult | nu
         defaultImage: prod.defaultImage || prod.images?.[0] || null,
         sourceUrl: url,
         estimatedTotalAOA: Math.round(breakdown.totalCents / 100),
-        exchangeRate: config.exchangeRateUsdToAoa,
+        exchangeRate: Math.round(rate),
         serviceFee: Math.round(breakdown.serviceFeeCents / 100),
         logisticsFee: Math.round(breakdown.logisticsFeeCents / 100),
         deliveryFee: Math.round(breakdown.deliveryFeeCents / 100),
@@ -345,12 +359,15 @@ async function tryDirectScraping(url: string, platform: string): Promise<RobustR
       
       if (parsed) {
         const config = await loadPricingConfig();
-        // Determine currency from platform since not all parsers return it
+        // Determine currency from platform or parser
         const currency = platform === "VINTED" ? "EUR" : 
-                         (parsed as any).currency || "USD";
-        const rate = currency === "EUR" ? config.exchangeRateUsdToAoa * 1.08 : config.exchangeRateUsdToAoa;
+                         (parsed as any).currency || (parsed as any).price?.currency || "USD";
+        const validCurrency = (currency === "EUR" || currency === "CNY" || currency === "USD") ? currency : "USD";
+        const rate = validCurrency === "EUR" ? config.exchangeRateEurToAoa :
+                     validCurrency === "CNY" ? config.exchangeRateCnyToAoa : config.exchangeRateUsdToAoa;
         const breakdown = calculatePrice({
           productPriceUsd: parsed.price.min,
+          productCurrency: validCurrency,
           quantity: 1,
           weightGrams: 300,
         }, config);
@@ -403,10 +420,13 @@ async function tryDirectScraping(url: string, platform: string): Promise<RobustR
       if (parsed) {
         const config = await loadPricingConfig();
         const currency = platform === "VINTED" ? "EUR" : 
-                         (parsed as any).currency || "USD";
-        const rate = currency === "EUR" ? config.exchangeRateUsdToAoa * 1.08 : config.exchangeRateUsdToAoa;
+                         (parsed as any).currency || (parsed as any).price?.currency || "USD";
+        const validCurrency = (currency === "EUR" || currency === "CNY" || currency === "USD") ? currency : "USD";
+        const rate = validCurrency === "EUR" ? config.exchangeRateEurToAoa :
+                     validCurrency === "CNY" ? config.exchangeRateCnyToAoa : config.exchangeRateUsdToAoa;
         const breakdown = calculatePrice({
           productPriceUsd: parsed.price.min,
+          productCurrency: validCurrency,
           quantity: 1,
           weightGrams: 300,
         }, config);

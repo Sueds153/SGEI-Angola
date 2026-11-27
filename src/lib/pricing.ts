@@ -142,6 +142,7 @@ export function roundToNearest(cents: number, nearest: number): number {
 
 export interface CalculatePriceInput {
   productPriceUsd: number;
+  productCurrency?: "USD" | "EUR" | "CNY"; // Moeda do preço do produto (padrão: USD)
   quantity?: number;
   weightGrams?: number | null;
   variantPriceModifierUsd?: number;
@@ -154,8 +155,23 @@ export function calculatePrice(input: CalculatePriceInput, config: PricingConfig
   const unitUsd = input.productPriceUsd + (input.variantPriceModifierUsd ?? 0);
   const totalUsd = unitUsd * quantity;
 
+  // Selecionar taxa de câmbio baseada na moeda do produto
+  let exchangeRate = config.exchangeRateUsdToAoa;
+  switch (input.productCurrency) {
+    case "EUR":
+      exchangeRate = config.exchangeRateEurToAoa;
+      break;
+    case "CNY":
+      exchangeRate = config.exchangeRateCnyToAoa;
+      break;
+    case "USD":
+    default:
+      exchangeRate = config.exchangeRateUsdToAoa;
+      break;
+  }
+
   // Converter para cêntimos de Kz
-  const grossProductCents = Math.round(totalUsd * config.exchangeRateUsdToAoa * 100);
+  const grossProductCents = Math.round(totalUsd * exchangeRate * 100);
 
   // Taxa de serviço
   let serviceFeeCents = Math.round(grossProductCents * config.serviceFeePct);
@@ -200,7 +216,7 @@ export function calculatePrice(input: CalculatePriceInput, config: PricingConfig
 
   return {
     originalPriceUsd: totalUsd,
-    exchangeRate: config.exchangeRateUsdToAoa,
+    exchangeRate,
     subtotalCents,
     serviceFeeCents,
     logisticsFeeCents,
