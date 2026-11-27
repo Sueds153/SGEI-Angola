@@ -18,6 +18,7 @@ import { scrapeWithFallback, clearScrapingCache, getCacheStats } from "@/lib/scr
 import { scrapeWithFreeFallback } from "@/lib/scraping/free-scraper";
 import { parseAliExpressHtml } from "@/lib/scraping/aliexpress-parser";
 import { parseSheinHtml } from "@/lib/scraping/shein-parser";
+import { parseVintedHtml } from "@/lib/scraping/vinted-parser";
 import type { NormalizedProduct } from "@/lib/types";
 
 export interface ResolutionAttempt {
@@ -355,6 +356,23 @@ async function tryDirectScraping(url: string, platform: string): Promise<RobustR
       } else if (platform === "SHEIN") {
         const productId = extractProductId(url)?.id;
         if (productId) parsed = parseSheinHtml(freeResult.html, productId);
+      } else if (platform === "VINTED") {
+        const productId = extractProductId(url)?.id;
+        if (productId) {
+          const vintedItem = parseVintedHtml(freeResult.html, productId);
+          if (vintedItem && parseFloat(vintedItem.price.amount) > 0) {
+            parsed = {
+              id: String(vintedItem.id),
+              title: vintedItem.title,
+              price: { min: parseFloat(vintedItem.price.amount) },
+              currency: "EUR",
+              images: vintedItem.images.thumbnails || [vintedItem.images.url],
+              vintedBasePrice: parseFloat(vintedItem.price.amount),
+              vintedProtectionFee: parseFloat(vintedItem.service_fee.amount),
+              vintedTotalPrice: parseFloat(vintedItem.total_price.amount),
+            };
+          }
+        }
       }
       
       if (parsed) {
@@ -389,6 +407,12 @@ async function tryDirectScraping(url: string, platform: string): Promise<RobustR
           logisticsFee: Math.round(breakdown.logisticsFeeCents / 100),
           deliveryFee: Math.round(breakdown.deliveryFeeCents / 100),
           estimatedDays: 18,
+          ...((parsed as any).vintedBasePrice ? {
+            vintedBasePrice: (parsed as any).vintedBasePrice,
+            vintedProtectionFee: (parsed as any).vintedProtectionFee,
+            vintedTotalPrice: (parsed as any).vintedTotalPrice,
+            hasBuyerProtection: true,
+          } : {}),
           attempts,
           fallbackUsed: "free_scraper",
         };
@@ -415,6 +439,20 @@ async function tryDirectScraping(url: string, platform: string): Promise<RobustR
         parsed = parseAliExpressHtml(scrapeResult.html, productId);
       } else if (platform === "SHEIN" && productId) {
         parsed = parseSheinHtml(scrapeResult.html, productId);
+      } else if (platform === "VINTED" && productId) {
+        const vintedItem = parseVintedHtml(scrapeResult.html, productId);
+        if (vintedItem && parseFloat(vintedItem.price.amount) > 0) {
+          parsed = {
+            id: String(vintedItem.id),
+            title: vintedItem.title,
+            price: { min: parseFloat(vintedItem.price.amount) },
+            currency: "EUR",
+            images: vintedItem.images.thumbnails || [vintedItem.images.url],
+            vintedBasePrice: parseFloat(vintedItem.price.amount),
+            vintedProtectionFee: parseFloat(vintedItem.service_fee.amount),
+            vintedTotalPrice: parseFloat(vintedItem.total_price.amount),
+          };
+        }
       }
       
       if (parsed) {
@@ -448,6 +486,12 @@ async function tryDirectScraping(url: string, platform: string): Promise<RobustR
           logisticsFee: Math.round(breakdown.logisticsFeeCents / 100),
           deliveryFee: Math.round(breakdown.deliveryFeeCents / 100),
           estimatedDays: 18,
+          ...((parsed as any).vintedBasePrice ? {
+            vintedBasePrice: (parsed as any).vintedBasePrice,
+            vintedProtectionFee: (parsed as any).vintedProtectionFee,
+            vintedTotalPrice: (parsed as any).vintedTotalPrice,
+            hasBuyerProtection: true,
+          } : {}),
           attempts,
           fallbackUsed: "premium_scraper",
         };

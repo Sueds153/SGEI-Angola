@@ -334,17 +334,46 @@ function extractFromJsonLd(html: string): Partial<VintedItem> {
       const match = tag.match(/<script[^>]*>([\s\S]*)<\/script>/i);
       if (match?.[1]) {
         const ld = JSON.parse(match[1]);
+        const items = Array.isArray(ld) ? ld : [ld];
         
-        if (ld['@type'] === 'Product') {
-          return {
-            title: ld.name,
-            price: ld.price ? { amount: String(ld.price.price), currency_code: ld.price.currency } : undefined,
-            images: ld.image ? {
-              url: ld.image,
-              full_size_url: ld.image,
-              thumbnails: Array.isArray(ld.image) ? ld.image : [ld.image],
-            } : undefined,
-          };
+        for (const item of items) {
+          if (item['@type'] === 'Product' || item['@type'] === 'IndividualProduct') {
+            let extractedPrice: { amount: string; currency_code: 'EUR' } | undefined;
+
+            if (item.offers) {
+              const offers = Array.isArray(item.offers) ? item.offers[0] : item.offers;
+              const p = parseFloat(String(offers.price || offers.lowPrice || '0'));
+              if (p > 0) {
+                extractedPrice = {
+                  amount: p.toFixed(2),
+                  currency_code: (offers.priceCurrency || 'EUR').toUpperCase() as 'EUR',
+                };
+              }
+            } else if (item.price) {
+              const p = typeof item.price === 'object' ? parseFloat(String(item.price.price || item.price.amount || '0')) : parseFloat(String(item.price));
+              if (p > 0) {
+                extractedPrice = {
+                  amount: p.toFixed(2),
+                  currency_code: 'EUR',
+                };
+              }
+            }
+
+            const images = item.image ? {
+              url: Array.isArray(item.image) ? item.image[0] : (typeof item.image === 'string' ? item.image : item.image.url || ''),
+              full_size_url: Array.isArray(item.image) ? item.image[0] : (typeof item.image === 'string' ? item.image : item.image.url || ''),
+              thumbnails: Array.isArray(item.image) ? item.image : [typeof item.image === 'string' ? item.image : item.image.url || ''],
+            } : undefined;
+
+            const brand = item.brand?.name || (typeof item.brand === 'string' ? item.brand : '');
+
+            return {
+              title: item.name,
+              price: extractedPrice,
+              images,
+              brand_title: brand,
+            };
+          }
         }
       }
     }
@@ -381,20 +410,24 @@ export function parseVintedHtml(html: string, itemId: string): VintedItem | null
 
     // Fallback 1: JSON-LD
     const jsonLd = extractFromJsonLd(html);
-    if (jsonLd.title) {
+    if (jsonLd.title && jsonLd.price && parseFloat(jsonLd.price.amount) > 0) {
       console.log(`[Vinted Parser] Produto extraído via JSON-LD: ${jsonLd.title}`);
+      const baseNum = parseFloat(jsonLd.price.amount);
+      const fee = Number((0.70 + baseNum * 0.05).toFixed(2));
+      const totalNum = Number((baseNum + fee).toFixed(2));
+
       return {
         id: parseInt(itemId),
         title: jsonLd.title || 'Item Vinted',
         images: jsonLd.images || { url: '', full_size_url: '', thumbnails: [] },
-        price: jsonLd.price || { amount: '0', currency_code: 'EUR' },
+        price: jsonLd.price,
         discount: null,
-        brand_title: '',
+        brand_title: jsonLd.brand_title || '',
         size_title: '',
         status: 'new_with_tags',
         user: { id: 0, login: '', feedback_reputation: 0 },
-        service_fee: { amount: '0', currency_code: 'EUR' },
-        total_price: { amount: '0', currency_code: 'EUR' },
+        service_fee: { amount: fee.toFixed(2), currency_code: 'EUR' },
+        total_price: { amount: totalNum.toFixed(2), currency_code: 'EUR' },
       };
     }
 
