@@ -51,7 +51,15 @@ function extractFromJinaAIText(text: string): VintedItem | null {
       }
     }
     
-    // Se não achou no formato #, procura na URL final
+    // Se não achou no formato #, procura no cabeçalho "Title:" do Jina AI
+    if (!title) {
+      const titleHeaderMatch = text.match(/^Title:\s*(.+?)(?:\s*-\s*Vinted)?$/im);
+      if (titleHeaderMatch?.[1]) {
+        title = titleHeaderMatch[1].trim();
+      }
+    }
+
+    // Se ainda não achou, procura na URL final
     if (!title) {
       const urlMatch = text.match(/Final URL: https:\/\/[^\/]+\/items\/\d+-([^\n]+)/);
       if (urlMatch?.[1]) {
@@ -390,15 +398,24 @@ export function parseVintedHtml(html: string, itemId: string): VintedItem | null
   }
 
   try {
-    // NOVO: Tenta detectar se é texto do Jina AI (markdown)
-    const isJinaAI = html.includes('![') && html.includes('](') && !html.includes('<html');
+    // Deteta se é texto do Jina AI (markdown) — mesmo sem imagens inline
+    // O Jina AI retorna texto com "Title:", "URL Source:", "Final URL:" ou "Markdown Content:"
+    // Ou texto simples sem tags HTML
+    const isJinaAI = !html.includes('<html') && !html.includes('<!DOCTYPE') && (
+      html.includes('Markdown Content:') ||
+      html.includes('URL Source:') ||
+      html.includes('Final URL:') ||
+      html.includes('Title:') ||
+      (html.includes('€') && !html.includes('<script'))
+    );
     if (isJinaAI) {
       const jinaResult = extractFromJinaAIText(html);
       if (jinaResult) {
         jinaResult.id = parseInt(itemId);
-        console.log(`[Vinted Parser] Produto extraído via Jina AI: ${jinaResult.title}`);
+        console.log(`[Vinted Parser] Produto extraído via Jina AI: ${jinaResult.title} (preço: ${jinaResult.price.amount} EUR)`);
         return jinaResult;
       }
+      console.warn('[Vinted Parser] Jina AI text detetado mas sem dados extraíveis');
     }
     
     // Tenta __NEXT_DATA__ primeiro (para HTML real)

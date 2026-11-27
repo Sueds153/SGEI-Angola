@@ -194,7 +194,9 @@ export async function resolveAndScrapeUrl(rawInput: string): Promise<ResolvedPro
             if (item.offers) {
               const offers = Array.isArray(item.offers) ? item.offers[0] : item.offers;
               const p = parseFloat(String(offers.price || offers.lowPrice || "0"));
-              if (p > 0 && !price) {
+              // Para Vinted: rejeita preços abaixo de 1 EUR (evita capturar taxa de serviço 0,70 €)
+              const minPrice = platform.key === "VINTED" ? 1 : 0;
+              if (p > minPrice && !price) {
                 price = p;
                 if (offers.priceCurrency) currency = offers.priceCurrency.toUpperCase();
               }
